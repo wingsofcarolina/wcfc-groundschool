@@ -19,7 +19,7 @@ footer {
   left: 0;
   bottom: 0;
   width: 100%;
-  background-color: rgba(40, 90, 149, 0.05);
+  background-color: rgb(233, 238, 243);
   color: black;
   text-align: center;
 	border-top: 2px solid rgba(40, 90, 149, 0.2);

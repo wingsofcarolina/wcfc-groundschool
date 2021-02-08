@@ -56,7 +56,6 @@
 			notifier.danger('Retrieve of class index failed.');
 		} else {
 			data = await response.json();
-			console.log(data);
 		}
 	}
 

@@ -5,10 +5,6 @@
   export let section;
   export let items;
 
-  onMount(async () => {
-    console.log('Items : ', items);
-  });
-
 </script>
 
 
@@ -40,8 +36,8 @@
   margin-top: 25px;
   margin-bottom: 40px;
   max-width: 250px;
-  border-color: rgba(40, 90, 149, 1);
-  background-color: rgba(40, 90, 149, 1);
+  border-color: rgb(40, 90, 149);
+  background-color: rgb(40, 90, 149);
   border-radius: 3px;
   margin: 0 auto;
 }
