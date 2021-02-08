@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -20,10 +21,13 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -40,6 +44,8 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.DownloadBuilder;
+import com.dropbox.core.v2.files.ListFolderBuilder;
+import com.dropbox.core.v2.files.ListFolderResult;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 
@@ -93,8 +99,6 @@ public class GsResource {
 	@Path("index")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response test() throws DbxApiException, DbxException, IOException, CsvException {
-		StringBuffer sb = new StringBuffer();
-
         // First, get the root index
 		if (rootIndex == null) {
 			rootIndex = getIndex("/", "index.csv", "root");
@@ -154,12 +158,40 @@ public class GsResource {
 		if (cache.hasEntry(name)) {
 			bytes = cache.get(name);
 		} else {
+			LOG.info("Fetching \"{}\" from Dropbox, not found in cache", file);
 			bytes = dbFetch(path, file);
 			cache.put(name, bytes);
 		}
 		
         ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
         return Response.ok().type("application/pdf").entity(inputStream).build();
+	}
+	
+	@GET
+	@Path("refresh")
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response verify(@DefaultValue("") @QueryParam("challenge") String challenge) throws DbxException, IOException, CsvException {
+		LOG.info("Challenge from Dropbox received, responding");
+		LOG.info("Challenge : {}", challenge);
+		return Response.ok().header("X-Content-Type-Options", "nosniff").entity(challenge).build();
+	}
+	
+	@POST
+	@Path("refresh")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response refresh(Map<Object, Object> request) throws DbxException, IOException, CsvException {
+		LOG.info("Refresh requested at : {}", new Date());
+		LOG.info("Request : {}", request);
+		
+		ListFolderBuilder listFolderBuilder = client.files().listFolderBuilder(root);
+		ListFolderResult result = listFolderBuilder.withRecursive(true).start();
+		LOG.info(result.toString());
+
+		cache.clear();
+		rootIndex = getIndex("/", "index.csv", "root");
+		
+		return Response.ok().build();
 	}
 	
 	@POST

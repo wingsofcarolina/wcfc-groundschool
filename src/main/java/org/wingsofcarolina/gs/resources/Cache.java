@@ -40,4 +40,7 @@ public class Cache {
 		return result.getBytes();
 	}
 
+	public void clear() {
+		cache.clear();
+	}
 }
