@@ -32,7 +32,7 @@ logging:
 
   # Logger-specific levels.
   loggers:
-    "org.wcfc.learning": ${LOGLEVEL!'INFO'}
+    "org.wingsofcarolina.gs": ${LOGLEVEL!'INFO'}
     
   appenders:
       - type: console
