@@ -39,5 +39,5 @@ fi
 if [ "$1" == "/bin/bash" ]; then
   exec /bin/sh
 else
-  exec java ${DEBUG_ARGS} -jar planez-server.jar server configuration.ftl
+  exec java ${DEBUG_ARGS} -jar groundschool.jar server configuration.ftl
 fi
