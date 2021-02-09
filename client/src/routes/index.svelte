@@ -5,38 +5,6 @@
 	import Section from "../components/Section.svelte";
 	import Handout from "../components/Handout.svelte";
 
-	var privateList = [
-		{ url : 'private/PVTSYLAB 1-2021 Zoom class with 2 free (16 classes) (1).pdf',
-		         title : "Private Pilot Course Syllabus" },
-		{ url : 'private/2. Handout - Grades, Certificates, FAA Testing rev 1-20.pdf',
-					   title : "Grades, Certificates, FAA Testing" },
-		{ url : 'private/3. General Aviation Safety.pdf',
-						 title : "General Aviation Safety" },
-		{ url : 'private/4. Lift Generation and the Downwash Field.pdf',
-		         title : "Lift Generation and the Downwash Field" },
-		{ url : 'private/5. A Physical Description of Flight.pdf',
-		         title : "A Physical Description of Flight" },
-		{ url : 'private/6. Risk assessment matrix.pdf',
-						 title : "Risk Assessment Matrix" },
-		{ url : 'private/7. PIOs - 5-2013.pdf',
-		         title : "PIOs" },
-		{ url : 'private/Private Ground School Quiz #4 - 1-2020.doc',
-		         title : "Private Ground School Quiz" }
-	];
-
-	var instrumentList = [
-		{ url : 'instrument/1. IFR Syllabus 2021 Zoom Version (12 classes).pdf',
-		         title : "Instrument Pilot Course Syllabus" },
-		{ url : 'instrument/3. General Aviation Safety.pdf',
-		         title : "General Aviation Safety" },
-		{ url : 'instrument/4. GA vs Commercial Safety compared Revision 9-2020.pdf',
-		         title : "GA vs Commercial Safety Compared" },
-		{ url : 'instrument/NOTAM_Search_User_Guide_V32.pdf',
-		         title : "NOTAM Search User Guide" }
-	];
-
-	var commercialList = [];
-
 	var data = null;
 
 	onMount(async () => {

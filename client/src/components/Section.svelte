@@ -5,6 +5,15 @@
   export let section;
   export let items;
 
+  let maxLesson = 0;
+
+  onMount(async () => {
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].lesson > maxLesson)
+        maxLesson = items[i].lesson;
+    }
+  });
+
 </script>
 
 
@@ -13,8 +22,15 @@
   <hr class="highlight">
 
   <div class="handoutlist">
-    {#each items as item}
-      <Handout path={item.path} title={item.label} />
+    {#each {length: maxLesson+1} as _, i }
+      {#if i != 0}
+        <div class="subtitle">Class # {i}</div>
+      {/if}
+      {#each items as item}
+        {#if item.lesson == i}
+          <Handout path={item.path} title={item.label} />
+        {/if}
+      {/each}
     {/each}
   </div>
 </div>
@@ -27,6 +43,13 @@
 .title {
   font-size: 2em;
   text-align: center;
+}
+.subtitle {
+  font-size: 1.2em;
+  font-weight: 550;
+  color: rgb(40, 90, 149);
+  text-align: center;
+  margin-top: 20px;
 }
 .handoutlist {
   margin-left: 10px;

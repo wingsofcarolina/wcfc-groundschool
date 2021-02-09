@@ -52,7 +52,7 @@ public class GsService extends Application<GsConfiguration> {
 		env.jersey().setUrlPattern("/api/*");
 		
         // Set up Slack communications
-        Slack slack = new Slack(config);
+        new Slack(config);
 
         // Let those who care know we started
 		Slack.instance().sendString(Slack.Channel.NOTIFY, "Groundschool server started.");

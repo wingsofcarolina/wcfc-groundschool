@@ -45,11 +45,16 @@ import com.dropbox.core.v2.files.DownloadBuilder;
 import com.dropbox.core.v2.files.ListFolderBuilder;
 import com.dropbox.core.v2.files.ListFolderResult;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wingsofcarolina.gs.common.Slack;
+import org.wingsofcarolina.gs.model.DataModel;
+import org.wingsofcarolina.gs.model.DirectoryNode;
+import org.wingsofcarolina.gs.model.DocumentNode;
+import org.wingsofcarolina.gs.model.Node;
 import org.wingsofcarolina.gs.GsConfiguration;
 
 /**
@@ -63,7 +68,7 @@ public class GsResource {
 	private static String versionOverride = null;
 	private DateTimeFormatter dateFormatGmt;
 	private DbxClientV2 client;
-	private Object rootIndex = null;
+	private DataModel model = null;
 	
     private static final String ACCESS_TOKEN = "REDACTED";
     private static final String root = "/WCFC-Groundschool";
@@ -97,12 +102,37 @@ public class GsResource {
 	@Path("index")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response test() throws DbxApiException, DbxException, IOException, CsvException {
-        // First, get the root index
-		if (rootIndex == null) {
-			rootIndex = getIndex("/", "index.csv", "root");
+		if (model == null) {
+			model = loadDataModel();
 		}
-    	
-        return Response.ok().entity(rootIndex).build();
+		
+        return Response.ok().entity(model).build();
+	}
+	
+	private DataModel loadDataModel() {
+		DataModel model = null;
+		Index rootIndex = null;
+
+		rootIndex = getIndex("/", "index.csv", "root");
+		
+		// Iterate over all root index children, knowing 
+		// they are all directories
+		model = new DataModel();
+		for (Index idx : rootIndex.getChildren()) {
+			Node node = new DirectoryNode(idx.getPath(), idx.getLabel());
+			model.addChild(node);
+			
+			for (Index entry : idx.getChildren()) {
+				node.addChild(new DocumentNode(entry.getPath(),
+						entry.getLabel(), entry.getLesson(), entry.getLevel()));
+			}
+		}
+		
+		return model;
+	}
+	
+	public int getRandomNumber(int min, int max) {
+	    return (int) ((Math.random() * (max - min)) + min);
 	}
 	
 	private Index getIndex(String path, String file, String label) {
@@ -116,10 +146,19 @@ public class GsResource {
 
 			index = new Index(path, label);
 			for (String[] entry : list) {
-				if (entry[2].contentEquals("dir")) {
-					index.addChild(getIndex(entry[0], "/index.csv", entry[1]));
+				if (entry.length == 5) { 
+					if (entry[4].contentEquals("dir")) {
+						Index idx = getIndex(entry[2], "/index.csv", entry[3]);
+						idx.setDirectory();
+						index.addChild(idx);
+					} else {
+						Index idx = new Index(path + "/" + entry[2], entry[3]);
+						idx.setDocument();
+						index.addChild(idx);
+					}
 				} else {
-					index.addChild(new Index(path + "/" + entry[0], entry[1]));
+					LOG.error("Malformed line from CSV file, incorrect number of fields");
+					Slack.instance().sendString(Slack.Channel.NOTIFY, "Malformed line from CSV file, incorrect number of fields");
 				}
 			}
 		} catch (IOException | CsvException e) {
@@ -147,9 +186,11 @@ public class GsResource {
 	
 	public List<String[]> parseCSV(byte[] bytes) throws IOException, CsvException {
 		Reader reader = new InputStreamReader(new ByteArrayInputStream(bytes));
-	    CSVReader csvReader = new CSVReader(reader);
-	    List<String[]> list;;
-	    list = csvReader.readAll();
+		CSVReader csvReader = new CSVReaderBuilder(reader)
+                // Skip the header
+                .withSkipLines(1)
+                .build();
+	    List<String[]> list = csvReader.readAll();
 	    reader.close();
 	    csvReader.close();
 		return list;
@@ -204,7 +245,7 @@ public class GsResource {
 		LOG.info(result.toString());
 
 		cache.clear();
-		rootIndex = getIndex("/", "index.csv", "root");
+		model = loadDataModel();
 		
 		return Response.ok().build();
 	}
