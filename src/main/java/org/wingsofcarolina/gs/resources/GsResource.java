@@ -8,6 +8,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -20,6 +24,8 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -27,6 +33,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -44,6 +52,7 @@ import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.DownloadBuilder;
 import com.dropbox.core.v2.files.ListFolderBuilder;
 import com.dropbox.core.v2.files.ListFolderResult;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
@@ -70,6 +79,7 @@ public class GsResource {
 	private DbxClientV2 client;
 	private DataModel model = null;
 	
+	private static final String APPSECRET = "REDACTED";
     private static final String ACCESS_TOKEN = "REDACTED";
     private static final String root = "/WCFC-Groundschool";
     private static final Cache cache = Cache.instance();
@@ -233,7 +243,17 @@ public class GsResource {
 	@Path("refresh")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response refresh(Map<Object, Object> request) throws DbxException, IOException, CsvException {
+	public Response refresh(@Context HttpHeaders httpheaders,
+			Map<Object, Object> request) throws DbxException, IOException, CsvException {
+		
+		// Validate the signature if we are in PROD mode
+		if (config.getMode().equals("PROD")) {
+			String signature = httpheaders.getHeaderString("X-Dropbox-Signature");
+			LOG.info("DB HMAC : {}", signature);
+			if (signature == null || signature.isEmpty()) {
+				Response.status(404).build();
+			}
+		}
 		ZoneId zoneId = ZoneId.of("US/Eastern");
 		ZonedDateTime now = LocalDateTime.now().atZone(zoneId);
 		LOG.info("Refresh requested at : {}", now);
