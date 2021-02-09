@@ -19,28 +19,39 @@ import org.wingsofcarolina.gs.GsConfiguration;
 public class Slack {
 	private static final Logger LOG = LoggerFactory.getLogger(Slack.class);
 	
+	public static enum Channel { NOTIFY, CONTACT };
+	
 	private static Slack instance = null;
 
-	// WCFC #quiz channel : REDACTED
-	// Gs.co #notification channel : REDACTED
-	// Gs.co #contact channel : TAYTPJJF5/B01LH95DHRT/lo9pphg7Rs80fmCHatAGmPMR
-	WebHookToken token;
+	WebHookToken contact;
+	WebHookToken notification;
 
 	private GsConfiguration config;
 	
 	public Slack(GsConfiguration config) {
-		String[] tokenParts = config.getSlackTarget().split("/");
+		String[] tokenParts = config.getSlackNotify().split("/");
 		if (tokenParts.length == 3) {
-		token = WebHookToken.builder()
-                .partT(tokenParts[0])
-                .partB(tokenParts[1])
-                .partX(tokenParts[2])
-                .build();
+			notification = WebHookToken.builder()
+	                .partT(tokenParts[0])
+	                .partB(tokenParts[1])
+	                .partX(tokenParts[2])
+	                .build();
+		} else {
+			throw new RuntimeException("Bad Slack #notification token, shutting down!");
+		}
+	
+		tokenParts = config.getSlackContact().split("/");
+		if (tokenParts.length == 3) {
+			contact = WebHookToken.builder()
+	                .partT(tokenParts[0])
+	                .partB(tokenParts[1])
+	                .partX(tokenParts[2])
+	                .build();
+		} else {
+			throw new RuntimeException("Bad Slack #contact token, shutting down!");
+		}
 		Slack.instance = this;
 		this.config = config;
-		} else {
-			throw new RuntimeException("Bad Slack token, shutting down!");
-		}
 	}
 	
 	public static Slack instance() {
@@ -50,7 +61,7 @@ public class Slack {
 		return Slack.instance;
 	}
 	
-	public void sendString(String msg) {
+	public void sendString(Channel channel, String msg) {		
 		if (msg != null) {
 			LOG.debug("{}", msg);
 			if (config.getMode().equals("PROD") ) {
@@ -61,7 +72,7 @@ public class Slack {
 		                .iconEmoji(SlackMarkdown.EMOJI.decorate("smile"))
 		                .text(msg)
 		                .build();
-				ResponseCode response = SlackWebHookService.with(token)
+				ResponseCode response = SlackWebHookService.with(getToken(channel))
 	                    .sendMessage(message);
 				if (response.name().equals("ok")) {
 					LOG.error("Failed to send slack message : {}", response);
@@ -70,11 +81,11 @@ public class Slack {
 		}
 	}
 
-	public boolean sendMessage(MessageRequest msg) {
+	public boolean sendMessage(Channel channel, MessageRequest msg) {
 		if (msg != null) {
 			LOG.info("Sending : {}", msg);
 			if (config.getMode().equals("PROD") ) {
-				ResponseCode response = SlackWebHookService.with(token).sendMessage(msg);
+				ResponseCode response = SlackWebHookService.with(getToken(channel)).sendMessage(msg);
 				if (response.name().equals("ok")) {
 					LOG.error("Failed to send slack message : {}", response);
 				} else {
@@ -83,5 +94,17 @@ public class Slack {
 			}
 		}
 		return false;
+	}
+	
+	private WebHookToken getToken(Channel channel) {
+		WebHookToken token;
+		
+		// Select the desired channel.
+		switch (channel) {
+			case NOTIFY : token = notification; break;
+			case CONTACT: token = contact; break;
+			default: token = notification; break;
+		}
+		return token;
 	}
 }

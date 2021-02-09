@@ -3,8 +3,9 @@
 # Operational mode, DEV or PROD
 mode: ${MODE!'PROD'}
 
-# Slack target channel (default is Planez #notify channel)
-slackTarget: ${SLACK!'TAYTPJJF5/B01LH95DHRT/lo9pphg7Rs80fmCHatAGmPMR'}
+# Slack channels
+slackNotify: ${SLACK!'REDACTED/REDACTED'}     # Targets #notification
+slackContact: ${SLACK!'REDACTED/REDACTED'}    # Targets #contact
 
 # Configure ports used by DropWizard
 server:

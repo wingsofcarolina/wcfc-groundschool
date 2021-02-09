@@ -1,8 +1,5 @@
 package org.wingsofcarolina.gs;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.dropwizard.Configuration;
@@ -11,7 +8,8 @@ public class GsConfiguration extends Configuration {
 	private static GsConfiguration instance = null;
 
 	@JsonProperty String mode;
-	@JsonProperty String slackTarget;
+	@JsonProperty String slackNotify;
+	@JsonProperty String slackContact;
 
 	public GsConfiguration() {
 		GsConfiguration.instance = this;
@@ -21,9 +19,13 @@ public class GsConfiguration extends Configuration {
 		return instance;
 	}
 
-    public String getSlackTarget() {
-        return slackTarget;
-    }
+	public String getSlackNotify() {
+		return slackNotify;
+	}
+
+	public String getSlackContact() {
+		return slackContact;
+	}
 
 	public String getMode() {
 		return mode;

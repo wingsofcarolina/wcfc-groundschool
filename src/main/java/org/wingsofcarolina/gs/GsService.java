@@ -51,6 +51,12 @@ public class GsService extends Application<GsConfiguration> {
 	public void run(GsConfiguration config, Environment env) throws Exception {
 		env.jersey().setUrlPattern("/api/*");
 		
+        // Set up Slack communications
+        Slack slack = new Slack(config);
+
+        // Let those who care know we started
+		Slack.instance().sendString(Slack.Channel.NOTIFY, "Groundschool server started.");
+
 		// Get the startup date/time in GMT
 		SimpleDateFormat dateFormatGmt = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
 		dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -62,9 +68,6 @@ public class GsService extends Application<GsConfiguration> {
 		if (config.getMode().contentEquals("PROD")) {
 			env.jersey().register(new RuntimeExceptionMapper());
 		}
-		
-        // Set up Slack communications
-        Slack slack = new Slack(config);
 
 		// Now set up the API
 		env.jersey().register(new GsResource(config));
