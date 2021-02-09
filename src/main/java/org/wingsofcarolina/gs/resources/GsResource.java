@@ -105,30 +105,43 @@ public class GsResource {
         return Response.ok().entity(rootIndex).build();
 	}
 	
-	private Index getIndex(String path, String file, String label) throws DbxException, IOException, CsvException {
+	private Index getIndex(String path, String file, String label) {
 		byte[] bytes;
+		Index index = null;
 
 		bytes = dbFetch(path, file);
-    	List<String[]> list = parseCSV(bytes);
-    	
-    	Index index = new Index(path, label);
-    	for (String[] entry : list) {
-    		if (entry[2].contentEquals("dir")) {
-    			index.addChild(getIndex(entry[0], "/index.csv", entry[1]));
-    		} else {
-    			index.addChild(new Index(path + "/" + entry[0], entry[1]));
-    		}
-    	}
-    	
-    	return index;
+		List<String[]> list;
+		try {
+			list = parseCSV(bytes);
+
+			index = new Index(path, label);
+			for (String[] entry : list) {
+				if (entry[2].contentEquals("dir")) {
+					index.addChild(getIndex(entry[0], "/index.csv", entry[1]));
+				} else {
+					index.addChild(new Index(path + "/" + entry[0], entry[1]));
+				}
+			}
+		} catch (IOException | CsvException e) {
+			LOG.error("There seems to be a serious problem with the CSV file : {}", path + "/" + file);
+			Slack.instance().sendString(Slack.Channel.NOTIFY,
+					"There seems to be a serious problem with the CSV file : " + path + "/" + file);
+		}
+
+		return index;
 	}
 	
-	public byte[] dbFetch(String path, String file) throws DbxException, IOException {
+	public byte[] dbFetch(String path, String file) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         String target = root + path + file;
     	DownloadBuilder metadata = client.files().downloadBuilder(target);
-    	metadata.download(out);
-    	out.close();
+    	try {
+			metadata.download(out);
+	    	out.close();
+		} catch (DbxException | IOException e) {
+			LOG.error("Unable to download {} from Dropbox", target);
+			Slack.instance().sendString(Slack.Channel.NOTIFY, "Unable to download '" + target + "' from Dropbox; investigate why." );
+		}
     	return out.toByteArray();
 	}
 	
