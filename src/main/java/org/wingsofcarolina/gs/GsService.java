@@ -11,9 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.wingsofcarolina.gs.common.RuntimeExceptionMapper;
-import org.wingsofcarolina.gs.common.Slack;
 import org.wingsofcarolina.gs.healthcheck.MinimalHealthCheck;
 import org.wingsofcarolina.gs.resources.GsResource;
+import org.wingsofcarolina.gs.slack.Slack;
+
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;

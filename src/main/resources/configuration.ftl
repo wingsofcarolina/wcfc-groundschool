@@ -3,6 +3,9 @@
 # Operational mode, DEV or PROD
 mode: ${MODE!'PROD'}
 
+# Authentication, ON or OFF
+auth: ${AUTH!'OFF'}
+
 # Slack channels
 slackNotify: ${SLACK!'REDACTED/REDACTED'}     # Targets #notification
 slackContact: ${SLACK!'REDACTED/REDACTED'}    # Targets #contact
@@ -18,10 +21,10 @@ server:
     requestLog:
         appenders:
           - type: file
-            currentLogFilename: log/planez-server-http.log
+            currentLogFilename: log/server-http.log
             threshold: ALL
             archive: true
-            archivedLogFilenamePattern: log/planez-server-%i-%d-http.log
+            archivedLogFilenamePattern: log/server-%i-%d-http.log
             maxFileSize: 500MB
             archivedFileCount: 5
             timeZone: UTC
@@ -41,10 +44,10 @@ logging:
         timeZone: UTC
         target: stdout
       - type: file
-        currentLogFilename: ./log/planez-server.log
+        currentLogFilename: ./log/server.log
         threshold: ALL
         archive: true
-        archivedLogFilenamePattern: ./log/planez-server-%i-%d.log
+        archivedLogFilenamePattern: ./log/server-%i-%d.log
         maxFileSize: 500MB
         archivedFileCount: 5
         timeZone: UTC

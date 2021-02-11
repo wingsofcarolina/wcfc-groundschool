@@ -23,10 +23,18 @@ public class Index {
 		return lesson;
 	}
 
+	public void setLesson(Integer lesson) {
+		this.lesson = lesson;
+	}
+	
 	public Integer getLevel() {
 		return level;
 	}
 
+	public void setLevel(Integer level) {
+		this.level = level;
+	}
+	
 	public String getPath() {
 		return path;
 	}

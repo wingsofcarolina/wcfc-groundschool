@@ -2,18 +2,39 @@
 	import { onMount } from 'svelte'
 	import { goto } from '@sapper/app'
 	import { notifier } from '@beyonk/svelte-notifications'
+	import { user } from '../store.js'
 	import Section from "../components/Section.svelte";
 	import Handout from "../components/Handout.svelte";
 
 	var data = null;
 
 	onMount(async () => {
+		getUser();
 		cookieWarning();
-		getIndex();
 	});
 
-	const getIndex = async () => {
-		const response = await fetch('/api/index', {
+	const mockUser = async () => {
+		const response = await fetch('/api/mock', {
+			method: "get",
+			withCredentials: true,
+			headers: {
+				'Accept': 'application/json'
+			}
+		});
+		console.log("Mock response : ", response);
+		if (!response.ok) {
+			if (response.status == 404) {
+				// User was simpoly not found, therefore not authenticated
+				user.set(null);
+			} else {
+				// Otherwise, something else went wrong
+				notifier.danger('Retrieve of mock failed.');
+			}
+		}
+	}
+
+	const getUser = async () => {
+		const response = await fetch('/api/user', {
 			method: "get",
 			withCredentials: true,
 			headers: {
@@ -21,9 +42,16 @@
 			}
 		});
 		if (!response.ok) {
-			notifier.danger('Retrieve of class index failed.');
+			if (response.status == 404) {
+				// User was simpoly not found, therefore not authenticated
+				user.set(null);
+			} else {
+				// Otherwise, something else went wrong
+				notifier.danger('Retrieve of user information failed.');
+			}
 		} else {
-			data = await response.json();
+			var tmp = await response.json();
+			user.set(tmp);
 		}
 	}
 
@@ -52,30 +80,73 @@
 </script>
 
 <svelte:head>
-	<title>WCFC Ground School Materials</title>
+	<title>WCFC Ground School</title>
 </svelte:head>
 
-<div class="outer">
-	<div class="inner">
-		{#if data}
-			{#each data.children as section}
-				<Section section={section.label} items={section.children} />
-			{/each}
-		{/if}
-	</div>
-</div>
+	<div class="outer">
+		<div class="inner">
+			<div class=title>Welcome!</div>
+			<hr class="highlight">
 
-<div id='cookie-banner' class='cookie-banner'>
-<p>
-		By using this website, you agree to our
-		<a href='about'>cookie policy</a>
-	</p>
-<button class='close' on:click={acceptCookie.bind()}>&times;</button>
-</div>
+			<center>
+			<div class="narrow">
+				<p>Here you'll find all the supporting handouts and other material
+					for the WCFC Ground Schools. This information is being made
+					available initially due to having to take the classes online, but
+					this has proven to be a orgainzational convenience in general so
+					will be continued. </p>
+
+				<p>To access this material you will be asked to join the WCFC-Groundschool
+					Slack workspace (for more information on Slack go to <a href="https://slack.com">slack.com</a>)
+					since this website uses Slack to authenticate that you are a paid member
+					of the groundschool classes. That workspace will also be used to communicate
+					and coordinate between the students and those managing the class.
+				</p>
+
+				<p>The links in the navigation bar above will take you to the various published
+					class materials. If you have questions about the material use either the
+					"contact" page referenced above in the navigation bar, or go into the Slack
+					workspace and ask your questions there.
+				</p>
+
+				<p>You may bookmark the specific class page and can jump directly to those
+					materials when you wish, for your convenience.
+				</p>
+			</div>
+		  </center>
+		</div>
+	</div>
+
+	<div id='cookie-banner' class='cookie-banner'>
+	<p>
+			By using this website, you agree to our
+			<a href='about'>cookie policy</a>
+		</p>
+		<button class='close' on:click={acceptCookie.bind()}>&times;</button>
+	</div>
 
 <style>
 button {
 	text-align: center;
+}
+.narrow p {
+	width: 70%;
+	text-align: left;
+	font-size: 1.2em;
+}
+.title {
+  font-size: 2em;
+  text-align: center;
+}
+.highlight {
+  height: 4px;
+  margin-top: 25px;
+  margin-bottom: 40px;
+  width: 250px;
+  border-color: rgb(40, 90, 149);
+  background-color: rgb(40, 90, 149);
+  border-radius: 3px;
+  margin: 0 auto;
 }
 .outer {
   display: flex;

@@ -2,16 +2,17 @@ package org.wingsofcarolina.gs.resources;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -24,9 +25,8 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.CookieParam;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -34,8 +34,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
 import com.palantir.roboslack.api.MessageRequest;
@@ -51,20 +53,26 @@ import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.DownloadBuilder;
 import com.dropbox.core.v2.files.ListFolderBuilder;
+import com.dropbox.core.v2.files.ListFolderErrorException;
+import com.dropbox.core.v2.files.ListFolderGetLatestCursorResult;
 import com.dropbox.core.v2.files.ListFolderResult;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.dropbox.core.v2.paper.Cursor;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wingsofcarolina.gs.common.Slack;
 import org.wingsofcarolina.gs.model.DataModel;
 import org.wingsofcarolina.gs.model.DirectoryNode;
 import org.wingsofcarolina.gs.model.DocumentNode;
 import org.wingsofcarolina.gs.model.Node;
+import org.wingsofcarolina.gs.model.User;
+import org.wingsofcarolina.gs.slack.Slack;
+import org.wingsofcarolina.gs.slack.SlackAuthService;
 import org.wingsofcarolina.gs.GsConfiguration;
+import org.wingsofcarolina.gs.authentication.AuthUtils;
+import org.wingsofcarolina.gs.common.APIException;
 
 /**
  * @author dwight
@@ -73,20 +81,36 @@ import org.wingsofcarolina.gs.GsConfiguration;
 @Path("/")	// Note that this is actually accessed as /api due to the setUrPattern() call in OralService
 public class GsResource {
 	private static final Logger LOG = LoggerFactory.getLogger(GsResource.class);
+	
 	private static GsConfiguration config;
 	private static String versionOverride = null;
 	private DateTimeFormatter dateFormatGmt;
 	private DbxClientV2 client;
 	private DataModel model = null;
+
 	
 	private static final String APPSECRET = "REDACTED";
     private static final String ACCESS_TOKEN = "REDACTED";
     private static final String root = "/WCFC-Groundschool";
     private static final Cache cache = Cache.instance();
+    
+    // Slack credentials
+    private static final String CLIENT_ID = "REDACTED";
+    private static final String CLIENT_SECRET = "REDACTED";
+	private SlackAuthService slackAuth;
+
+	private AuthUtils authUtils;
+	private boolean authEnabled = false;
 
 	@SuppressWarnings("static-access")
 	public GsResource(GsConfiguration config) throws IOException {
 		this.config = config;
+		
+		// See if we have turned auth on
+		authEnabled = config.getAuth().equals("ON");
+		
+		// Get authorization utils object instance
+		authUtils = AuthUtils.instance();
 		
 		// Get the startup date/time format in GMT
 		dateFormatGmt = DateTimeFormatter.ofPattern("yyyy/MM/dd - HH:mm:ss z");
@@ -94,6 +118,9 @@ public class GsResource {
 		// Create Dropbox client
         DbxRequestConfig dbconfig = DbxRequestConfig.newBuilder("wcfc/groundschool").build();
         client = new DbxClientV2(dbconfig, ACCESS_TOKEN);
+        
+        // Create Slack authentication API service object
+        slackAuth = new SlackAuthService(CLIENT_ID, CLIENT_SECRET);
 	}
 
 	@GET
@@ -109,6 +136,33 @@ public class GsResource {
 	}
 	
 	@GET
+	@Path("user")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response user(@CookieParam("wcfc.gs.token") Cookie cookie) {
+        Map<String, Object> reply = new HashMap<String, Object>();
+
+        if (authEnabled) {
+	        User user = authUtils.getUserFromCookie(cookie);
+	        
+	        if (user != null) {
+		        reply.put("name", user.getName());
+		        reply.put("email", user.getEmail());
+		        reply.put("anonymous", false);
+		        
+		        return Response.ok().entity(reply).build();
+	        } else {
+	        	return Response.status(404).build();
+	        }
+		} else {
+	        reply.put("name", "Anonymous");
+	        reply.put("email", "nobody@wingsofcarolina.org");
+	        reply.put("anonymous", true);
+	        
+	        return Response.ok().entity(reply).build();
+		}
+	}
+	
+	@GET
 	@Path("index")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response test() throws DbxApiException, DbxException, IOException, CsvException {
@@ -119,7 +173,7 @@ public class GsResource {
         return Response.ok().entity(model).build();
 	}
 	
-	private DataModel loadDataModel() {
+	private DataModel loadDataModel() throws ListFolderErrorException, DbxException {
 		DataModel model = null;
 		Index rootIndex = null;
 
@@ -145,7 +199,7 @@ public class GsResource {
 	    return (int) ((Math.random() * (max - min)) + min);
 	}
 	
-	private Index getIndex(String path, String file, String label) {
+	private Index getIndex(String path, String file, String label) throws ListFolderErrorException, DbxException {
 		byte[] bytes;
 		Index index = null;
 
@@ -163,6 +217,8 @@ public class GsResource {
 						index.addChild(idx);
 					} else {
 						Index idx = new Index(path + "/" + entry[2], entry[3]);
+						idx.setLesson(Integer.valueOf(entry[0]));
+						idx.setLevel(Integer.valueOf(entry[1]));
 						idx.setDocument();
 						index.addChild(idx);
 					}
@@ -180,9 +236,11 @@ public class GsResource {
 		return index;
 	}
 	
-	public byte[] dbFetch(String path, String file) {
+	public byte[] dbFetch(String path, String file) throws ListFolderErrorException, DbxException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         String target = root + path + file;
+
+        // Then download the latest version
     	DownloadBuilder metadata = client.files().downloadBuilder(target);
     	try {
 			metadata.download(out);
@@ -191,7 +249,8 @@ public class GsResource {
 			LOG.error("Unable to download {} from Dropbox", target);
 			Slack.instance().sendString(Slack.Channel.NOTIFY, "Unable to download '" + target + "' from Dropbox; investigate why." );
 		}
-    	return out.toByteArray();
+    	
+    	return(out.toByteArray());
 	}
 	
 	public List<String[]> parseCSV(byte[] bytes) throws IOException, CsvException {
@@ -262,7 +321,11 @@ public class GsResource {
 
 		ListFolderBuilder listFolderBuilder = client.files().listFolderBuilder(root);
 		ListFolderResult result = listFolderBuilder.withRecursive(true).start();
-		LOG.info(result.toString());
+		LOG.info("Initial  : {}", result.toString());
+		while (result.getHasMore()) {
+			result = client.files().listFolderContinue(result.getCursor());
+			LOG.info("Continue : {}", result.toString());
+		}
 
 		cache.clear();
 		model = loadDataModel();
@@ -309,6 +372,47 @@ public class GsResource {
 				.build();
 
 		return msg;
+	}
+	
+	@GET
+	@Path("auth")
+	@Produces(MediaType.TEXT_HTML)
+	@SuppressWarnings("unchecked")
+	public Response auth(@QueryParam("code") String code) throws URISyntaxException, APIException {
+		LOG.info("Code : {}", code);
+		
+		Map<String, Object> details = slackAuth.authenticate(code);
+		Map<String, Object> user_details = (Map<String, Object>)details.get("authed_user");
+		
+		String user_id = (String) user_details.get("id");
+		String access_token = (String) user_details.get("access_token");
+		String team_id = (String) ((Map<String, Object>)details.get("team")).get("id");
+
+		Map<String, Object> identity = slackAuth.identity(access_token);
+		Map<String, String>userMap = (Map<String, String>) identity.get("user");
+		String name = userMap.get("name");
+		String email = userMap.get("email");
+		
+		User user = new User(name, email, user_id, team_id, access_token);
+		
+		// User authenticated and identified. Save the info.
+		NewCookie cookie = authUtils.generateCookie(user);
+		
+        return Response.seeOther(new URI("/")).cookie(cookie).build();
+	}
+	
+	@GET
+	@Path("mock")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response mock() throws URISyntaxException {
+
+		User user = new User("Dwight Frye", "dfrye@planez.co", "REDACTED", "REDACTED", "REDACTED");
+		
+		// User authenticated and identified. Save the info.
+		NewCookie cookie = authUtils.generateCookie(user);
+		
+        return Response.seeOther(new URI("/")).cookie(cookie).build();
 	}
 	
     private static URL url(String url) {

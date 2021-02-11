@@ -18,6 +18,8 @@
 </div>
 <div class="nav">
 	<div class="left"><a class:selected='{segment === undefined}' href='.'>home</a></div>
+  <div class="left"><a class:selected='{segment === "private"}' href='private'>private</a></div>
+  <div class="left"><a class:selected='{segment === "instrument"}' href='instrument'>instrument</a></div>
   <div class="left"><a class:selected='{segment === "contact"}' href='contact'>contact</a></div>
   <div class="left"><a class:selected='{segment === "about"}' href='about'>about</a></div>
   <NotificationDisplay />

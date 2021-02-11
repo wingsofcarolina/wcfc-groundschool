@@ -1,6 +1,5 @@
 <script>
 	import { goto } from '@sapper/app';
-	import { requestReload } from '../store.js'
 
 	export let status;
 	export let error;

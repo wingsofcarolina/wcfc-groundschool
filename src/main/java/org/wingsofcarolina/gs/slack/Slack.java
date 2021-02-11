@@ -1,14 +1,9 @@
-package org.wingsofcarolina.gs.common;
+package org.wingsofcarolina.gs.slack;
 
-import java.util.List;
-import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.palantir.roboslack.api.MessageRequest;
-import com.palantir.roboslack.api.attachments.Attachment;
-import com.palantir.roboslack.api.attachments.Attachment.Builder;
-import com.palantir.roboslack.api.attachments.components.Color;
 import com.palantir.roboslack.api.markdown.SlackMarkdown;
 import com.palantir.roboslack.webhook.api.model.WebHookToken;
 import com.palantir.roboslack.webhook.api.model.response.ResponseCode;

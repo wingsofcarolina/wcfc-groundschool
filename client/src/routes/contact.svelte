@@ -55,16 +55,21 @@
 	<title>Contact</title>
 </svelte:head>
 
-<h1>Contact</h1>
+<div class=title>Contact</div>
+<hr class="highlight">
 
-<p> Use the form below to send a message to the administrators of the Groundschool
-	server. We welcome messages, particulary if you see a problem that we might be
-	able to address. Reporting issues/problems aids us in creating a better service
-	for you and your fellow groundschool participants.
+<center>
+<div class="narrow">
+	<p> Use the form below to send a message to the administrators of the Groundschool
+		server. We welcome messages, particulary if you see a problem that we might be
+		able to address. Reporting issues/problems aids us in creating a better service
+		for you and your fellow groundschool participants.
 
-	The message is sent to a channel in the Groundschool Slack workspace where it
-	will be addressed by one of the administrators.
-</p>
+		The message is sent to a channel in the Groundschool Slack workspace where it
+		will be addressed by one of the administrators.
+	</p>
+</div>
+</center>
 
 <div class="section">
 	<div class="contact_block">
@@ -91,11 +96,29 @@
 </div>
 
 <style>
+.title {
+  font-size: 2em;
+  text-align: center;
+}
+.highlight {
+  height: 4px;
+  margin-top: 25px;
+  margin-bottom: 40px;
+  width: 250px;
+  border-color: rgb(40, 90, 149);
+  background-color: rgb(40, 90, 149);
+  border-radius: 3px;
+  margin: 0 auto;
+}
 .section {
   width: 100%;
   margin-bottom: 3em;
 }
-
+.narrow p {
+	width: 70%;
+	text-align: left;
+	font-size: 1.2em;
+}
 .contact_block {
   display: flex;
   justify-content: space-around;
