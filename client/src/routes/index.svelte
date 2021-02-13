@@ -90,28 +90,29 @@
 
 			<center>
 			<div class="narrow">
-				<p>Here you'll find all the supporting handouts and other material
-					for the WCFC Ground Schools. This information is being made
-					available initially due to having to take the classes online, but
-					this has proven to be a orgainzational convenience in general so
-					will be continued. </p>
 
-				<p>To access this material you will be asked to join the WCFC-Groundschool
-					Slack workspace (for more information on Slack go to <a href="https://slack.com">slack.com</a>)
-					since this website uses Slack to authenticate that you are a paid member
-					of the groundschool classes. That workspace will also be used to communicate
-					and coordinate between the students and those managing the class.
-				</p>
+				<p>Here you'll find all the supporting handouts and other material for
+				the WCFC Ground Schools.  </p>
 
-				<p>The links in the navigation bar above will take you to the various published
-					class materials. If you have questions about the material use either the
-					"contact" page referenced above in the navigation bar, or go into the Slack
-					workspace and ask your questions there.
-				</p>
+				<p>We are making this information available through this site to support
+				our online classes but if this proves useful we will continue when we
+				return to the classroom. </p>
 
-				<p>You may bookmark the specific class page and can jump directly to those
-					materials when you wish, for your convenience.
-				</p>
+				<p>To access this material you will be asked to join the
+				WCFC-Groundschool Slack workspace (for more information on Slack go to
+				slack.com) since this website uses Slack to authenticate that you are a
+				registered member of a groundschool class. That workspace will also be
+				used to communicate and coordinate between the students and those
+				managing the class. </p>
+
+				<p>The links in the navigation bar above will take you to the various
+				published class materials. If you have questions about the material use
+				either the "contact" page referenced above in the navigation bar or go
+				into the Slack workspace and ask your questions there. </p>
+
+				<p>You may bookmark your specific class page and can jump directly to
+				those materials when you wish, for your convenience. </p>
+
 			</div>
 		  </center>
 		</div>

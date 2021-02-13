@@ -206,7 +206,7 @@
 						<configuration>
 							<tasks>
 								<exec dir="./client" executable="/usr/local/bin/npx">
-									<arg line="sapper export --entry '/ contact login about'" />
+									<arg line="sapper export --entry '/ contact private private_reading instrument about'" />
 								</exec>
 								<delete dir="target/classes/assets" />
 								<copy todir="target/classes/assets">
