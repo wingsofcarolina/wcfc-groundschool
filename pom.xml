@@ -5,7 +5,7 @@
 
 	<groupId>org.wingsofcarolina</groupId>
 	<artifactId>groundschool</artifactId>
-	<version>1.0.4</version>
+	<version>1.0.5</version>
 	<packaging>jar</packaging>
 
 	<name>wcfc-groundschool</name>
@@ -206,7 +206,7 @@
 						<configuration>
 							<tasks>
 								<exec dir="./client" executable="/usr/local/bin/npx">
-									<arg line="sapper export --entry '/ contact private private_reading instrument about'" />
+									<arg line="sapper export --entry '/ contact private private_reading instrument instrument_reading login about'" />
 								</exec>
 								<delete dir="target/classes/assets" />
 								<copy todir="target/classes/assets">

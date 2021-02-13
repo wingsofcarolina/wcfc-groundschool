@@ -147,7 +147,7 @@ button {
   border-color: rgb(40, 90, 149);
   background-color: rgb(40, 90, 149);
   border-radius: 3px;
-  margin: 0 auto;
+	margin: 0px auto 50px auto;
 }
 .outer {
   display: flex;

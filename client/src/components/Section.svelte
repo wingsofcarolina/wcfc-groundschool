@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte'
+  import { goto } from '@sapper/app'
   import Handout from "../components/Handout.svelte";
 
   export let section;
@@ -14,16 +15,38 @@
     }
   });
 
+  function hasEntries(lesson) {
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].lesson == lesson)
+      {
+        console.log('Found a document in : ', i);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function requiredReading() {
+    switch (section) {
+      case "Private Class Materials" :
+        goto('private_reading');
+        break;
+      case "Instrument Class Materials" :
+        goto('instrument_reading');
+        break;
+      }
+  }
 </script>
 
 
 <div class="section">
   <div class=title>{section}</div>
+  <div class="internal_button" on:click={() => requiredReading()}>Required Reading</div>
   <hr class="highlight">
 
   <div class="handoutlist">
     {#each {length: maxLesson+1} as _, i }
-      {#if i != 0}
+      {#if i != 0  && hasEntries(i) == true}
         <div class="subtitle">Class # {i}</div>
       {/if}
       {#each items as item}
@@ -44,24 +67,31 @@
   font-size: 2em;
   text-align: center;
 }
+.internal_button {
+  font-size: 1.2em;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
 .subtitle {
   font-size: 1.2em;
   font-weight: 550;
   color: rgb(40, 90, 149);
-  text-align: center;
+  text-align: left;
   margin-top: 20px;
+  margin-left: 2.9em;
+  border-bottom: 2px solid rgb(40, 90, 149);
 }
 .handoutlist {
   margin-left: 10px;
 }
 .highlight {
   height: 4px;
-  margin-top: 25px;
-  margin-bottom: 40px;
   max-width: 250px;
   border-color: rgb(40, 90, 149);
   background-color: rgb(40, 90, 149);
   border-radius: 3px;
-  margin: 0 auto;
+  margin: 0px auto 50px auto;
 }
 </style>
