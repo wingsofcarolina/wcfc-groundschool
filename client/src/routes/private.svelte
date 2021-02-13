@@ -43,7 +43,12 @@
 			}
 		});
 		if (!response.ok) {
-			notifier.danger('Retrieve of class index failed.');
+			console.log('Response : ', response);
+			if (response.status == 401) {
+				goto('login');
+			} else {
+				notifier.danger('Retrieve of class index failed.');
+			}
 		} else {
 			data = await response.json();
 		}

@@ -165,7 +165,11 @@ public class GsResource {
 	@GET
 	@Path("index")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response test() throws DbxApiException, DbxException, IOException, CsvException {
+	public Response index(@CookieParam("wcfc.gs.token") Cookie cookie) throws DbxApiException, DbxException, IOException, CsvException, URISyntaxException {
+		if (cookie == null) {
+			// They have not been validated, so go demand they do it
+	        return Response.status(401).build();
+		}
 		if (model == null) {
 			model = loadDataModel();
 		}
