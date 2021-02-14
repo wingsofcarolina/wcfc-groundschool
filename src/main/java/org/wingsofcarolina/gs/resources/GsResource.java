@@ -21,6 +21,9 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -57,6 +60,9 @@ import com.dropbox.core.v2.files.ListFolderErrorException;
 import com.dropbox.core.v2.files.ListFolderGetLatestCursorResult;
 import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.paper.Cursor;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
@@ -88,7 +94,6 @@ public class GsResource {
 	private DbxClientV2 client;
 	private DataModel model = null;
 
-	
 	private static final String APPSECRET = "REDACTED";
     private static final String ACCESS_TOKEN = "REDACTED";
     private static final String root = "/WCFC-Groundschool";
@@ -101,9 +106,15 @@ public class GsResource {
 
 	private AuthUtils authUtils;
 	private boolean authEnabled = false;
+	
+	private ObjectMapper mapper;
+	private ReentrantLock lock = new ReentrantLock();
+	private int i = 0;
+
+	private com.slack.api.Slack slack;
 
 	@SuppressWarnings("static-access")
-	public GsResource(GsConfiguration config) throws IOException {
+	public GsResource(GsConfiguration config) throws IOException, ListFolderErrorException, DbxException {
 		this.config = config;
 		
 		// See if we have turned auth on
@@ -111,6 +122,9 @@ public class GsResource {
 		
 		// Get authorization utils object instance
 		authUtils = AuthUtils.instance();
+		
+		// For JSON serialization/deserialization
+		mapper = new ObjectMapper();
 		
 		// Get the startup date/time format in GMT
 		dateFormatGmt = DateTimeFormatter.ofPattern("yyyy/MM/dd - HH:mm:ss z");
@@ -121,6 +135,11 @@ public class GsResource {
         
         // Create Slack authentication API service object
         slackAuth = new SlackAuthService(CLIENT_ID, CLIENT_SECRET);
+        slack = com.slack.api.Slack.getInstance();
+
+        
+        // Kick off the initial load of the model
+        loadDataModel();
 	}
 
 	@GET
@@ -171,36 +190,56 @@ public class GsResource {
 	        return Response.status(401).build();
 		}
 		if (model == null) {
-			model = loadDataModel();
+			loadDataModel();
 		}
 		
         return Response.ok().entity(model).build();
 	}
 	
-	private DataModel loadDataModel() throws ListFolderErrorException, DbxException {
-		DataModel model = null;
-		Index rootIndex = null;
+	private void loadDataModel() throws ListFolderErrorException, DbxException, JsonGenerationException, JsonMappingException, IOException {
 
-		rootIndex = getIndex("/", "index.csv", "root");
+		ExecutorService executor = Executors.newFixedThreadPool(1);
 		
-		// Iterate over all root index children, knowing 
-		// they are all directories
-		model = new DataModel();
-		for (Index idx : rootIndex.getChildren()) {
-			Node node = new DirectoryNode(idx.getPath(), idx.getLabel());
-			model.addChild(node);
+		executor.submit(() -> {
+			// Get the lock, because we only want to run this one-at-a-time
+			lock.lock();
+			LOG.info("Load data lock acquired on thread {}", Thread.currentThread().getName());
 			
-			for (Index entry : idx.getChildren()) {
-				node.addChild(new DocumentNode(entry.getPath(),
-						entry.getLabel(), entry.getLesson(), entry.getLevel()));
-			}
-		}
-		
-		return model;
-	}
+			// Start with a clear cache
+			cache.clear();
 	
-	public int getRandomNumber(int min, int max) {
-	    return (int) ((Math.random() * (max - min)) + min);
+			try {
+				// First, force DropBox to show us the latest view of everything
+				ListFolderBuilder listFolderBuilder = client.files().listFolderBuilder(root);
+				ListFolderResult result = listFolderBuilder.withRecursive(true).start();
+				LOG.info("Initial  : {}", result.toString());
+				while (result.getHasMore()) {
+					result = client.files().listFolderContinue(result.getCursor());
+					LOG.info("Continue : {}", result.toString());
+				}
+
+				Index rootIndex = getIndex("/", "index.csv", "root");
+				
+				// Iterate over all root index children, knowing 
+				// they are all directories
+				model = new DataModel();
+				for (Index idx : rootIndex.getChildren()) {
+					Node node = new DirectoryNode(idx.getPath(), idx.getLabel());
+					model.addChild(node);
+					
+					for (Index entry : idx.getChildren()) {
+						node.addChild(new DocumentNode(entry.getPath(),
+								entry.getLabel(), entry.getLesson(), entry.getLevel()));
+					}
+				}
+			} catch (DbxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				LOG.info("Load data lock released on thread {}", Thread.currentThread().getName());
+				lock.unlock();
+			}
+		});
 	}
 	
 	private Index getIndex(String path, String file, String label) throws ListFolderErrorException, DbxException {
@@ -211,7 +250,7 @@ public class GsResource {
 		List<String[]> list;
 		try {
 			list = parseCSV(bytes);
-
+			
 			index = new Index(path, label);
 			for (String[] entry : list) {
 				if (entry.length == 5) { 
@@ -323,16 +362,8 @@ public class GsResource {
 		LOG.info("Request : {}", request);
 		Slack.instance().sendString(Slack.Channel.NOTIFY, "Refresh requested at : " + dateFormatGmt.format(now));
 
-		ListFolderBuilder listFolderBuilder = client.files().listFolderBuilder(root);
-		ListFolderResult result = listFolderBuilder.withRecursive(true).start();
-		LOG.info("Initial  : {}", result.toString());
-		while (result.getHasMore()) {
-			result = client.files().listFolderContinue(result.getCursor());
-			LOG.info("Continue : {}", result.toString());
-		}
-
-		cache.clear();
-		model = loadDataModel();
+		// Now, rebuild our world.
+		loadDataModel();
 		
 		return Response.ok().build();
 	}
@@ -405,19 +436,19 @@ public class GsResource {
         return Response.seeOther(new URI("/")).cookie(cookie).build();
 	}
 	
-	@GET
-	@Path("mock")
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response mock() throws URISyntaxException {
-
-		User user = new User("Dwight Frye", "dfrye@planez.co", "REDACTED", "REDACTED", "REDACTED");
-		
-		// User authenticated and identified. Save the info.
-		NewCookie cookie = authUtils.generateCookie(user);
-		
-        return Response.seeOther(new URI("/")).cookie(cookie).build();
-	}
+//	@GET
+//	@Path("mock")
+//	@Produces(MediaType.APPLICATION_JSON)
+//	@Consumes(MediaType.APPLICATION_JSON)
+//	public Response mock() throws URISyntaxException {
+//
+//		User user = new User("Dwight Frye", "dfrye@planez.co", "REDACTED", "REDACTED", "REDACTED");
+//		
+//		// User authenticated and identified. Save the info.
+//		NewCookie cookie = authUtils.generateCookie(user);
+//		
+//        return Response.seeOther(new URI("/")).cookie(cookie).build();
+//	}
 	
     private static URL url(String url) {
         try {

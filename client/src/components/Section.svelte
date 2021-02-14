@@ -19,7 +19,6 @@
     for (var i = 0; i < items.length; i++) {
       if (items[i].lesson == lesson)
       {
-        console.log('Found a document in : ', i);
         return true;
       }
     }
@@ -34,6 +33,9 @@
       case "Instrument Class Materials" :
         goto('instrument_reading');
         break;
+      case "/Commercial Groundschool" :
+        goto('commercial_reading');
+        break;
       }
   }
 </script>
@@ -41,7 +43,7 @@
 
 <div class="section">
   <div class=title>{section}</div>
-  <div class="internal_button" on:click={() => requiredReading()}>Required Reading</div>
+  <div class="internal_button" on:click={() => requiredReading()}>Class Supplies</div>
   <hr class="highlight">
 
   <div class="handoutlist">
@@ -73,6 +75,7 @@
   cursor: pointer;
   margin-top: 10px;
   margin-bottom: 10px;
+  color: blue;
 }
 .subtitle {
   font-size: 1.2em;

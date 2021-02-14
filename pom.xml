@@ -5,7 +5,7 @@
 
 	<groupId>org.wingsofcarolina</groupId>
 	<artifactId>groundschool</artifactId>
-	<version>1.0.5</version>
+	<version>1.0.6</version>
 	<packaging>jar</packaging>
 
 	<name>wcfc-groundschool</name>
@@ -57,6 +57,11 @@
 			<groupId>de.thomaskrille</groupId>
 			<artifactId>dropwizard-template-config</artifactId>
 			<version>1.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.slack.api</groupId>
+			<artifactId>slack-api-client</artifactId>
+			<version>1.6.0</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.palantir.roboslack/roboslack-webhook-api -->
 		<dependency>
@@ -206,7 +211,8 @@
 						<configuration>
 							<tasks>
 								<exec dir="./client" executable="/usr/local/bin/npx">
-									<arg line="sapper export --entry '/ contact private private_reading instrument instrument_reading login about'" />
+									<arg
+										line="sapper export --entry '/ contact private private_reading instrument instrument_reading login about'" />
 								</exec>
 								<delete dir="target/classes/assets" />
 								<copy todir="target/classes/assets">

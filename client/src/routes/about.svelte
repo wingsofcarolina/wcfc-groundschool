@@ -28,16 +28,15 @@
 
 	<h2>Cookies</h2>
 
-	<p> This site uses two cookies, and one piece of local storage. One cookie is a
-	simple tracking cookie used to indicate that the browser has touched the site at
-	least once in the past. Another cookie is used to store a cryptographically
-	secure login token identifying the user to the site. The one local storage item
-	indicates whether the user has seen the cookie usage banner as is now required
-	by the <a target='_blank' href='https://www.cookielaw.org/the-cookie-law/'>
-	European Union</a>. </p>
+	<p> As is the case with most websites these days, functionality is enhanced by
+	the use of cookies. A cookie is used to store a cryptographically secure
+	token identifying the user to the site. A browser-local storage item indicates
+	whether the user has seen the cookie usage banner as is now required by the <a
+	target='_blank' href='https://www.cookielaw.org/the-cookie-law/'> European
+	Union</a>. </p>
 
-	<p> <b>NOTE</b> : By continuing to use this site you implicitly agree to the use
-	of this storage  on your device. </p>
+	<p> <b>By continuing to use this site you implicitly agree to the use
+	of this storage  on your device. </b></p>
 
 	<h2>Technology</h2>
 
