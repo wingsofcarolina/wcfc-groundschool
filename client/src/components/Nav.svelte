@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
 	import { goto } from '@sapper/app';
   import { NotificationDisplay } from '@beyonk/svelte-notifications'
+  import { user } from '../store.js'
 
 	export let segment;
 
@@ -20,11 +21,12 @@
 	<div class="left"><a class:selected='{segment === undefined}' href='.'>home</a></div>
   <div class="left"><a class:selected='{segment === "private"}' href='private'>private</a></div>
   <div class="left"><a class:selected='{segment === "instrument"}' href='instrument'>instrument</a></div>
-  <!--
   <div class="left"><a class:selected='{segment === "commercial"}' href='commercial'>commercial</a></div>
-  -->
   <div class="left"><a class:selected='{segment === "contact"}' href='contact'>contact</a></div>
   <div class="left"><a class:selected='{segment === "about"}' href='about'>about</a></div>
+  {#if $user &&  ! $user.anonymous}
+    <div class="right"><div class="user">{$user.name}</div></div>
+  {/if}
   <NotificationDisplay />
 </div>
 
@@ -67,6 +69,15 @@
 		color: #114444;
 		text-decoration: none;
 	}
+  .right {
+    display: block;
+    float: right;
+    color: #114444;
+    text-decoration: none;
+  }
+  .user {
+    padding: 1em 0.5em;
+  }
 	.selected {
 		position: relative;
 		display: inline-block;

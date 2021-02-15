@@ -52,6 +52,7 @@
 		} else {
 			var tmp = await response.json();
 			user.set(tmp);
+			console.log($user);
 		}
 	}
 
