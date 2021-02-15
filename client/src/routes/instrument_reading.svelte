@@ -40,7 +40,7 @@
 </svelte:head>
 
 <div class="article">
-<div class="article_title">WCFC Instrument Pilot Ground School Required Reading List, January 2021</div>
+<div class="article_title">WCFC Instrument Pilot Ground School Class Supplies, January 2021</div>
 <div class="author">George Scheer</div>
 <div class="label">Chief Flight Instructor</div>
 <div class="label">Wings of Carolina</div>
@@ -189,7 +189,7 @@ tool.  </p>
 tool. And I always have a copy of the current FAR/AIM, but ASA produces an
 application that I use on my phone and Ipad for ready reference to the FARs. It
 is updated regularly and searchable, which is an asset in my business. You can
-find it in the Apple App store for Iphone.  The same product may well be
+find it in the Apple App store for iPhone.  The same product may well be
 available for Android operating systems.
 </p>
 

@@ -40,7 +40,7 @@
 </svelte:head>
 
 <div class="article">
-<div class="article_title">WCFC Private Pilot Ground School Required Reading List, January 2021</div>
+<div class="article_title">WCFC Private Pilot Ground School Class Supplies, January 2021</div>
 <div class="author">George Scheer</div>
 <div class="label">Chief Flight Instructor</div>
 <div class="label">Wings of Carolina</div>

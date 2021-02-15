@@ -43,8 +43,7 @@
 			}
 		});
 		if (!response.ok) {
-			console.log('Response : ', response);
-			if (response.status == 401) {
+			if (response.status == 401) {``
 				goto('login');
 			} else {
 				notifier.danger('Retrieve of class index failed.');

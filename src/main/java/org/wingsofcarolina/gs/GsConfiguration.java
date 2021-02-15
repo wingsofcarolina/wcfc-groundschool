@@ -8,7 +8,7 @@ public class GsConfiguration extends Configuration {
 	private static GsConfiguration instance = null;
 
 	@JsonProperty String mode;
-	@JsonProperty String auth;
+	@JsonProperty Boolean auth;
 	@JsonProperty String slackNotify;
 	@JsonProperty String slackContact;
 
@@ -20,7 +20,7 @@ public class GsConfiguration extends Configuration {
 		return instance;
 	}
 	
-	public String getAuth() {
+	public Boolean getAuth() {
 		return auth;
 	}
 

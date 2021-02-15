@@ -35,4 +35,9 @@ public class User {
 	public String getAccess_token() {
 		return access_token;
 	}
+
+	@Override
+	public String toString() {
+		return "User [name=" + name + ", email=" + email + "]";
+	}
 }

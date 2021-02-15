@@ -118,7 +118,7 @@ public class GsResource {
 		this.config = config;
 		
 		// See if we have turned auth on
-		authEnabled = config.getAuth().equals("ON");
+		authEnabled = config.getAuth();
 		
 		// Get authorization utils object instance
 		authUtils = AuthUtils.instance();
@@ -189,6 +189,11 @@ public class GsResource {
 			// They have not been validated, so go demand they do it
 	        return Response.status(401).build();
 		}
+		
+		// Lets log who is doing this, for now
+		User user = authUtils.getUserFromCookie(cookie);
+		LOG.info("Index request from ({}", user);
+		
 		if (model == null) {
 			loadDataModel();
 		}
@@ -429,6 +434,7 @@ public class GsResource {
 		String email = userMap.get("email");
 		
 		User user = new User(name, email, user_id, team_id, access_token);
+		LOG.info("New user : {}", user);
 		
 		// User authenticated and identified. Save the info.
 		NewCookie cookie = authUtils.generateCookie(user);

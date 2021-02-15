@@ -33,7 +33,7 @@
       case "Instrument Class Materials" :
         goto('instrument_reading');
         break;
-      case "/Commercial Groundschool" :
+      case "Commercial Class Materials" :
         goto('commercial_reading');
         break;
       }

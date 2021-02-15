@@ -43,7 +43,6 @@
 			}
 		});
 		if (!response.ok) {
-			console.log('Response : ', response);
 			if (response.status == 401) {
 				goto('login');
 			} else {
