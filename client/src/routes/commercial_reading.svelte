@@ -45,11 +45,11 @@
 <div class="label">Chief Flight Instructor</div>
 <div class="label">Wings of Carolina</div>
 
-<p>The Syllabus for the Commercial Rating Ground School and the many supporting
+<p>The Syllabus for the Commercial Certificate Ground School and the many supporting
 articles will be distributed to participants via email and will also be posted
 and available for quick download from the WCFC Ground School website.</p>
 
-<p>Here is a list of the required books and materials for the Commercial Rating
+<p>Here is a list of the required books and materials for the Commercial Certificate
 Ground School. The club will have available from our pilot supplies inventory
 these books and tools for purchase at our cost. We do not endeavor to make a
 profit on these books – they are available for purchase from the club at cost as
