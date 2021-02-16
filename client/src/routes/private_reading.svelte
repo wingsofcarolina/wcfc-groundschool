@@ -102,7 +102,7 @@ for documents. You may prefer something else. </p>
 
 
 <Product title="FAR/AIM" publisher="ASA (latest annual edition)"
-      notes='The Code of Federal Regulations is the codification of regulations
+      notes="The Code of Federal Regulations is the codification of regulations
       established by the agencies of the Federal Government.  It contains 50
       Titles, one of which, Title 14 Aeronautics and Space, dictates the
       regulatory environment under which we fly. This volume contains those
@@ -115,18 +115,20 @@ for documents. You may prefer something else. </p>
       inhabit. And I can say, from having flown in the airspaces of many
       countries, that there is no other country in the world that affords us the
       same freedom to fly we enjoy – not even Canada, although Canada,
-      Australia, and New Zealand are closer than most. (End of sermon.)'
+      Australia, and New Zealand are closer than most. (End of sermon.)<br>
+			<br>
+			I like books. Own thousands of them. They are the ultimate random access
+			tool. And I always have a copy of the current FAR/AIM, but for even less money
+			ASA produces an application that I use on my phone and Ipad for ready reference
+			to the FARs. It is updated regularly and searchable, which is an asset in my
+			business. You can find it in the Apple Applications. There are several similar
+			products. I can't speak to which is best because I’ve used the ASA product for
+			years. I don’t think I’ve ever paid for an update and I’ve used it for years.
+			The same product may well be available for Android operating systems."
       url="https://www.amazon.com/FAR-AIM-2021-Regulations-Aeronautical/dp/1619549506/ref=sr_1_3?dchild=1&keywords=FAR%2FAIM+2021&qid=1611020422&sr=8-3"
 />
 
-<p>I like books. Own thousands of them. They are the ultimate random access
-tool. And I always have a copy of the current FAR/AIM, but for even less money
-ASA produces an application that I use on my phone and Ipad for ready reference
-to the FARs. It is updated regularly and searchable, which is an asset in my
-business. You can find it in the Apple Applications. There are several similar
-products. I can't speak to which is best because I’ve used the ASA product for
-years. I don’t think I’ve ever paid for an update and I’ve used it for years.
-The same product may well be available for Android operating systems.  </p>
+
 
 <Product title="Weather Theory: Aviation Weather, FAA AC 00-6B" publisher="ASA reprint (latest edition)"
       notes='This is available for $14.95 with quick delivery from Amazon. This

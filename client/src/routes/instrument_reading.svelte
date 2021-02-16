@@ -181,18 +181,15 @@ tool.  </p>
 	flown in the airspaces of many countries, that there is no other country in
 	the world that affords us the same freedom to fly we enjoy – not even Canada,
 	although Canada, Australia, and New Zealand are closer than most. (End of
-	sermon.)'
+	sermon.)<br>
+	I like books. Own thousands of them. They are the ultimate random access
+	tool. And I always have a copy of the current FAR/AIM, but ASA produces an
+	application that I use on my phone and Ipad for ready reference to the FARs. It
+	is updated regularly and searchable, which is an asset in my business. You can
+	find it in the Apple App store for iPhone.  The same product may well be
+	available for Android operating systems.'
 	url="https://www.amazon.com/FAR-AIM-2021-Regulations-Aeronautical/dp/1619549506/ref=sr_1_3?dchild=1&keywords=FAR%2FAIM+2021&qid=1611020422&sr=8-3"
 />
-
-<p>I like books. Own thousands of them. They are the ultimate random access
-tool. And I always have a copy of the current FAR/AIM, but ASA produces an
-application that I use on my phone and Ipad for ready reference to the FARs. It
-is updated regularly and searchable, which is an asset in my business. You can
-find it in the Apple App store for iPhone.  The same product may well be
-available for Android operating systems.
-</p>
-
 
 </div>
 <style>

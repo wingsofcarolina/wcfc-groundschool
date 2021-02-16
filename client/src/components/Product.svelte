@@ -12,7 +12,7 @@
 </script>
 
 {#if url}
-<a href={url}><div class="title">{title}</div></a>
+<a href={url} target="class-products"><div class="title">{title}</div></a>
 {:else}
 <div class="title">{title}</div>
 {/if}
