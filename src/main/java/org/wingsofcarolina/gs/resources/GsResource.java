@@ -190,15 +190,14 @@ public class GsResource {
 	        return Response.status(401).build();
 		}
 		
-		// Lets log who is doing this, for now
+		// Get the user, so we can re-issue the cookie
 		User user = authUtils.getUserFromCookie(cookie);
-		LOG.info("Index request from ({}", user);
 		
 		if (model == null) {
 			loadDataModel();
 		}
 		
-        return Response.ok().entity(model).build();
+        return Response.ok().entity(model).cookie(authUtils.generateCookie(user)).build();
 	}
 	
 	private void loadDataModel() throws ListFolderErrorException, DbxException, JsonGenerationException, JsonMappingException, IOException {
