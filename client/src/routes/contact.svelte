@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '@sapper/app';
 	import { notifier } from '@beyonk/svelte-notifications'
+	import { user } from '../store.js'
 
 	let name;
 	let phone;
@@ -9,18 +10,46 @@
 	let message;
 
 	onMount(function() {
+		getUser();
 	});
+
+	const getUser = async () => {
+		const response = await fetch('/api/user', {
+			method: "get",
+			withCredentials: true,
+			headers: {
+				'Accept': 'application/json'
+			}
+		});
+		if (!response.ok) {
+			if (response.status == 404) {
+				// User was simpoly not found, therefore not authenticated
+				user.set(null);
+			} else {
+				// Otherwise, something else went wrong
+				notifier.danger('Retrieve of user information failed.');
+			}
+		} else {
+			var tmp = await response.json();
+			user.set(tmp);
+			if ($user != null && $user.anonymous == false) {
+				name = $user.name;
+				email = $user.email;
+			}
+		}
+	}
 
 	const sendMessage = async () => {
     if (name == null || name === "") {
       notifier.danger('Name missing, but required.');
-    } else if (phone == null || phone === "") {
-      notifier.danger('Phone number missing, but required.');
     } else if (email == null || email === "") {
       notifier.danger('Email address missing, but required.');
     } else if (message == null || message === "") {
       notifier.danger('Message missing, but required.');
     } else {
+			if (phone == null) {
+				phone = "NONE";
+			}
       var json = JSON.stringify({
         name: name,
         phone: phone,
@@ -79,12 +108,12 @@
 				size=40 bind:value={name}>
 			</div>
 			<div class="contact_row">
-				<input type="text" id="phone" name="phone" placeholder="Phone"
-				size=40 bind:value={phone}>
-			</div>
-			<div class="contact_row">
 				<input type="text" id="email" name="email" placeholder="Email"
 				size=40 bind:value={email}>
+			</div>
+			<div class="contact_row">
+				<input type="text" id="phone" name="phone" placeholder="Phone (optional)"
+				size=40 bind:value={phone}>
 			</div>
 			<div class="contact_row">
 				<textarea type="text" id="message" name="message" placeholder="Message"
