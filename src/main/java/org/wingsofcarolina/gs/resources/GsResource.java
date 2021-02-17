@@ -2,9 +2,6 @@ package org.wingsofcarolina.gs.resources;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -57,9 +54,7 @@ import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.DownloadBuilder;
 import com.dropbox.core.v2.files.ListFolderBuilder;
 import com.dropbox.core.v2.files.ListFolderErrorException;
-import com.dropbox.core.v2.files.ListFolderGetLatestCursorResult;
 import com.dropbox.core.v2.files.ListFolderResult;
-import com.dropbox.core.v2.paper.Cursor;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -107,11 +102,7 @@ public class GsResource {
 	private AuthUtils authUtils;
 	private boolean authEnabled = false;
 	
-	private ObjectMapper mapper;
 	private ReentrantLock lock = new ReentrantLock();
-	private int i = 0;
-
-	private com.slack.api.Slack slack;
 
 	@SuppressWarnings("static-access")
 	public GsResource(GsConfiguration config) throws IOException, ListFolderErrorException, DbxException {
@@ -124,7 +115,7 @@ public class GsResource {
 		authUtils = AuthUtils.instance();
 		
 		// For JSON serialization/deserialization
-		mapper = new ObjectMapper();
+		// mapper = new ObjectMapper();
 		
 		// Get the startup date/time format in GMT
 		dateFormatGmt = DateTimeFormatter.ofPattern("yyyy/MM/dd - HH:mm:ss z");
@@ -135,8 +126,6 @@ public class GsResource {
         
         // Create Slack authentication API service object
         slackAuth = new SlackAuthService(CLIENT_ID, CLIENT_SECRET);
-        slack = com.slack.api.Slack.getInstance();
-
         
         // Kick off the initial load of the model
         loadDataModel();
@@ -434,6 +423,7 @@ public class GsResource {
 		
 		User user = new User(name, email, user_id, team_id, access_token);
 		LOG.info("New user : {}", user);
+		Slack.instance().sendString(Slack.Channel.NOTIFY, "New user : " + user);
 		
 		// User authenticated and identified. Save the info.
 		NewCookie cookie = authUtils.generateCookie(user);

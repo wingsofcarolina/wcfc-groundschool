@@ -30,10 +30,10 @@ public class SlackAuthService {
 		this.client_id = client_id;
 		this.client_secret = client_secret;
 		
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        //HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        //interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder()
-                        .addInterceptor(interceptor)
+                        //.addInterceptor(interceptor)
                         .build();
 
         retrofit = new Retrofit.Builder()
