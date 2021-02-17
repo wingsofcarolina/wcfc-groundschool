@@ -99,7 +99,8 @@ tool.  </p>
 <Product title="Jeppesen Guided Flight Discovery Instrument/Commercial (10001784-005) Date: 2016 E-book"
 	pub="Jeppesen"
 	notes="The Jeppesen website lists only this E-book version as its most current
-	edition. $73.99 as an E-book. Amazon lists many volumes of the Instrument /
+	edition. $73.99 as an E-book. It appears to be the same 2016 edition available
+	in book form from MyPilotStore. Amazon lists many volumes of the Instrument /
 	Commercial text, but some are obviously out of date and it is difficult to
 	ascertain which edition you are purchasing. And the used inventory constantly
 	changes, so I cannot provide a specific link. There are many available used
@@ -157,8 +158,8 @@ tool.  </p>
 	pub="ASA reprint (latest edition)"
 	notes='This is available for $14.95 with quick delivery from Amazon. This is
 	actually an FAA Advisory Circular reprinted by ASA in book form. You can also
-	access and/or download it in .pdf form <a
-	href="https://www.faa.gov/regulations_policies/advisory_circulars/index.cfm/go/document.information/documentID/1029851"
+	access and/or download it in .pdf form
+	<a href="https://www.faa.gov/regulations_policies/advisory_circulars/index.cfm/go/document.information/documentID/1029851">
 	from the FAA website</a> for no charge. If you have an earlier edition, it
 	will probably suffice. More data and more computing power has vastly improved
 	weather forecasting in recent decades but the basic theory – at the level we
@@ -171,7 +172,7 @@ tool.  </p>
 	notes='This is another FAA advisory circular (AC) reprinted in book form by
 	ASA and available for $24.95 w/ quick delivery from Amazon. (Change 1). Also
 	available for free <a href="https://www.faa.gov/regulations_policies/advisory_circulars/index.cfm/go/document.list?omni=ACs&rows=10&startAt=0&q=FAA+AC+45H&display=current&parentTopicId"
-	in digital form from the FAA</a>.'
+	from the FAA website</a>.'
 	url="https://www.amazon.com/Aviation-Weather-Services-FAA-AC00-45H-Handbooks/dp/1619547023/ref=sr_1_3?dchild=1&keywords=Weather+Services%3A+Aviation+Weather+Services%2C+FAA+AC+45H&qid=1611017055&sr=8-3"
 />
 
