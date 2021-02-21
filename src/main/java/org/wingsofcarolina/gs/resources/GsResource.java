@@ -205,7 +205,6 @@ public class GsResource {
 				// First, force DropBox to show us the latest view of everything
 				ListFolderBuilder listFolderBuilder = client.files().listFolderBuilder(root);
 				ListFolderResult result = listFolderBuilder.withRecursive(true).start();
-				LOG.info("Initial  : {}", result.toString());
 				while (result.getHasMore()) {
 					result = client.files().listFolderContinue(result.getCursor());
 					LOG.info("Continue : {}", result.toString());
@@ -238,6 +237,7 @@ public class GsResource {
 	private Index getIndex(String path, String file, String label) throws ListFolderErrorException, DbxException {
 		byte[] bytes;
 		Index index = null;
+		int lineNo = 0;
 
 		bytes = dbFetch(path, file);
 		List<String[]> list;
@@ -246,11 +246,16 @@ public class GsResource {
 			
 			index = new Index(path, label);
 			for (String[] entry : list) {
+				lineNo++;
 				if (entry.length == 5) { 
 					if (entry[4].contentEquals("dir")) {
 						Index idx = getIndex(entry[2], "/index.csv", entry[3]);
 						idx.setDirectory();
 						index.addChild(idx);
+					} if (entry.length == 1) { 
+						LOG.error("Empty line detected at line {} in {}", lineNo, path + file);
+						Slack.instance().sendString(Slack.Channel.NOTIFY,
+								"Empty line detected at line " + lineNo + " in " + path + file);
 					} else {
 						Index idx = new Index(path + "/" + entry[2], entry[3]);
 						idx.setLesson(Integer.valueOf(entry[0]));
@@ -259,8 +264,9 @@ public class GsResource {
 						index.addChild(idx);
 					}
 				} else {
-					LOG.error("Malformed line from CSV file, incorrect number of fields");
-					Slack.instance().sendString(Slack.Channel.NOTIFY, "Malformed line from CSV file, incorrect number of fields");
+					LOG.error("Malformed line from CSV file, incorrect number of fields at line {} in {}", lineNo, path + file);
+					Slack.instance().sendString(Slack.Channel.NOTIFY,
+							"Malformed line from CSV file, incorrect number of fields at line " + lineNo + " in " + path + file);
 				}
 			}
 		} catch (IOException | CsvException e) {
