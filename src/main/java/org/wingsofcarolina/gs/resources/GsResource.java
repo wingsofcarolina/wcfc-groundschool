@@ -252,7 +252,7 @@ public class GsResource {
 						Index idx = getIndex(entry[2], "/index.csv", entry[3]);
 						idx.setDirectory();
 						index.addChild(idx);
-					} if (entry.length == 1) { 
+					} else if (entry.length == 1) { 
 						LOG.error("Empty line detected at line {} in {}", lineNo, path + file);
 						Slack.instance().sendString(Slack.Channel.NOTIFY,
 								"Empty line detected at line " + lineNo + " in " + path + file);
