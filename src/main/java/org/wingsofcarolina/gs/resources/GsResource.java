@@ -431,8 +431,8 @@ public class GsResource {
 		String email = userMap.get("email");
 		
 		User user = new User(name, email, user_id, team_id, access_token);
-		LOG.info("New user : {}", user);
-		Slack.instance().sendString(Slack.Channel.NOTIFY, "New user : " + user);
+		LOG.info("Authenticated user : {}", user);
+		Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated user : " + user);
 		
 		// User authenticated and identified. Save the info.
 		NewCookie cookie = authUtils.generateCookie(user);
