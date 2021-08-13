@@ -1,8 +1,8 @@
 <script>
-  import { onMount } from 'svelte';
 	import { goto } from '@sapper/app';
   import { NotificationDisplay } from '@beyonk/svelte-notifications'
-  import { user } from '../store.js'
+  import { user, adminState } from '../store.js'
+  import Switch from '../components/Switch.svelte'
 
 	export let segment;
 
@@ -16,6 +16,11 @@
     <div class=logo on:click={home.bind()}><img src=/WCFC-logo.jpg alt="WCFC Groundschool"></div>
     <div class=title>WCFC Ground School Materials</div>
   </div>
+	{#if $user &&  ! $user.anonymous}
+	  <div class="switch">
+	    <Switch bind:value={$adminState} label="Admin Mode" design="inner"/>
+	  </div>
+	{/if}
 </div>
 <div class="nav">
 	<div class="left"><a class:selected='{segment === undefined}' href='.'>home</a></div>
@@ -25,7 +30,11 @@
   <div class="left"><a class:selected='{segment === "contact"}' href='contact'>contact</a></div>
   <div class="left"><a class:selected='{segment === "about"}' href='about'>about</a></div>
   {#if $user &&  ! $user.anonymous}
-    <div class="right"><div class="user">{$user.name}</div></div>
+    <div class="right">
+      <div class="user">
+        {$user.name}
+      </div>
+    </div>
   {/if}
   <NotificationDisplay />
 </div>
@@ -74,6 +83,14 @@
     float: right;
     color: #114444;
     text-decoration: none;
+  }
+  .switch {
+    display: block;
+    float: right;
+    color: #114444;
+    text-decoration: none;
+    padding: 5px;
+    font-size: 12px;
   }
   .user {
     padding: 1em 0.5em;

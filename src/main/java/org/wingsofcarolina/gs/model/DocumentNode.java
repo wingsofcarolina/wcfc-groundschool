@@ -2,16 +2,16 @@ package org.wingsofcarolina.gs.model;
 
 public class DocumentNode extends Node {
 	private Integer lesson = 0;
-	private Integer level = 0;
+	
+	public DocumentNode() {}
 	
 	public DocumentNode(String path, String label) {
 		super(path, label);
 	}
 
-	public DocumentNode(String path, String label, Integer lesson, Integer level) {
+	public DocumentNode(String path, String label, Integer lesson) {
 		super(path, label);
 		this.lesson = lesson;
-		this.level = level;
 	}
 	
 	@Override
@@ -21,9 +21,5 @@ public class DocumentNode extends Node {
 
 	public Integer getLesson() {
 		return lesson;
-	}
-
-	public Integer getLevel() {
-		return level;
 	}
 }

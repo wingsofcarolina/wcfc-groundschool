@@ -1,41 +1,47 @@
 package org.wingsofcarolina.gs.resources;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.file.Files;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.UUID;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
-import javax.ws.rs.DefaultValue;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
@@ -50,25 +56,14 @@ import com.palantir.roboslack.api.attachments.components.Footer;
 import com.palantir.roboslack.api.attachments.components.Title;
 import com.dropbox.core.DbxApiException;
 import com.dropbox.core.DbxException;
-import com.dropbox.core.DbxRequestConfig;
-import com.dropbox.core.v2.DbxClientV2;
-import com.dropbox.core.v2.files.DownloadBuilder;
-import com.dropbox.core.v2.files.ListFolderBuilder;
 import com.dropbox.core.v2.files.ListFolderErrorException;
-import com.dropbox.core.v2.files.ListFolderResult;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wingsofcarolina.gs.model.DataModel;
-import org.wingsofcarolina.gs.model.DirectoryNode;
-import org.wingsofcarolina.gs.model.DocumentNode;
-import org.wingsofcarolina.gs.model.Node;
 import org.wingsofcarolina.gs.model.User;
 import org.wingsofcarolina.gs.slack.Slack;
 import org.wingsofcarolina.gs.slack.SlackAuthService;
@@ -87,14 +82,7 @@ public class GsResource {
 	private static GsConfiguration config;
 	private static String versionOverride = null;
 	private DateTimeFormatter dateFormatGmt;
-	private DbxClientV2 client;
-	private DataModel model = null;
 
-	private static final String APPSECRET = "REDACTED";
-    private static final String ACCESS_TOKEN = "REDACTED";
-    private static final String root = "/WCFC-Groundschool";
-    private static final Cache cache = Cache.instance();
-    
     // Slack credentials
     private static final String CLIENT_ID = "REDACTED";
     private static final String CLIENT_SECRET = "REDACTED";
@@ -103,7 +91,11 @@ public class GsResource {
 	private AuthUtils authUtils;
 	private boolean authEnabled = false;
 	
-	private ReentrantLock lock = new ReentrantLock();
+	private static boolean mockUser = true; // When we are developing and don't want to authenticate with Slack
+	
+	private static String gs_root;
+	
+	private ObjectMapper mapper;
 
 	@SuppressWarnings("static-access")
 	public GsResource(GsConfiguration config) throws IOException, ListFolderErrorException, DbxException {
@@ -115,23 +107,19 @@ public class GsResource {
 		// Get authorization utils object instance
 		authUtils = AuthUtils.instance();
 		
+		// Get the GS document root
+		gs_root = config.getGsroot();
+		
 		// For JSON serialization/deserialization
-		// mapper = new ObjectMapper();
+		mapper = new ObjectMapper();
 		
 		// Get the startup date/time format in GMT
 		dateFormatGmt = DateTimeFormatter.ofPattern("yyyy/MM/dd - HH:mm:ss z");
 		
-		// Create Dropbox client
-        DbxRequestConfig dbconfig = DbxRequestConfig.newBuilder("wcfc/groundschool").build();
-        client = new DbxClientV2(dbconfig, ACCESS_TOKEN);
-        
         // Create Slack authentication API service object
         slackAuth = new SlackAuthService(CLIENT_ID, CLIENT_SECRET);
-        
-        // Kick off the initial load of the model
-        loadDataModel();
 	}
-
+	
 	@GET
 	@Path("version")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -157,215 +145,179 @@ public class GsResource {
 		        reply.put("name", user.getName());
 		        reply.put("email", user.getEmail());
 		        reply.put("anonymous", false);
-		        
+		        if (user.getEmail().contains("dfrye@planez.co")) {
+		        	reply.put("admin", true);
+		        } else {
+		        	reply.put("admin", false);
+		        }
+
 		        return Response.ok().entity(reply).build();
 	        } else {
 	        	return Response.status(404).build();
 	        }
 		} else {
-	        reply.put("name", "Anonymous");
-	        reply.put("email", "nobody@wingsofcarolina.org");
-	        reply.put("anonymous", true);
-	        
+			if ( ! mockUser) {
+		        reply.put("name", "Anonymous");
+		        reply.put("email", "nobody@wingsofcarolina.org");
+		        reply.put("anonymous", true);
+			} else {
+		        reply.put("name", "Dwight Frye");
+		        reply.put("email", "dfrye@planez.co");
+		        reply.put("anonymous", false);
+		        reply.put("admin", true);
+			}
 	        return Response.ok().entity(reply).build();
 		}
 	}
 	
 	@GET
-	@Path("index")
+	@Path("index/{section}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response index(@CookieParam("wcfc.gs.token") Cookie cookie) throws DbxApiException, DbxException, IOException, CsvException, URISyntaxException {
-		if (cookie == null) {
+	public Response index(@CookieParam("wcfc.gs.token") Cookie cookie,
+			@PathParam("section") String section) throws DbxApiException, DbxException, IOException, CsvException, URISyntaxException {
+		User user = null;
+		
+		if (authEnabled == true && cookie == null) {
 			// They have not been validated, so go demand they do it
 	        return Response.status(401).build();
 		}
 		
 		// Get the user, so we can re-issue the cookie
-		User user = authUtils.getUserFromCookie(cookie);
-		
-		if (model == null) {
-			loadDataModel();
+		if (authEnabled == false && cookie != null) {
+			user = authUtils.getUserFromCookie(cookie);
+		} else {
+			user = mockUser();
 		}
 		
-        return Response.ok().entity(model).cookie(authUtils.generateCookie(user)).build();
-	}
-	
-	private void loadDataModel() throws ListFolderErrorException, DbxException, JsonGenerationException, JsonMappingException, IOException {
-
-		ExecutorService executor = Executors.newFixedThreadPool(1);
+		Index index = getSectionIndex(section);
 		
-		executor.submit(() -> {
-			// Get the lock, because we only want to run this one-at-a-time
-			lock.lock();
-			LOG.info("Load data lock acquired on thread {}", Thread.currentThread().getName());
-			
-			// Start with a clear cache
-			cache.clear();
-	
-			try {
-				// First, force DropBox to show us the latest view of everything
-				ListFolderBuilder listFolderBuilder = client.files().listFolderBuilder(root);
-				ListFolderResult result = listFolderBuilder.withRecursive(true).start();
-				while (result.getHasMore()) {
-					result = client.files().listFolderContinue(result.getCursor());
-					LOG.info("Continue : {}", result.toString());
-				}
-
-				Index rootIndex = getIndex("/", "index.csv", "root");
-				
-				// Iterate over all root index children, knowing 
-				// they are all directories
-				model = new DataModel();
-				for (Index idx : rootIndex.getChildren()) {
-					Node node = new DirectoryNode(idx.getPath(), idx.getLabel());
-					model.addChild(node);
-					
-					for (Index entry : idx.getChildren()) {
-						node.addChild(new DocumentNode(entry.getPath(),
-								entry.getLabel(), entry.getLesson(), entry.getLevel()));
-					}
-				}
-			} catch (DbxException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} finally {
-				LOG.info("Load data lock released on thread {}", Thread.currentThread().getName());
-				lock.unlock();
-			}
-		});
+        return Response.ok().entity(index).cookie(authUtils.generateCookie(user)).build();
 	}
 	
-	private Index getIndex(String path, String file, String label) throws ListFolderErrorException, DbxException {
-		byte[] bytes;
+	private Index getSectionIndex(String section) {
 		Index index = null;
-		int lineNo = 0;
-
-		bytes = dbFetch(path, file);
-		List<String[]> list;
 		try {
-			list = parseCSV(bytes);
+			String indexFile = gs_root + "/" + section + "/Index.json";
+			LOG.debug("Reading index : {}", indexFile);
+			index = mapper.readValue(new File(indexFile), Index.class);
 			
-			index = new Index(path, label);
-			for (String[] entry : list) {
-				lineNo++;
-				if (entry.length == 5) { 
-					if (entry[4].contentEquals("dir")) {
-						Index idx = getIndex(entry[2], "/index.csv", entry[3]);
-						idx.setDirectory();
-						index.addChild(idx);
-					} else if (entry.length == 1) { 
-						LOG.error("Empty line detected at line {} in {}", lineNo, path + file);
-						Slack.instance().sendString(Slack.Channel.NOTIFY,
-								"Empty line detected at line " + lineNo + " in " + path + file);
-					} else {
-						Index idx = new Index(path + "/" + entry[2], entry[3]);
-						idx.setLesson(Integer.valueOf(entry[0]));
-						idx.setLevel(Integer.valueOf(entry[1]));
-						idx.setDocument();
-						index.addChild(idx);
-					}
-				} else {
-					LOG.error("Malformed line from CSV file, incorrect number of fields at line {} in {}", lineNo, path + file);
-					Slack.instance().sendString(Slack.Channel.NOTIFY,
-							"Malformed line from CSV file, incorrect number of fields at line " + lineNo + " in " + path + file);
-				}
-			}
-		} catch (IOException | CsvException e) {
-			LOG.error("There seems to be a serious problem with the CSV file : {}", path + "/" + file);
-			Slack.instance().sendString(Slack.Channel.NOTIFY,
-					"There seems to be a serious problem with the CSV file : " + path + "/" + file);
+			// Sort by class number
+			List<Index> children = index.getChildren();
+			Collections.sort(children);
+			
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
-
+		
 		return index;
 	}
 	
-	public byte[] dbFetch(String path, String file) throws ListFolderErrorException, DbxException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        String target = root + path + file;
+	private void writeSectionIndex(String section, Index index) {
+		try {
+			String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(index);
 
-        // Then download the latest version
-    	DownloadBuilder metadata = client.files().downloadBuilder(target);
-    	try {
-			metadata.download(out);
-	    	out.close();
-		} catch (DbxException | IOException e) {
-			LOG.error("Unable to download {} from Dropbox", target);
-			Slack.instance().sendString(Slack.Channel.NOTIFY, "Unable to download '" + target + "' from Dropbox; investigate why." );
+			try (FileOutputStream fos = new FileOutputStream(gs_root + "/" + section + "/Index.json");
+					FileChannel channel = fos.getChannel();
+					FileLock lock = channel.lock()) {
+				fos.write(json.getBytes());
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-    	
-    	return(out.toByteArray());
-	}
-	
-	public List<String[]> parseCSV(byte[] bytes) throws IOException, CsvException {
-		Reader reader = new InputStreamReader(new ByteArrayInputStream(bytes));
-		CSVReader csvReader = new CSVReaderBuilder(reader)
-                // Skip the header
-                .withSkipLines(1)
-                .build();
-	    List<String[]> list = csvReader.readAll();
-	    reader.close();
-	    csvReader.close();
-		return list;
 	}
 	
 	@POST
 	@Path("fetch")
 	@Produces("application/pdf")
 	public Response fetchFile(Map<String, String> request) throws IOException, DbxException {
-		byte[] bytes;
 		
 		String name = request.get("name");
-		int index = name.lastIndexOf('/');
-		String path = name.substring(0, index);
-		String file = name.substring(index);
 		
-		if (cache.hasEntry(name)) {
-			bytes = cache.get(name);
+		File file = new File(gs_root + "/" + name);
+		if (file.exists()) {
+	        InputStream inputStream = new FileInputStream(file);
+	        return Response.ok().type("application/pdf").entity(inputStream).build();
 		} else {
-			LOG.info("Fetching \"{}\" from Dropbox, not found in cache", file);
-			bytes = dbFetch(path, file);
-			cache.put(name, bytes);
+			return Response.status(404).build();
 		}
-		
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
-        return Response.ok().type("application/pdf").entity(inputStream).build();
 	}
 	
-	@GET
-	@Path("refresh")
-	@Produces(MediaType.TEXT_PLAIN)
-	public Response verify(@DefaultValue("") @QueryParam("challenge") String challenge) throws DbxException, IOException, CsvException {
-		LOG.info("Challenge from Dropbox received, responding");
-		LOG.info("Challenge : {}", challenge);
-		Slack.instance().sendString(Slack.Channel.NOTIFY, "Challenge received from Dropbox, responding");
-		return Response.ok().header("X-Content-Type-Options", "nosniff").entity(challenge).build();
-	}
-	
-	@POST
-	@Path("refresh")
-	@Consumes(MediaType.APPLICATION_JSON)
+	@PUT
+	@Path("moveUp/{section}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response refresh(@Context HttpHeaders httpheaders,
-			Map<Object, Object> request) throws DbxException, IOException, CsvException {
-		
-		// Validate the signature if we are in PROD mode
-		if (config.getMode().equals("PROD")) {
-			String signature = httpheaders.getHeaderString("X-Dropbox-Signature");
-			LOG.info("DB HMAC : {}", signature);
-			if (signature == null || signature.isEmpty()) {
-				Response.status(404).build();
+	public Response moveUp(@CookieParam("wcfc.gs.token") Cookie cookie,
+			@PathParam("section") String section, @QueryParam("path") String path) {
+        User user = authUtils.getUserFromCookie(cookie);
+
+        int i = 0;
+        Index index = getSectionIndex(section);
+		List<Index> children = index.getChildren();
+		Iterator<Index> it = children.iterator();
+		while (it.hasNext()) {
+			Index item = it.next();
+			if (path.equals(item.getPath())) {
+				System.out.println("Moving up : " + item);
+				children.remove(item);
+				
+				// Reinsert the item at the previous index
+				children.add(i-1, item);
+				writeSectionIndex(section, index);
+				break;
+			}
+			i++;
+		}
+        return Response.ok().build();
+	}
+
+	@PUT
+	@Path("moveDown/{section}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response moveDown(@CookieParam("wcfc.gs.token") Cookie cookie,
+			@PathParam("section") String section, @QueryParam("path") String path) {
+        User user = authUtils.getUserFromCookie(cookie);
+
+        int i = 0;
+        Index index = getSectionIndex(section);
+		List<Index> children = index.getChildren();
+		Iterator<Index> it = children.iterator();
+		while (it.hasNext()) {
+			Index item = it.next();
+			if (path.equals(item.getPath())) {
+				System.out.println("Moving down : " + item);
+				children.remove(item);
+				
+				// Reinsert the item at the previous index
+				children.add(i+1, item);
+				writeSectionIndex(section, index);
+				break;
+			}
+			i++;
+		}
+        return Response.ok().build();
+	}
+	
+	@DELETE
+	@Path("delete/{section}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteFile(@CookieParam("wcfc.gs.token") Cookie cookie,
+			@PathParam("section") String section, @QueryParam("path") String path) {
+        User user = authUtils.getUserFromCookie(cookie);
+
+        Index index = getSectionIndex(section);
+		List<Index> children = index.getChildren();
+		Iterator<Index> it = children.iterator();
+		while (it.hasNext()) {
+			Index item = it.next();
+			if (path.equals(item.getPath())) {
+				LOG.info("Removing : {}", item.getPath());
+				children.remove(item);
+				new File(gs_root + "/" + item.getPath()).delete();
+				writeSectionIndex(section, index);
+				break;
 			}
 		}
-		ZoneId zoneId = ZoneId.of("US/Eastern");
-		ZonedDateTime now = LocalDateTime.now().atZone(zoneId);
-		LOG.info("Refresh requested at : {}", now);
-		LOG.info("Request : {}", request);
-		Slack.instance().sendString(Slack.Channel.NOTIFY, "Refresh requested at : " + dateFormatGmt.format(now));
-
-		// Now, rebuild our world.
-		loadDataModel();
-		
-		return Response.ok().build();
+        return Response.ok().build();
 	}
 	
 	@POST
@@ -440,19 +392,112 @@ public class GsResource {
         return Response.seeOther(new URI("/")).cookie(cookie).build();
 	}
 	
-//	@GET
-//	@Path("mock")
-//	@Produces(MediaType.APPLICATION_JSON)
-//	@Consumes(MediaType.APPLICATION_JSON)
-//	public Response mock() throws URISyntaxException {
-//
-//		User user = new User("Dwight Frye", "dfrye@planez.co", "REDACTED", "REDACTED", "REDACTED");
-//		
-//		// User authenticated and identified. Save the info.
-//		NewCookie cookie = authUtils.generateCookie(user);
-//		
-//        return Response.seeOther(new URI("/")).cookie(cookie).build();
-//	}
+	@GET
+	@Path("freespace")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response freespace() {
+		File fs = new File("tmp");
+		Map<String, Long> myMap = new HashMap<String, Long>() {{
+	        put("space", fs.getFreeSpace());
+	    }};
+	    
+	    return Response.ok().entity(myMap).build();
+	}
+	
+	@POST
+	@Path("upload")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response upload(@FormDataParam("label") String label,
+			@FormDataParam("lesson") Integer lesson,
+			@FormDataParam("section") String section,
+			@FormDataParam("file") InputStream uploadedInputStream,
+			@FormDataParam("file") FormDataContentDisposition fileDetails)
+			throws IOException, CsvException, ParseException {
+		
+		UUID uuid = UUID.randomUUID();
+		String path = section + "/" + uuid.toString() + ".pdf";
+	    File targetFile = new File("/tmp/" + uuid.toString() + ".tmp");
+	    OutputStream outStream = new FileOutputStream(targetFile);
+
+	    byte[] buffer = new byte[8 * 1024];
+	    int bytesRead;
+	    while ((bytesRead = uploadedInputStream.read(buffer)) != -1) {
+	        outStream.write(buffer, 0, bytesRead);
+	    }
+	    uploadedInputStream.close();
+	    outStream.close();
+
+	    // Check out the type 
+	    String fileType = Files.probeContentType(targetFile.toPath());
+	    if (fileType.equals("application/pdf")) {
+			String newname = gs_root + "/" + path;
+			if (targetFile.renameTo(new File(newname))) {
+				LOG.info("Creating : {}", newname);
+				
+				Index index = getSectionIndex(section);
+				index.getChildren().add(new Index(path, label, lesson));
+				writeSectionIndex(section, index);
+		    } else {
+		    	LOG.error("Renaming of temp upload file failed : {}", path);
+		    }
+	    }
+
+		return Response.ok().build();
+	}
+	
+	@POST
+	@Path("update")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response update(@FormDataParam("label") String label,
+			@FormDataParam("lesson") Integer lesson,
+			@FormDataParam("path") String path,
+			@FormDataParam("section") String section)
+			throws IOException, CsvException, ParseException {
+		
+		boolean found = false;
+
+		Index index = getSectionIndex(section);
+		for (Index child : index.getChildren()) {
+			if (child.getPath().equals(path)) {
+		    	LOG.error("Modifying entry : {}", path);
+
+				child.setLesson(lesson);
+				child.setLabel(label);
+
+				writeSectionIndex(section, index);
+
+				found = true;
+			}
+		}
+		
+		if (found) {
+			return Response.ok().build();
+		} else {
+	    	LOG.error("Modify failed, entry not found : {}", path);
+
+			return Response.status(404).build();
+		}
+	}
+	
+	@GET
+	@Path("mock")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response mock() throws URISyntaxException {
+
+		User user = mockUser();
+		
+		// User authenticated and identified. Save the info.
+		NewCookie cookie = authUtils.generateCookie(user);
+		
+        return Response.seeOther(new URI("/")).cookie(cookie).build();
+	}
+	
+	private User mockUser() {
+		return new User("Dwight Frye", "dfrye@planez.co", "REDACTED", "REDACTED", "REDACTED");
+	}
 	
     private static URL url(String url) {
         try {

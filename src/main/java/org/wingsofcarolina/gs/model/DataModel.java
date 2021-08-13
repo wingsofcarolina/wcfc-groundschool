@@ -6,6 +6,8 @@ import java.util.List;
 public class DataModel {
 	private List<Node> children = new ArrayList<Node>();
 	
+	public DataModel() {}
+	
 	public void addChild(Node node) {
 		this.children.add(node);
 	}

@@ -1,12 +1,19 @@
 <script>
   import { onMount } from 'svelte'
   import { goto } from '@sapper/app'
-  import Handout from "../components/Handout.svelte";
+  import { user, adminState } from '../store.js'
+  import { notifier } from '@beyonk/svelte-notifications'
+  import tippy from "sveltejs-tippy";
+  import Lesson from "../components/Lesson.svelte";
+  import UploadDialog from "../components/UploadDialog.svelte";
 
   export let section;
+  export let label;
   export let items;
 
   let maxLesson = 0;
+  let uploadOnOff = false;
+  let dialog;
 
   onMount(async () => {
     for (var i = 0; i < items.length; i++) {
@@ -27,38 +34,47 @@
 
   function requiredReading() {
     switch (section) {
-      case "Private Class Materials" :
+      case "private" :
         goto('private_reading');
         break;
-      case "Instrument Class Materials" :
+      case "instrument" :
         goto('instrument_reading');
         break;
-      case "Commercial Class Materials" :
+      case "commercial" :
         goto('commercial_reading');
         break;
       }
   }
+
+  const uploadProps = {
+    allowHTML: true,
+    placement: "left",
+    delay: 800,
+    content: "<span class='tooltip'>Upload new file</span>"
+  }
+
 </script>
 
-
 <div class="section">
-  <div class=title>{section}</div>
+  <div class=title>{label}</div>
+  {#if $user &&  $adminState == 'on' && ! $user.anonymous}
+    <div class='upload'>
+      <img use:tippy={uploadProps} src='upload_icon.png' alt='Upld' on:click={() => dialog.raise()}>
+    </div>
+  {/if}
   <div class="internal_button" on:click={() => requiredReading()}>Class Supplies</div>
   <hr class="highlight">
 
   <div class="handoutlist">
-    {#each {length: maxLesson+1} as _, i }
-      {#if i != 0  && hasEntries(i) == true}
-        <div class="subtitle">Class # {i}</div>
+    {#each {length: maxLesson+1} as _, lesson }
+      {#if hasEntries(lesson) == true}
+        <Lesson lesson={lesson} section={section} items={items.filter(items => items.lesson == lesson)} on:modify/>
       {/if}
-      {#each items as item}
-        {#if item.lesson == i}
-          <Handout path={item.path} title={item.label} />
-        {/if}
-      {/each}
     {/each}
   </div>
 </div>
+
+<UploadDialog bind:this="{dialog}" section={section} on:modify/>
 
 <style>
 .section {
@@ -68,6 +84,9 @@
 .title {
   font-size: 2em;
   text-align: center;
+}
+.upload {
+  float: right;
 }
 .internal_button {
   font-size: 1.2em;

@@ -77,6 +77,12 @@ public class AuthUtils {
 		claims.put("userId", user.getUserId());
 		claims.put("teamId", user.getTeamId());
 		claims.put("accessToken", user.getAccess_token());
+		
+		// Hard-code some authorized users
+		if (user.getEmail().equals("dfrye@planez.co") || user.getEmail().equals("george.scheer@gmail.com")) {
+			claims.put("admin", true);
+		}
+		
 		String compactJws = Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, key).compact();
 
 		return compactJws;
@@ -106,6 +112,10 @@ public class AuthUtils {
 					(String) claims.getBody().get("teamId"),
 					(String) claims.getBody().get("accessToken")
 			);
+			
+			if ((Boolean) claims.getBody().get("admin")) {
+				user.setAdmin(true);
+			}
 		}
 		return user;
 	}

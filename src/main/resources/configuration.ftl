@@ -1,10 +1,12 @@
 ######
 
+gsroot: ${GSROOT!'/gs_root'}
+
 # Operational mode, DEV or PROD
 mode: ${MODE!'PROD'}
 
 # Authentication, ON or OFF
-auth: ${AUTH!'OFF'}
+auth: ${AUTH!'ON'}
 
 # Slack channels
 slackNotify: ${SLACK!'REDACTED/REDACTED'}     # Targets #notification
@@ -36,7 +38,7 @@ logging:
 
   # Logger-specific levels.
   loggers:
-    "org.wingsofcarolina.gs": ${LOGLEVEL!'INFO'}
+    "org.wingsofcarolina.gs": ${LOGLEVEL!'DEBUG'}
     
   appenders:
       - type: console

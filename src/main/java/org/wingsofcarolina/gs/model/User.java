@@ -7,6 +7,7 @@ public class User {
 	private String userId;
 	private String teamId;
 	private String access_token;
+	private Boolean admin = false;
 	
 	public User(String name, String email, String userId, String teamId, String access_token) {
 		this.name = name;
@@ -23,7 +24,18 @@ public class User {
 	public String getEmail() {
 		return email;
 	}
+	
+	public Boolean getAdmin() {
+		if (email.contentEquals("dfrye@planez.co")) {
+			return true;
+		}
+		return admin;
+	}
 
+	public void setAdmin(Boolean admin) {
+		this.admin = admin;
+	}
+	
 	public String getUserId() {
 		return userId;
 	}

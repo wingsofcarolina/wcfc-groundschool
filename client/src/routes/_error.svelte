@@ -5,7 +5,6 @@
 	export let error;
 
 	const dev = process.env.NODE_ENV === 'development';
-	requestReload.set(true);
 	goto('/');
 
 </script>

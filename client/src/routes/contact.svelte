@@ -3,6 +3,7 @@
 	import { goto } from '@sapper/app';
 	import { notifier } from '@beyonk/svelte-notifications'
 	import { user } from '../store.js'
+	import { getUser } from '../common.js'
 
 	let name;
 	let phone;
@@ -12,32 +13,6 @@
 	onMount(function() {
 		getUser();
 	});
-
-	const getUser = async () => {
-		const response = await fetch('/api/user', {
-			method: "get",
-			withCredentials: true,
-			headers: {
-				'Accept': 'application/json'
-			}
-		});
-		if (!response.ok) {
-			if (response.status == 404) {
-				// User was simpoly not found, therefore not authenticated
-				user.set(null);
-			} else {
-				// Otherwise, something else went wrong
-				notifier.danger('Retrieve of user information failed.');
-			}
-		} else {
-			var tmp = await response.json();
-			user.set(tmp);
-			if ($user != null && $user.anonymous == false) {
-				name = $user.name;
-				email = $user.email;
-			}
-		}
-	}
 
 	const sendMessage = async () => {
     if (name == null || name === "") {

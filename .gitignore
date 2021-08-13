@@ -1,4 +1,5 @@
 *.zip
+*.tgz
 *.dump
 .project
 .classpath
@@ -11,6 +12,8 @@ images/
 target/
 backups/
 tokens/
+tmp/
+gs_root/
 /node_modules/
 __sapper__/
 pom.xml.tag

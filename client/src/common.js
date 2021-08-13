@@ -1,6 +1,29 @@
+import { user } from './store.js'
 import { getSanitizingConverter } from 'pagedown';
 
 var converter = getSanitizingConverter();
+
+export const getUser = async () => {
+  const response = await fetch('/api/user', {
+    method: "get",
+    withCredentials: true,
+    headers: {
+      'Accept': 'application/json'
+    }
+  });
+  if (!response.ok) {
+    if (response.status == 404) {
+      // User was simpoly not found, therefore not authenticated
+      user.set(null);
+    } else {
+      // Otherwise, something else went wrong
+      notifier.danger('Retrieve of user information failed.');
+    }
+  } else {
+    var tmp = await response.json();
+    user.set(tmp);
+  }
+}
 
 export function convert(rawText) {
   let rawMarkup = converter.makeHtml(rawText);

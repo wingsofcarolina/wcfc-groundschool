@@ -23,7 +23,7 @@ public class RuntimeExceptionMapper implements ExceptionMapper<RuntimeException>
     	
     	LOG.info("{} : {} : {}", code, exception.getClass().getSimpleName(), exception.getMessage());
     	
-    	exception.printStackTrace();
+    	// exception.printStackTrace();
     	
         return Response
                 .serverError()

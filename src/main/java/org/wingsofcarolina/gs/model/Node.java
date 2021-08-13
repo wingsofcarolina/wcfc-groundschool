@@ -8,6 +8,8 @@ public abstract class Node {
 	private String label;
 	private List<Node> children = null;
 	
+	public Node() {}
+	
 	public Node(String path, String label) {
 		this.path = path;
 		this.label = label;
