@@ -86,9 +86,7 @@
 			move('moveUp', item);
 		} else if (command == 'moveDown') {
 			move('moveDown', item);
-		} else if (command == 'refresh') {
-      console.log("We wanna refresh, now!!");
-    }
+		} 
 		sleep(200).then(() => {
 			getIndex(section);
 		})

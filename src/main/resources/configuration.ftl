@@ -38,7 +38,7 @@ logging:
 
   # Logger-specific levels.
   loggers:
-    "org.wingsofcarolina.gs": ${LOGLEVEL!'DEBUG'}
+    "org.wingsofcarolina.gs": ${LOGLEVEL!'INFO'}
     
   appenders:
       - type: console

@@ -1,6 +1,7 @@
 package org.wingsofcarolina.gs.authentication;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.ws.rs.core.Cookie;
@@ -10,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wingsofcarolina.gs.GsConfiguration;
 import org.wingsofcarolina.gs.model.User;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -33,11 +36,13 @@ public class AuthUtils {
 
 	private SecretKeySpec key;
 	private JwtParser parser;
+	private ObjectMapper mapper;
 
 
 	public AuthUtils() {
 		key = new SecretKeySpec(encoded, algorithm);
 		parser = Jwts.parser().setSigningKey(key);
+		mapper = new ObjectMapper();
 	}
 
 	public static AuthUtils instance() {
@@ -81,6 +86,8 @@ public class AuthUtils {
 		// Hard-code some authorized users
 		if (user.getEmail().equals("dfrye@planez.co") || user.getEmail().equals("george.scheer@gmail.com")) {
 			claims.put("admin", true);
+		} else {
+			claims.put("admin", true);
 		}
 		
 		String compactJws = Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, key).compact();
@@ -104,17 +111,22 @@ public class AuthUtils {
 		
 		if (cookie != null) {
 			Jws<Claims> claims = decodeCookie(cookie);
+			Claims body = claims.getBody();
 			
 			user = new User(
-					(String) claims.getBody().getSubject(),
-					(String) claims.getBody().get("email"),
-					(String) claims.getBody().get("userId"),
-					(String) claims.getBody().get("teamId"),
-					(String) claims.getBody().get("accessToken")
+					(String) body.getSubject(),
+					(String) body.get("email"),
+					(String) body.get("userId"),
+					(String) body.get("teamId"),
+					(String) body.get("accessToken")
 			);
 			
-			if ((Boolean) claims.getBody().get("admin")) {
-				user.setAdmin(true);
+			HashMap mymap = mapper.convertValue(body, HashMap.class);
+
+			if (mymap.containsKey("admin")) {
+				user.setAdmin((Boolean) body.get("admin"));
+			} else {
+				user.setAdmin(false);
 			}
 		}
 		return user;

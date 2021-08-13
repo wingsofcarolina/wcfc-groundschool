@@ -438,12 +438,16 @@ public class GsResource {
 				Index index = getSectionIndex(section);
 				index.getChildren().add(new Index(path, label, lesson));
 				writeSectionIndex(section, index);
+				return Response.ok().build();
 		    } else {
 		    	LOG.error("Renaming of temp upload file failed : {}", path);
+				return Response.status(500).build();
 		    }
+	    } else {
+	    	LOG.error("File was not a PDF, rejected");
+	    	targetFile.delete();
+			return Response.status(400).build();
 	    }
-
-		return Response.ok().build();
 	}
 	
 	@POST

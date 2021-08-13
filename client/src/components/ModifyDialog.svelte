@@ -8,12 +8,12 @@
   export let item;
   export let section;
 
-  let handoutLabel = null;
+  let label = null;
   let lesson = null;
   let files = null;
 
   export const raise = () => {
-    handoutLabel = item.label;
+    label = item.label;
     lesson = item.lesson;
     visible = true
   }
@@ -32,23 +32,27 @@
   const uploadNewHandout = async () => {
     visible = false;
 
-    const formData = new FormData();
-    formData.append('label', handoutLabel);
-    formData.append('path', item.path);
-    formData.append('section', section);
-    formData.append('lesson', lesson);
-    for (var pair of formData.entries()) {
-        console.log(pair[0]+ ', ' + pair[1]);
-    }
-    const response = await fetch('/api/update', {
-        method: 'post',
-        body: formData
-    });
-    if (response.ok) {
-      notifier.success('Entry modified successfully');
-      refresh();
+    if (files == null || label == null || lesson == null) {
+      notifier.danger("All values must be provided.")
     } else {
-      notifier.danger('Entry modification failed');
+      const formData = new FormData();
+      formData.append('label', label);
+      formData.append('path', item.path);
+      formData.append('section', section);
+      formData.append('lesson', lesson);
+      for (var pair of formData.entries()) {
+          console.log(pair[0]+ ', ' + pair[1]);
+      }
+      const response = await fetch('/api/update', {
+          method: 'post',
+          body: formData
+      });
+      if (response.ok) {
+        notifier.success('Entry modified successfully');
+        refresh();
+      } else {
+        notifier.danger('Entry modification failed');
+      }
     }
   }
 </script>
@@ -57,7 +61,7 @@
 <div id='uploadDialog' class='dialog' style="visibility : {visible ? 'visible' : 'hidden'}">
   <div class='dialog_contents'>
     <div class='dialog_label'>Handout Display Name</div>
-    <input bind:value={handoutLabel}><br>
+    <input bind:value={label}><br>
     <div class='dialog_label'>Class Number</div>
     <input width=10 bind:value={lesson}><br>
     <p>

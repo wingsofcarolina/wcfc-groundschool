@@ -7,7 +7,7 @@
   export let visible = false;
   export let section = 0;
 
-  let handoutLabel = null;
+  let label = null;
   let lesson = null;
   let files = null;
 
@@ -27,23 +27,28 @@
   const uploadNewHandout = async () => {
     visible = false;
 
-    const formData = new FormData();
-    formData.append('label', handoutLabel);
-    formData.append('section', section);
-    formData.append('lesson', lesson);
-    formData.append('file', files[0]);
-    for (var pair of formData.entries()) {
-        console.log(pair[0]+ ', ' + pair[1]);
-    }
-    const response = await fetch('/api/upload', {
-        method: 'post',
-        body: formData
-    });
-    if (response.ok) {
-      notifier.success('File uploaded successfully');
-      refresh();
+    if (files == null || label == null || lesson == null) {
+      notifier.danger("All values must be provided.")
     } else {
-      notifier.danger('File failed to upload');
+      const formData = new FormData();
+      formData.append('label', label);
+      formData.append('section', section);
+      formData.append('lesson', lesson);
+      formData.append('file', files[0]);
+      // for (var pair of formData.entries()) {
+      //     console.log(pair[0]+ ', ' + pair[1]);
+      // }
+      const response = await fetch('/api/upload', {
+          method: 'post',
+          body: formData
+      });
+      if (response.ok) {
+        notifier.success('File uploaded successfully');
+        section = lesson = label = null;
+        refresh();
+      } else {
+        notifier.danger('File failed to upload (not a PDF??)');
+      }
     }
   }
 </script>
@@ -52,7 +57,7 @@
 <div id='uploadDialog' class='dialog' style="visibility : {visible ? 'visible' : 'hidden'}">
   <div class='dialog_contents'>
     <div class='dialog_label'>Handout Display Name</div>
-    <input bind:value={handoutLabel}><br>
+    <input bind:value={label}><br>
     <div class='dialog_label'>Class Number</div>
     <input width=10 bind:value={lesson}><br>
     <input id="file" type="file" bind:files>

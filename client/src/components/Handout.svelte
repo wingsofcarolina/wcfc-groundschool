@@ -82,16 +82,16 @@
 
 <div class="handout">
   {#if $user &&  $adminState == 'on' && ! $user.anonymous}
-    <img use:tippy={deleteProps} src='delete_icon.png' alt='Del' on:click={() => deleteFile({item})}>
-    <img use:tippy={editProps} src='edit_icon.png' alt='Edt' on:click={() => editFileData({item})}>
+    <img style="cursor:pointer;" use:tippy={deleteProps} src='delete_icon.png' alt='Del' on:click={() => deleteFile({item})}>
+    <img style="cursor:pointer;" use:tippy={editProps} src='edit_icon.png' alt='Edt' on:click={() => editFileData({item})}>
     <img src='blank_icon.png' alt='X'>
     {#if index != 0}
-      <img use:tippy={moveUpProps} src='arrow_up_icon.png' alt='Up' on:click={() => moveUpFile({item})}>
+      <img style="cursor:pointer;" use:tippy={moveUpProps} src='arrow_up_icon.png' alt='Up' on:click={() => moveUpFile({item})}>
     {:else}
       <img src='blank_icon.png' alt='X'>
     {/if}
     {#if index != maxIndex - 1}
-      <img use:tippy={moveDownProps} src='arrow_down_icon.png' alt='Dwn' on:click={() => moveDownFile({item})}>
+      <img style="cursor:pointer;" use:tippy={moveDownProps} src='arrow_down_icon.png' alt='Dwn' on:click={() => moveDownFile({item})}>
     {:else}
       <img src='blank_icon.png' alt='X'>
     {/if}

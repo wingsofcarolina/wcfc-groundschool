@@ -87,6 +87,7 @@
 }
 .upload {
   float: right;
+  cursor: pointer;
 }
 .internal_button {
   font-size: 1.2em;
