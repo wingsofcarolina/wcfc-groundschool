@@ -60,6 +60,7 @@ import com.dropbox.core.v2.files.ListFolderErrorException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.exceptions.CsvException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.tika.Tika;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -433,7 +434,9 @@ public class GsResource {
 	    String fileType = getFileTypeByTika(targetFile);
 	    if (fileType.equals("application/pdf")) {
 			String newname = gs_root + "/" + path;
-			if (targetFile.renameTo(new File(newname))) {
+			File newfile = new File(newname);
+			FileUtils.moveFile(targetFile, newfile);
+			if (newfile.exists()) {
 				LOG.info("Creating : {}", newname);
 				
 				Index index = getSectionIndex(section);
