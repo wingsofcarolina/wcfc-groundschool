@@ -60,6 +60,7 @@ import com.dropbox.core.v2.files.ListFolderErrorException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.exceptions.CsvException;
 
+import org.apache.tika.Tika;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
@@ -429,7 +430,7 @@ public class GsResource {
 	    outStream.close();
 
 	    // Check out the type 
-	    String fileType = Files.probeContentType(targetFile.toPath());
+	    String fileType = getFileTypeByTika(targetFile);
 	    if (fileType.equals("application/pdf")) {
 			String newname = gs_root + "/" + path;
 			if (targetFile.renameTo(new File(newname))) {
@@ -448,6 +449,19 @@ public class GsResource {
 	    	targetFile.delete();
 			return Response.status(400).build();
 	    }
+	}
+
+	public static String getFileTypeByTika(File file) {        
+	    final Tika tika = new Tika();       
+	    String fileTypeDefault ="";
+	    try {
+	        fileTypeDefault = tika.detect(file);
+	    } catch (IOException e) {
+	        LOG.error("Error while detecting file type from File");
+	        LOG.error("*Error message: {}", e.getMessage());
+	        e.printStackTrace();
+	    }
+	    return fileTypeDefault;
 	}
 	
 	@POST
