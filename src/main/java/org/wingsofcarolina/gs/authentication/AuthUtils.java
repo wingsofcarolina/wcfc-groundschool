@@ -99,7 +99,6 @@ public class AuthUtils {
 		boolean secure = GsConfiguration.instance().getMode().compareTo("DEV") == 0 ? false : true;
 		int maxAge = 86400*30;  // Seconds per day, times days to live
 		NewCookie cookie = new NewCookie("wcfc.gs.token", generateToken(user), "/", "wingsofcarolina.org", "WCFC Groundschool ID", maxAge, secure, true);
-		System.out.println("====> " + cookie.toString());
 		return cookie;
 	}
 
