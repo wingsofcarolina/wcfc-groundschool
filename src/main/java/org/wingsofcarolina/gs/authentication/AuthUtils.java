@@ -98,12 +98,14 @@ public class AuthUtils {
 	public NewCookie generateCookie(User user) {
 		boolean secure = GsConfiguration.instance().getMode().compareTo("DEV") == 0 ? false : true;
 		int maxAge = 86400*30;  // Seconds per day, times days to live
-		return new NewCookie("wcfc.gs.token", generateToken(user), "/", "", "WCFC Groundschool ID", maxAge, secure, true);
+		NewCookie cookie = new NewCookie("wcfc.gs.token", generateToken(user), "/", "wingsofcarolina.org", "WCFC Groundschool ID", maxAge, secure, true);
+		System.out.println("====> " + cookie.toString());
+		return cookie;
 	}
 
 	public NewCookie removeCookie() {
 		boolean secure = GsConfiguration.instance().getMode().compareTo("DEV") == 0 ? false : true;
-		return new NewCookie("wcfc.gs.token", null, "/", "", "WCFC Groundschool ID", 0, secure, true);
+		return new NewCookie("wcfc.gs.token", null, "/", "wingsofcarolina.org", "WCFC Groundschool ID", 0, secure, true);
 	}
 
 	public User getUserFromCookie(Cookie cookie) {

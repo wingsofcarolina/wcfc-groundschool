@@ -193,7 +193,10 @@ public class GsResource {
 		
 		Index index = getSectionIndex(section);
 		
-        return Response.ok().entity(index).cookie(authUtils.generateCookie(user)).build();
+		NewCookie c = authUtils.generateCookie(user);
+		// The following header hack is due to (a) Chrome demanding SameSite be set
+		// and (b) NewCookie having no way to freaking do that. WTF people?
+        return Response.ok().entity(index).header("Set-Cookie", c.toString() + ";SameSite=none").build();
 	}
 	
 	private Index getSectionIndex(String section) {
@@ -391,7 +394,9 @@ public class GsResource {
 		// User authenticated and identified. Save the info.
 		NewCookie cookie = authUtils.generateCookie(user);
 		
-        return Response.seeOther(new URI("/")).cookie(cookie).build();
+		// The following header hack is due to (a) Chrome demanding SameSite be set
+		// and (b) NewCookie having no way to freaking do that. WTF people?
+        return Response.seeOther(new URI("/")).header("Set-Cookie", cookie.toString() + ";SameSite=none").build();
 	}
 	
 	@GET
@@ -513,7 +518,9 @@ public class GsResource {
 		// User authenticated and identified. Save the info.
 		NewCookie cookie = authUtils.generateCookie(user);
 		
-        return Response.seeOther(new URI("/")).cookie(cookie).build();
+		// The following header hack is due to (a) Chrome demanding SameSite be set
+		// and (b) NewCookie having no way to freaking do that. WTF people?
+        return Response.seeOther(new URI("/")).header("Set-Cookie", cookie.toString() + ";SameSite=none").build();
 	}
 	
 	private User mockUser() {
