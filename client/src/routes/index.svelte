@@ -6,7 +6,7 @@
 	import { getUser } from '../common.js'
 	import Section from "../components/Section.svelte";
 	import Handout from "../components/Handout.svelte";
-	
+
 	var data = null;
 
 	onMount(async () => {

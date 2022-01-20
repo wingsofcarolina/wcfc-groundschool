@@ -16,7 +16,7 @@
     <div class=logo on:click={home.bind()}><img src=/WCFC-logo.jpg alt="WCFC Groundschool"></div>
     <div class=title>WCFC Ground School Materials</div>
   </div>
-	{#if $user &&  ! $user.anonymous}
+	{#if $user &&  ! $user.anonymous && $user.admin }
 	  <div class="switch">
 	    <Switch bind:value={$adminState} label="Admin Mode" design="inner"/>
 	  </div>

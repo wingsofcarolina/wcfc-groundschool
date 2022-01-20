@@ -96,7 +96,7 @@ public class AuthUtils {
 		if (user.getEmail().equals("dfrye@planez.co") || user.getEmail().equals("george.scheer@gmail.com")) {
 			claims.put("admin", true);
 		} else {
-			claims.put("admin", true);
+			claims.put("admin", false);
 		}
 		
 		String compactJws = Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, key).compact();

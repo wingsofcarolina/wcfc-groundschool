@@ -93,8 +93,6 @@ public class GsResource {
 	private AuthUtils authUtils;
 	private boolean authEnabled = false;
 	
-	private static boolean mockUser = true; // When we are developing and don't want to authenticate with Slack
-	
 	private static String gs_root;
 	
 	private ObjectMapper mapper;
@@ -147,27 +145,22 @@ public class GsResource {
 		        reply.put("name", user.getName());
 		        reply.put("email", user.getEmail());
 		        reply.put("anonymous", false);
-		        if (user.getEmail().contains("dfrye@planez.co")) {
-		        	reply.put("admin", true);
-		        } else {
-		        	reply.put("admin", false);
-		        }
+				if (user.getEmail().equals("dfrye@planez.co") || user.getEmail().equals("george.scheer@gmail.com")) {
+					reply.put("admin", true);
+				} else {
+					reply.put("admin", false);
+				}
 
 		        return Response.ok().entity(reply).build();
 	        } else {
 	        	return Response.status(404).build();
 	        }
 		} else {
-			if ( ! mockUser) {
-		        reply.put("name", "Anonymous");
-		        reply.put("email", "nobody@wingsofcarolina.org");
-		        reply.put("anonymous", true);
-			} else {
-		        reply.put("name", "Dwight Frye");
-		        reply.put("email", "dfrye@planez.co");
-		        reply.put("anonymous", false);
-		        reply.put("admin", true);
-			}
+	        reply.put("name", "Anonymous");
+	        reply.put("email", "nobody@wingsofcarolina.org");
+	        reply.put("anonymous", true);
+        	reply.put("admin", false);
+
 	        return Response.ok().entity(reply).build();
 		}
 	}
@@ -187,14 +180,16 @@ public class GsResource {
 		// Get the user, so we can re-issue the cookie
 		if (authEnabled == false && cookie != null) {
 			user = authUtils.getUserFromCookie(cookie);
-		} else {
-			user = mockUser();
 		}
 		
 		Index index = getSectionIndex(section);
 		
-		NewCookie newCookie = authUtils.generateCookie(user);
-        return Response.ok().entity(index).header("Set-Cookie", AuthUtils.sameSite(newCookie)).build();
+		if (user != null) {
+			NewCookie newCookie = authUtils.generateCookie(user);
+	        return Response.ok().entity(index).header("Set-Cookie", AuthUtils.sameSite(newCookie)).build();
+		} else {
+	        return Response.ok().entity(index).build();
+		}
 	}
 	
 	private Index getSectionIndex(String section) {
@@ -502,22 +497,22 @@ public class GsResource {
 		}
 	}
 	
-	@GET
-	@Path("mock")
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response mock() throws URISyntaxException {
-
-		User user = mockUser();
-		
-		// User authenticated and identified. Save the info.
-		NewCookie cookie = authUtils.generateCookie(user);
-        return Response.seeOther(new URI("/")).header("Set-Cookie", AuthUtils.sameSite(cookie)).build();
-	}
+//	@GET
+//	@Path("mock")
+//	@Produces(MediaType.APPLICATION_JSON)
+//	@Consumes(MediaType.APPLICATION_JSON)
+//	public Response mock() throws URISyntaxException {
+//
+//		User user = mockUser();
+//		
+//		// User authenticated and identified. Save the info.
+//		NewCookie cookie = authUtils.generateCookie(user);
+//        return Response.seeOther(new URI("/")).header("Set-Cookie", AuthUtils.sameSite(cookie)).build();
+//	}
 	
-	private User mockUser() {
-		return new User("Dwight Frye", "dfrye@planez.co", "REDACTED", "REDACTED", "REDACTED");
-	}
+//	private User mockUser() {
+//		return new User("Dwight Frye", "dfrye@planez.co", "REDACTED", "REDACTED", "REDACTED");
+//	}
 	
     private static URL url(String url) {
         try {
