@@ -145,7 +145,10 @@ public class GsResource {
 		        reply.put("name", user.getName());
 		        reply.put("email", user.getEmail());
 		        reply.put("anonymous", false);
-				if (user.getEmail().equals("dfrye@planez.co") || user.getEmail().equals("george.scheer@gmail.com")) {
+				if (user.getEmail().equals("dfrye@planez.co") ||
+					user.getEmail().equals("george.scheer@gmail.com") ||
+					user.getEmail().equals("cfi@wingsofcarolina.org"))
+				{
 					reply.put("admin", true);
 				} else {
 					reply.put("admin", false);
