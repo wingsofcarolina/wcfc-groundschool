@@ -7,6 +7,7 @@ mode: ${MODE!'PROD'}
 
 # Authentication, ON or OFF
 auth: ${AUTH!'ON'}
+mockAdmin: ${MOCKADMIN!'OFF'}
 
 # Slack channels
 slackNotify: ${SLACK!'REDACTED/REDACTED'}     # Targets #notification

@@ -10,6 +10,7 @@ public class GsConfiguration extends Configuration {
 	@JsonProperty String mode;
 	@JsonProperty String gsroot;
 	@JsonProperty Boolean auth;
+	@JsonProperty Boolean mockAdmin;
 	@JsonProperty String slackNotify;
 	@JsonProperty String slackContact;
 
@@ -25,6 +26,10 @@ public class GsConfiguration extends Configuration {
 		return auth;
 	}
 
+	public Boolean getMockAdmin() {
+		return mockAdmin;
+	}
+	
 	public String getGsroot() {
 		return gsroot;
 	}

@@ -92,6 +92,7 @@ public class GsResource {
 
 	private AuthUtils authUtils;
 	private boolean authEnabled = false;
+	private boolean mockAdmin = false;
 	
 	private static String gs_root;
 	
@@ -103,6 +104,7 @@ public class GsResource {
 		
 		// See if we have turned auth on
 		authEnabled = config.getAuth();
+		mockAdmin = config.getMockAdmin();
 		
 		// Get authorization utils object instance
 		authUtils = AuthUtils.instance();
@@ -118,6 +120,13 @@ public class GsResource {
 		
         // Create Slack authentication API service object
         slackAuth = new SlackAuthService(CLIENT_ID, CLIENT_SECRET);
+	}
+
+	@GET
+	@Path("noodle")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response noodle() {
+			return Response.ok().build();
 	}
 	
 	@GET
@@ -161,8 +170,13 @@ public class GsResource {
 		} else {
 	        reply.put("name", "Anonymous");
 	        reply.put("email", "nobody@wingsofcarolina.org");
-	        reply.put("anonymous", true);
-        	reply.put("admin", false);
+	        if (mockAdmin) {
+	        	reply.put("anonymous", false);
+	        	reply.put("admin", true);
+	        } else {
+	        	reply.put("anonymous", true);
+	        	reply.put("admin", false);
+	        }
 
 	        return Response.ok().entity(reply).build();
 		}
@@ -415,6 +429,7 @@ public class GsResource {
 			@FormDataParam("file") FormDataContentDisposition fileDetails)
 			throws IOException, CsvException, ParseException {
 		
+		LOG.info("Starting upload of file ....");
 		UUID uuid = UUID.randomUUID();
 		String path = section + "/" + uuid.toString() + ".pdf";
 	    File targetFile = new File("/tmp/" + uuid.toString() + ".tmp");
@@ -430,6 +445,7 @@ public class GsResource {
 
 	    // Check out the type 
 	    String fileType = getFileTypeByTika(targetFile);
+	    LOG.info("File type : {}", fileType);
 	    if (fileType.equals("application/pdf")) {
 			String newname = gs_root + "/" + path;
 			File newfile = new File(newname);
@@ -446,7 +462,7 @@ public class GsResource {
 				return Response.status(500).build();
 		    }
 	    } else {
-	    	LOG.error("File was not a PDF, rejected");
+	    	LOG.info("File was not a PDF, rejected --- type '{}'", fileType);
 	    	targetFile.delete();
 			return Response.status(400).build();
 	    }

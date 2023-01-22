@@ -47,6 +47,7 @@
         section = lesson = label = null;
         refresh();
       } else {
+        console.log(response);
         notifier.danger('File failed to upload (not a PDF??)');
       }
     }
