@@ -32,7 +32,7 @@
   const uploadNewHandout = async () => {
     visible = false;
 
-    if (files == null || label == null || lesson == null) {
+    if (label == null || lesson == null) {
       notifier.danger("All values must be provided.")
     } else {
       const formData = new FormData();
@@ -71,6 +71,9 @@
 </div>
 
 <style>
+input {
+  margin: 10px;
+}
 .dialog {
   position: fixed;
   left: 0;

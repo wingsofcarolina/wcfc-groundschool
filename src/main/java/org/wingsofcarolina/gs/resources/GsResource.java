@@ -93,6 +93,7 @@ public class GsResource {
 	private AuthUtils authUtils;
 	private boolean authEnabled = false;
 	private boolean mockAdmin = false;
+	private String mockUser = null;
 	
 	private static String gs_root;
 	
@@ -105,6 +106,7 @@ public class GsResource {
 		// See if we have turned auth on
 		authEnabled = config.getAuth();
 		mockAdmin = config.getMockAdmin();
+		mockUser = config.getMockUser();
 		
 		// Get authorization utils object instance
 		authUtils = AuthUtils.instance();
@@ -168,8 +170,14 @@ public class GsResource {
 	        	return Response.status(404).build();
 	        }
 		} else {
-	        reply.put("name", "Anonymous");
-	        reply.put("email", "nobody@wingsofcarolina.org");
+			if (mockUser != null) {
+				String[] fields = mockUser.split(":");
+				reply.put("name", fields[0]);
+				reply.put("email", fields[1]);
+			} else {
+		        reply.put("name", "Anonymous");
+		        reply.put("email", "nobody@wingsofcarolina.org");
+			}
 	        if (mockAdmin) {
 	        	reply.put("anonymous", false);
 	        	reply.put("admin", true);

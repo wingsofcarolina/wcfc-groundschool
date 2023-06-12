@@ -48,7 +48,10 @@
         refresh();
       } else {
         console.log(response);
-        notifier.danger('File failed to upload (not a PDF??)');
+        if (response.status == 413)
+          notifier.danger('File too large!');
+        else
+          notifier.danger('File failed to upload (not a PDF??)');
       }
     }
   }
@@ -69,6 +72,9 @@
 </div>
 
 <style>
+input {
+  margin: 10px;
+}
 .dialog {
   position: absolute;
   left: 0;

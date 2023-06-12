@@ -11,6 +11,7 @@ public class GsConfiguration extends Configuration {
 	@JsonProperty String gsroot;
 	@JsonProperty Boolean auth;
 	@JsonProperty Boolean mockAdmin;
+	@JsonProperty String mockUser;
 	@JsonProperty String slackNotify;
 	@JsonProperty String slackContact;
 
@@ -28,6 +29,14 @@ public class GsConfiguration extends Configuration {
 
 	public Boolean getMockAdmin() {
 		return mockAdmin;
+	}
+	
+	public String getMockUser() {
+		if (mockUser.equalsIgnoreCase("none")) {
+			return null;
+		} else {
+			return mockUser;
+		}
 	}
 	
 	public String getGsroot() {
