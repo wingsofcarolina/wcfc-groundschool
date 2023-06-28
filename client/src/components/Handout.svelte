@@ -96,7 +96,7 @@
       <img src='blank_icon.png' alt='X'>
     {/if}
   {/if}
-  <span class="title" on:click={() => fetchFile({item})}>{item.label}</span>
+  <span class="title" on:click={() => fetchFile({item})}>{item.label} {item.required ? "" : "(Optional)"}</span>
 </div>
 
 <ModifyDialog bind:this="{dialog}" section={section} item={item} on:modify/>

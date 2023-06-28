@@ -77,7 +77,7 @@ import org.wingsofcarolina.gs.common.APIException;
  * @author dwight
  *
  */
-@Path("/")	// Note that this is actually accessed as /api due to the setUrPattern() call in OralService
+@Path("/")	// Note that this is actually accessed as /api due to the setUrPattern() call in GsService
 public class GsResource {
 	private static final Logger LOG = LoggerFactory.getLogger(GsResource.class);
 	
@@ -128,7 +128,7 @@ public class GsResource {
 	@Path("noodle")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response noodle() {
-			return Response.ok().build();
+		return Response.ok().build();
 	}
 	
 	@GET
@@ -432,6 +432,7 @@ public class GsResource {
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response upload(@FormDataParam("label") String label,
 			@FormDataParam("lesson") Integer lesson,
+			@FormDataParam("required") Boolean required,
 			@FormDataParam("section") String section,
 			@FormDataParam("file") InputStream uploadedInputStream,
 			@FormDataParam("file") FormDataContentDisposition fileDetails)
@@ -462,7 +463,7 @@ public class GsResource {
 				LOG.info("Creating : {}", newname);
 				
 				Index index = getSectionIndex(section);
-				index.getChildren().add(new Index(path, label, lesson));
+				index.getChildren().add(new Index(path, label, lesson, required));
 				writeSectionIndex(section, index);
 				return Response.ok().build();
 		    } else {
@@ -496,6 +497,7 @@ public class GsResource {
 	public Response update(@FormDataParam("label") String label,
 			@FormDataParam("lesson") Integer lesson,
 			@FormDataParam("path") String path,
+			@FormDataParam("required") Boolean required,
 			@FormDataParam("section") String section)
 			throws IOException, CsvException, ParseException {
 		
@@ -508,6 +510,7 @@ public class GsResource {
 
 				child.setLesson(lesson);
 				child.setLabel(label);
+				child.setRequired(required);
 
 				writeSectionIndex(section, index);
 

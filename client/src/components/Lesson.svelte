@@ -22,7 +22,14 @@
 
   {#if handouts}
     {#each handouts as item, index}
-      <Handout section={section} item={item} index={index} maxIndex={handouts.length} on:modify/>
+      {#if item.required}
+        <Handout section={section} item={item} index={index} maxIndex={handouts.length} on:modify/>
+      {/if}
+    {/each}
+    {#each handouts as item, index}
+      {#if ! item.required}
+        <Handout section={section} item={item} index={index} maxIndex={handouts.length} on:modify/>
+      {/if}
     {/each}
   {/if}
 </div>

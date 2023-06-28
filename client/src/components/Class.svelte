@@ -86,7 +86,7 @@
 			move('moveUp', item);
 		} else if (command == 'moveDown') {
 			move('moveDown', item);
-		} 
+		}
 		sleep(200).then(() => {
 			getIndex(section);
 		})

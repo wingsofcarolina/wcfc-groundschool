@@ -10,15 +10,25 @@ public class Index  implements Comparable<Index> {
 	private Integer lesson = 0;
 	private String path;
 	private String label;
-	private boolean directory = false;
+	private Boolean required;
+	private Boolean directory = false;
 	private List<Index> children = null;
 	
 	public Index() {}
 	
-	public Index(String path, String label, Integer lesson) {
+	public Index(String path, String label, Integer lesson, Boolean required) {
 		this.path = path;
+		if (required == null) {
+			this.required = true;
+		} else {
+			this.required = required;
+		}
 		this.label = label;
 		this.lesson = lesson;
+	}
+
+	public Index(String path, String label, Integer lesson) {
+		this(path, label, 0, true);
 	}
 
 	public Index(String path, String label) {
@@ -49,6 +59,17 @@ public class Index  implements Comparable<Index> {
 		this.label = label;
 	}
 
+	public Boolean isRequired() {
+		if (required == null) {
+			required = true;
+		}
+		return required;
+	}
+
+	public void setRequired(Boolean required) {
+		this.required = required;
+	}
+
 	public List<Index> getChildren() {
 		return children;
 	}
@@ -57,7 +78,7 @@ public class Index  implements Comparable<Index> {
 		this.directory = true;
 	}
 
-	public boolean isDirectory() {
+	public Boolean isDirectory() {
 		return this.directory == true;
 	}
 	public void setDocument() {

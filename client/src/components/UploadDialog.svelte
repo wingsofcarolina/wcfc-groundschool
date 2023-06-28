@@ -8,6 +8,7 @@
   export let section = 0;
 
   let label = null;
+  let required = true;
   let lesson = null;
   let files = null;
 
@@ -32,6 +33,7 @@
     } else {
       const formData = new FormData();
       formData.append('label', label);
+      formData.append('required', required);
       formData.append('section', section);
       formData.append('lesson', lesson);
       formData.append('file', files[0]);
@@ -64,7 +66,17 @@
     <input bind:value={label}><br>
     <div class='dialog_label'>Class Number</div>
     <input width=10 bind:value={lesson}><br>
-    <input id="file" type="file" bind:files>
+    <input id="file" type="file" bind:files><br>
+    <div class='radio_button'>
+      <label>
+        <input type="radio" bind:group={required} name="required" value={true} />
+        Required
+      </label>
+      <label>
+        <input type="radio" bind:group={required} name="required" value={false} />
+        Optional
+      </label>
+    </div>
     <p>
     <button on:click={cancelUploadDialog.bind()}>Cancel</button>
     <input type="submit" value="Submit" on:click={uploadNewHandout.bind()}>
@@ -74,6 +86,9 @@
 <style>
 input {
   margin: 10px;
+}
+.radio_button {
+  text-align: left;
 }
 .dialog {
   position: absolute;

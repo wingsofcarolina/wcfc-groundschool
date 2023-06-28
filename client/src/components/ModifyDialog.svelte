@@ -10,16 +10,18 @@
 
   let label = null;
   let lesson = null;
+  let required = null;
   let files = null;
 
   export const raise = () => {
     label = item.label;
     lesson = item.lesson;
+    required = item.required;
     visible = true
   }
 
   const cancelUploadDialog = async () => {
-    // var el = document.getElementById("uploadDialog");
+    // var el = document.getElementById("modifyDialog");
     // if (el) el.style.visibility = "hidden";
     visible = false;
   }
@@ -29,7 +31,7 @@
     dispatch('modify', request );
   }
 
-  const uploadNewHandout = async () => {
+  const modifyOldHandout = async () => {
     visible = false;
 
     if (label == null || lesson == null) {
@@ -38,11 +40,12 @@
       const formData = new FormData();
       formData.append('label', label);
       formData.append('path', item.path);
+      formData.append('required', required);
       formData.append('section', section);
       formData.append('lesson', lesson);
-      for (var pair of formData.entries()) {
-          console.log(pair[0]+ ', ' + pair[1]);
-      }
+      // for (var pair of formData.entries()) {
+      //     console.log(pair[0]+ ', ' + pair[1]);
+      // }
       const response = await fetch('/api/update', {
           method: 'post',
           body: formData
@@ -58,21 +61,34 @@
 </script>
 
 
-<div id='uploadDialog' class='dialog' style="visibility : {visible ? 'visible' : 'hidden'}">
+<div id='modifyDialog' class='dialog' style="visibility : {visible ? 'visible' : 'hidden'}">
   <div class='dialog_contents'>
     <div class='dialog_label'>Handout Display Name</div>
     <input bind:value={label}><br>
     <div class='dialog_label'>Class Number</div>
     <input width=10 bind:value={lesson}><br>
+    <div class='radio_button'>
+      <label>
+        <input type="radio" bind:group={required} name="required" value={true} />
+        Required
+      </label>
+      <label>
+        <input type="radio" bind:group={required} name="required" value={false} />
+        Optional
+      </label>
+    </div>
     <p>
     <button on:click={cancelUploadDialog.bind()}>Cancel</button>
-    <input type="submit" value="Submit" on:click={uploadNewHandout.bind()}>
+    <input type="submit" value="Submit" on:click={modifyOldHandout.bind()}>
   </div>
 </div>
 
 <style>
 input {
   margin: 10px;
+}
+.radio_button {
+  text-align: left;
 }
 .dialog {
   position: fixed;
