@@ -26,9 +26,6 @@ public class User {
 	}
 	
 	public Boolean getAdmin() {
-		if (email.contentEquals("dfrye@planez.co")) {
-			return true;
-		}
 		return admin;
 	}
 

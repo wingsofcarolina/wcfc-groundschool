@@ -157,6 +157,7 @@ public class GsResource {
 		        reply.put("email", user.getEmail());
 		        reply.put("anonymous", false);
 				if (user.getEmail().equals("dfrye@planez.co") ||
+					user.getEmail().equals("dwight@openweave.org") ||
 					user.getEmail().equals("george.scheer@gmail.com") ||
 					user.getEmail().equals("cfi@wingsofcarolina.org"))
 				{
