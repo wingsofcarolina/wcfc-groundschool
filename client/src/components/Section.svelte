@@ -97,15 +97,6 @@
   margin-bottom: 10px;
   color: blue;
 }
-.subtitle {
-  font-size: 1.2em;
-  font-weight: 550;
-  color: rgb(40, 90, 149);
-  text-align: left;
-  margin-top: 20px;
-  margin-left: 2.9em;
-  border-bottom: 2px solid rgb(40, 90, 149);
-}
 .handoutlist {
   margin-left: 10px;
 }

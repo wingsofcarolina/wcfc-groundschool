@@ -7,12 +7,16 @@ import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.knowm.dropwizard.sundial.SundialBundle;
+import org.knowm.dropwizard.sundial.SundialConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.wingsofcarolina.gs.common.RuntimeExceptionMapper;
 import org.wingsofcarolina.gs.healthcheck.MinimalHealthCheck;
+import org.wingsofcarolina.gs.persistence.Persistence;
 import org.wingsofcarolina.gs.resources.GsResource;
+import org.wingsofcarolina.gs.resources.TestResource;
 import org.wingsofcarolina.gs.slack.Slack;
 
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
@@ -39,8 +43,14 @@ public class GsService extends Application<GsConfiguration> {
 	public void initialize(Bootstrap<GsConfiguration> bootstrap) {
 		// bootstrap.addBundle(new AssetsBundle("/doc", "/doc", "index.html","html"));
 		bootstrap.addBundle(new TemplateConfigBundle(new TemplateConfigBundleConfiguration()));
-    	bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
-    	bootstrap.addBundle(new MultiPartBundle());
+		bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
+		bootstrap.addBundle(new MultiPartBundle());
+		bootstrap.addBundle(new SundialBundle<GsConfiguration>() {
+			@Override
+			public SundialConfiguration getSundialConfiguration(GsConfiguration configuration) {
+				return configuration.getSundialConfiguration();
+			}
+		});
 	}
 
 	@Override
@@ -65,6 +75,9 @@ public class GsService extends Application<GsConfiguration> {
 		// Configure to allow CORS
 		configureCors(env);
 		
+		// Set up the Persistence singleton
+		new Persistence().initialize(config.getMongodb());
+
 		// Set exception mappers
 		if (config.getMode().contentEquals("PROD")) {
 			env.jersey().register(new RuntimeExceptionMapper());
@@ -72,6 +85,7 @@ public class GsService extends Application<GsConfiguration> {
 
 		// Now set up the API
 		env.jersey().register(new GsResource(config));
+		env.jersey().register(new TestResource(config));
 		env.healthChecks().register("check", new MinimalHealthCheck());
 	}
 	

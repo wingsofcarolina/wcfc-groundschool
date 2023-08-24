@@ -1,20 +1,24 @@
 package org.wingsofcarolina.gs.model;
 
+import org.wingsofcarolina.gs.domain.Person;
 
 public class User {
 	private String name;
 	private String email;
-	private String userId;
-	private String teamId;
-	private String access_token;
+	private String uuid;
 	private Boolean admin = false;
 	
-	public User(String name, String email, String userId, String teamId, String access_token) {
+	public User(Person person) {
+		this.name = person.getName();
+		this.email = person.getEmail();
+		this.uuid = person.getUUID();
+		this.admin = person.isAdmin();
+	}
+	
+	public User(String name, String email, String uuid) {
 		this.name = name;
 		this.email = email;
-		this.userId = userId;
-		this.teamId = teamId;
-		this.access_token = access_token;
+		this.uuid = uuid;
 	}
 
 	public String getName() {
@@ -33,16 +37,8 @@ public class User {
 		this.admin = admin;
 	}
 	
-	public String getUserId() {
-		return userId;
-	}
-
-	public String getTeamId() {
-		return teamId;
-	}
-
-	public String getAccess_token() {
-		return access_token;
+	public String getUUID() {
+		return uuid;
 	}
 
 	@Override

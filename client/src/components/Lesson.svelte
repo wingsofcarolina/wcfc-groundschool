@@ -35,22 +35,6 @@
 </div>
 
 <style>
-.section {
-  width: 100%;
-  margin-bottom: 3em;
-}
-.title {
-  font-size: 2em;
-  text-align: center;
-}
-.internal_button {
-  font-size: 1.2em;
-  text-align: center;
-  cursor: pointer;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  color: blue;
-}
 .subtitle {
   font-size: 1.2em;
   font-weight: 550;
@@ -62,13 +46,5 @@
 }
 .handoutlist {
   margin-left: 10px;
-}
-.highlight {
-  height: 4px;
-  max-width: 250px;
-  border-color: rgb(40, 90, 149);
-  background-color: rgb(40, 90, 149);
-  border-radius: 3px;
-  margin: 0px auto 50px auto;
 }
 </style>

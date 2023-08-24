@@ -3,6 +3,7 @@ package org.wingsofcarolina.gs.resources;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -58,6 +59,10 @@ import com.dropbox.core.DbxApiException;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.files.ListFolderErrorException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 
 import org.apache.commons.io.FileUtils;
@@ -66,6 +71,11 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wingsofcarolina.gs.domain.Admin;
+import org.wingsofcarolina.gs.domain.Person;
+import org.wingsofcarolina.gs.domain.Student;
+import org.wingsofcarolina.gs.email.EmailLogin;
+import org.wingsofcarolina.gs.email.VerificationCodeCache;
 import org.wingsofcarolina.gs.model.User;
 import org.wingsofcarolina.gs.slack.Slack;
 import org.wingsofcarolina.gs.slack.SlackAuthService;
@@ -125,13 +135,6 @@ public class GsResource {
 	}
 
 	@GET
-	@Path("noodle")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response noodle() {
-		return Response.ok().build();
-	}
-	
-	@GET
 	@Path("version")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response version() {
@@ -155,16 +158,8 @@ public class GsResource {
 	        if (user != null) {
 		        reply.put("name", user.getName());
 		        reply.put("email", user.getEmail());
+		        reply.put("admin", user.getAdmin());
 		        reply.put("anonymous", false);
-				if (user.getEmail().equals("dfrye@planez.co") ||
-					user.getEmail().equals("dwight@openweave.org") ||
-					user.getEmail().equals("george.scheer@gmail.com") ||
-					user.getEmail().equals("cfi@wingsofcarolina.org"))
-				{
-					reply.put("admin", true);
-				} else {
-					reply.put("admin", false);
-				}
 
 		        return Response.ok().entity(reply).build();
 	        } else {
@@ -391,7 +386,7 @@ public class GsResource {
 	@Path("auth")
 	@Produces(MediaType.TEXT_HTML)
 	@SuppressWarnings("unchecked")
-	public Response auth(@QueryParam("code") String code) throws URISyntaxException, APIException {
+	public Response slackAuth(@QueryParam("code") String code) throws URISyntaxException, APIException {
 		LOG.info("Code : {}", code);
 		
 		Map<String, Object> details = slackAuth.authenticate(code);
@@ -406,7 +401,7 @@ public class GsResource {
 		String name = userMap.get("name");
 		String email = userMap.get("email");
 		
-		User user = new User(name, email, user_id, team_id, access_token);
+		User user = new User(name, email, user_id);
 		LOG.info("Authenticated user : {}", user);
 		Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated user : " + user);
 		
@@ -415,11 +410,64 @@ public class GsResource {
         return Response.seeOther(new URI("/")).header("Set-Cookie", AuthUtils.sameSite(cookie)).build();
 	}
 	
+
+	@GET
+	@Path("email/{email}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response email(@PathParam("email") String email) {
+		Student student = Student.getByEmail(email);
+		if (student != null) {
+			new EmailLogin().emailTo(email, student.getUUID());
+			return Response.ok().build();
+		} else {
+			Admin admin = Admin.getByEmail(email);
+			if (admin !=null) {
+				new EmailLogin().emailTo(email, admin.getUUID());
+				return Response.ok().build();
+			}
+		}
+		return Response.status(404).build();
+	}
+	
+	@GET
+	@Path("verify/{uuid}/{code}")
+	@Produces(MediaType.TEXT_HTML)
+	@SuppressWarnings("unchecked")
+	public Response verify(@PathParam("uuid") String uuid,
+			@PathParam("code") Integer code) throws URISyntaxException, APIException {
+		
+		NewCookie cookie = null;
+		
+		LOG.info("Code : {}   UUID: {}", code, uuid);
+		
+		Student student = Student.getByUUID(uuid);
+		if (student != null && VerificationCodeCache.instance().verifyCode(student.getEmail(), code)) {
+				LOG.info("Authenticated student : {}", student);
+				Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated student : " + student);
+				cookie = authUtils.generateCookie(new User(student));
+		} else {
+			Admin admin = Admin.getByUUID(uuid);
+			if (admin != null && VerificationCodeCache.instance().verifyCode(admin.getEmail(), code)) {
+				LOG.info("Authenticated admin user : {}", admin);
+				Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated admin user : " + admin);
+				cookie = authUtils.generateCookie(new User(admin));
+			}
+		}
+		
+		// User authenticated and identified. Save the info.
+		if (cookie != null) {
+			return Response.seeOther(new URI("/")).header("Set-Cookie", AuthUtils.sameSite(cookie)).build();
+		} else {
+			return Response.seeOther(new URI("/failure")).header("Set-Cookie", AuthUtils.instance().removeCookie()).build();
+		}
+	}
+	
 	@GET
 	@Path("freespace")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response freespace() {
 		File fs = new File("tmp");
+		@SuppressWarnings("serial")
 		Map<String, Long> myMap = new HashMap<String, Long>() {{
 	        put("space", fs.getFreeSpace());
 	    }};
@@ -477,7 +525,98 @@ public class GsResource {
 			return Response.status(400).build();
 	    }
 	}
+	
+	@POST
+	@Path("addStudent")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response addStudent(Map<String, String> request) {
+		String section = request.get("section");
+		String name = request.get("name");
+		String email = request.get("email");
+		
+		Student student = Student.getByEmail(email);
+		if (student == null) {
+			student = new Student(section, name, email);
+			student.save();
+			LOG.info("Student {} added to {} section", email, section);
+		} else {
+			LOG.info("Student {} already exists", email, section);
+		}
+		
+		return Response.ok().build();
+	}
 
+
+	@POST
+	@Path("uploadStudents")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response uploadStudents(@FormDataParam("section") String section,
+			@FormDataParam("file") InputStream uploadedInputStream,
+			@FormDataParam("file") FormDataContentDisposition fileDetails)
+			throws IOException, CsvException, ParseException {
+		
+		// Normalize the class/section name
+		section = section.toUpperCase();
+		
+		LOG.info("Starting upload of student file for {}....", section);
+		UUID uuid = UUID.randomUUID();
+	    File targetFile = new File("/tmp/" + uuid.toString() + ".tmp");
+	    OutputStream outStream = new FileOutputStream(targetFile);
+
+	    byte[] buffer = new byte[8 * 1024];
+	    int bytesRead;
+	    while ((bytesRead = uploadedInputStream.read(buffer)) != -1) {
+	        outStream.write(buffer, 0, bytesRead);
+	    }
+	    uploadedInputStream.close();
+	    outStream.close();
+
+	    CSVParser parser = new CSVParserBuilder()
+	    	    .withSeparator(',')
+	    	    .withIgnoreQuotations(false)
+	    	    .build();
+
+    	CSVReader csvReader = new CSVReaderBuilder(new FileReader(targetFile))
+    	    .withSkipLines(0)
+    	    .withCSVParser(parser)
+            .withSkipLines(2)
+    	    .build();
+    	List<String[]> entries = csvReader.readAll();
+    	
+    	// Create the students
+    	Iterator<String[]> it = entries.iterator();
+    	while (it.hasNext()) {
+    		String[] line = it.next();
+    		
+    		String email = line[8];
+    		Student student = Student.getByEmail(email);
+    		
+    		if (student == null) {
+	    		StringBuilder sb = new StringBuilder();
+	    		sb.append(line[0]).append(" ");
+	    		if ( ! line[1].isEmpty()) sb.append(line[1]).append(" ");
+	    		sb.append(line[2]);
+	    		String name = sb.toString().trim();
+	    		
+	    		sb = new StringBuilder();
+	    		sb.append(line[3]).append(", ");
+	    		sb.append(line[4]).append(", ");
+	    		sb.append(line[5]).append(", ");
+	    		sb.append(line[6]).append(" ");
+	    		String address = sb.toString().trim();
+	    		
+	    		student = new Student(section, name, email);
+	    		student.save();
+    		LOG.info("Created student : {}", student);
+    		} else {
+    			LOG.info("Student exists : {}", student.toString());
+    		}
+    	}
+    	
+	    return Response.ok().build();
+	}
+	
 	public static String getFileTypeByTika(File file) {        
 	    final Tika tika = new Tika();       
 	    String fileTypeDefault ="";

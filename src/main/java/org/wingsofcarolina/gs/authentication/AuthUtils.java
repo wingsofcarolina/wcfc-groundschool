@@ -87,17 +87,10 @@ public class AuthUtils {
 		Claims claims = new DefaultClaims();
 		claims.setIssuedAt(new Date());
 		claims.setSubject(user.getName());
+		claims.put("version", 1);
 		claims.put("email", user.getEmail());
-		claims.put("userId", user.getUserId());
-		claims.put("teamId", user.getTeamId());
-		claims.put("accessToken", user.getAccess_token());
-		
-		// Hard-code some authorized users
-		if (user.getEmail().equals("dfrye@planez.co") || user.getEmail().equals("george.scheer@gmail.com")) {
-			claims.put("admin", true);
-		} else {
-			claims.put("admin", false);
-		}
+		claims.put("userId", user.getUUID());
+		claims.put("admin", user.getAdmin());
 		
 		String compactJws = Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, key).compact();
 
@@ -107,13 +100,13 @@ public class AuthUtils {
 	public NewCookie generateCookie(User user) {
 		boolean secure = GsConfiguration.instance().getMode().compareTo("DEV") == 0 ? false : true;
 		int maxAge = 86400*30;  // Seconds per day, times days to live
-		NewCookie cookie = new NewCookie("wcfc.gs.token", generateToken(user), "/", "wingsofcarolina.org", "WCFC Groundschool ID", maxAge, secure, true);
+		NewCookie cookie = new NewCookie("wcfc.gs.token", generateToken(user), "/", null, "WCFC Groundschool ID", maxAge, secure, true);
 		return cookie;
 	}
 
 	public NewCookie removeCookie() {
 		boolean secure = GsConfiguration.instance().getMode().compareTo("DEV") == 0 ? false : true;
-		return new NewCookie("wcfc.gs.token", null, "/", "wingsofcarolina.org", "WCFC Groundschool ID", 0, secure, true);
+		return new NewCookie("wcfc.gs.token", null, "/", null, "WCFC Groundschool ID", 0, secure, true);
 	}
 
 	public User getUserFromCookie(Cookie cookie) {
@@ -126,18 +119,9 @@ public class AuthUtils {
 			user = new User(
 					(String) body.getSubject(),
 					(String) body.get("email"),
-					(String) body.get("userId"),
-					(String) body.get("teamId"),
-					(String) body.get("accessToken")
+					(String) body.get("userId")
 			);
-			
-			HashMap mymap = mapper.convertValue(body, HashMap.class);
-
-			if (mymap.containsKey("admin")) {
-				user.setAdmin((Boolean) body.get("admin"));
-			} else {
-				user.setAdmin(false);
-			}
+			user.setAdmin((Boolean) body.get("admin"));
 		}
 		return user;
 	}

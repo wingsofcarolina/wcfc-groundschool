@@ -121,7 +121,6 @@
 .narrow p {
 	width: 70%;
 	text-align: left;
-	font-size: 1.2em;
 }
 .contact_block {
   display: flex;

@@ -1,0 +1,51 @@
+<script>
+	import { onMount } from 'svelte';
+	import { goto } from '@sapper/app';
+
+	onMount(function() {
+	});
+</script>
+
+<svelte:head>
+	<title>Login</title>
+</svelte:head>
+
+<div class=title>Login Fail</div>
+<hr class="highlight">
+
+<center>
+	<div class="narrow">
+
+		<p> You have attempted to authenticate with the WCFC Groundschool
+			server and have encountered a failure. Please contact the server
+			administrators via the website <a href="contact">contact</a> page
+			for further assistance.
+		</p>
+		<p> We apologize for the inconvenience. </p>
+	</div>
+
+</center>
+
+<style>
+.auth {
+	margin-top: 3em;
+}
+.title {
+  font-size: 2em;
+  text-align: center;
+}
+.highlight {
+  height: 4px;
+  margin-top: 25px;
+  margin-bottom: 40px;
+  width: 250px;
+  border-color: rgb(40, 90, 149);
+  background-color: rgb(40, 90, 149);
+  border-radius: 3px;
+	margin: 0px auto 50px auto;
+}
+.narrow p {
+	width: 70%;
+	text-align: left;
+}
+</style>

@@ -28,6 +28,9 @@
   <div class="left"><a class:selected='{segment === "instrument"}' href='instrument'>instrument</a></div>
   <div class="left"><a class:selected='{segment === "commercial"}' href='commercial'>commercial</a></div>
   <div class="left"><a class:selected='{segment === "contact"}' href='contact'>contact</a></div>
+	{#if $user &&  ! $user.anonymous && $user.admin }
+		<div class="left"><a class:selected='{segment === "students"}' href='students'>students</a></div>
+	{/if}
   <div class="left"><a class:selected='{segment === "about"}' href='about'>about</a></div>
   {#if $user &&  ! $user.anonymous}
     <div class="right">
@@ -57,6 +60,7 @@
 		height:100%;
 		margin: 0;
 		background: #ffffff;
+		font-size: 14pt;
 	}
   .banner {
     display:inline-block;

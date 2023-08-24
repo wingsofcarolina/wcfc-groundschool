@@ -2,6 +2,11 @@
 
 gsroot: ${GSROOT!'/gs_root'}
 
+# Location of the MongoDB server
+# If on a Docker network, just give the name of the MongoDB
+# container. Otherwise give the IP:PORT for the MongoDB process.
+mongodb: ${MONGODB!'mongodb'}
+
 # Operational mode, DEV or PROD
 mode: ${MODE!'PROD'}
 
@@ -14,6 +19,16 @@ mockUser: ${MOCKUSER!"NONE"}
 slackNotify: ${SLACK!'REDACTED/REDACTED'}     # Targets #notification
 slackContact: ${SLACK!'REDACTED/REDACTED'}    # Targets #contact
 
+# Configure the Sundial job management system    
+sundial:
+  thread-pool-size: 10
+  shutdown-on-unload: true
+  start-delay-seconds: 0
+  start-scheduler-on-load: true
+  global-lock-on-load: false
+  annotated-jobs-package-name: org.wingsofcarolina.gs.jobs
+  tasks: [startjob, stopjob]
+  
 # Configure ports used by DropWizard
 server:
     type: simple

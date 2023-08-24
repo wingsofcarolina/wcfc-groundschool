@@ -1,5 +1,10 @@
 package org.wingsofcarolina.gs;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.knowm.dropwizard.sundial.SundialConfiguration;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.dropwizard.Configuration;
@@ -9,6 +14,7 @@ public class GsConfiguration extends Configuration {
 
 	@JsonProperty String mode;
 	@JsonProperty String gsroot;
+	@JsonProperty String mongodb;
 	@JsonProperty Boolean auth;
 	@JsonProperty Boolean mockAdmin;
 	@JsonProperty String mockUser;
@@ -19,10 +25,24 @@ public class GsConfiguration extends Configuration {
 		GsConfiguration.instance = this;
 	}
 
+	@Valid
+	@NotNull
+	public SundialConfiguration sundialConfiguration = new SundialConfiguration();
+	
+	@JsonProperty("sundial")
+	public SundialConfiguration getSundialConfiguration() {
+
+	  return sundialConfiguration;
+	}
+	
 	public static GsConfiguration instance() {
 		return instance;
 	}
 	
+	public String getMongodb() {
+		return mongodb;
+	}
+
 	public Boolean getAuth() {
 		return auth;
 	}

@@ -53,21 +53,20 @@
 				<p>Here you'll find all the supporting handouts and other material for
 				the WCFC Ground Schools.  </p>
 
-				<p>We are making this information available through this site to support
-				our online classes but if this proves useful we will continue when we
-				return to the classroom. </p>
+				<p>To access this material you must be registered for the class and have
+				had your registration information uploaded to the system. You gain
+				access to the system by entering your email address, having it verified
+				by the system which will send an email to your registered email address.
+				That email will contain a link which will authenticate your access to
+				the class materials. A cookie will be placed on your browser identifying
+				you so this authentication need only happen once per system/browser
+				unless you clear your browser data. </p>
 
-				<p>To access this material you will be asked to join the
-				WCFC-Groundschool Slack workspace (for more information on Slack go to
-				slack.com) since this website uses Slack to authenticate that you are a
-				registered member of a groundschool class. That workspace will also be
-				used to communicate and coordinate between the students and those
-				managing the class. </p>
-
-				<p>The links in the navigation bar above will take you to the various
+				<p> The links in the navigation bar above will take you to the various
 				published class materials. If you have questions about the material use
-				either the "contact" page referenced above in the navigation bar or go
-				into the Slack workspace and ask your questions there. </p>
+				either the "<a href="contact">contact</a>" page referenced above in the
+				navigation bar or go into the Slack workspace and ask your questions
+				there. </p>
 
 				<p>You may bookmark your specific class page and can jump directly to
 				those materials when you wish, for your convenience. </p>
@@ -92,7 +91,6 @@ button {
 .narrow p {
 	width: 70%;
 	text-align: left;
-	font-size: 1.2em;
 }
 .title {
   font-size: 2em;
