@@ -19,11 +19,11 @@ public class Housekeeping extends Job {
 	
 	@Override
 	public void doRun() throws JobInterruptException {
-		LOG.info("Housekeeping triggered : {}", new Date().toString());
+		LOG.debug("Housekeeping triggered : {}", new Date().toString());
 		
 		// Expunge all ancient/expired verification codes
 		VerificationCodeCache.instance().cleanCache();
 		
-		LOG.info("Housekeeping completed.");
+		LOG.debug("Housekeeping completed.");
 	}
 }

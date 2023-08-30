@@ -23,7 +23,7 @@
 		});
 		if (!response.ok) {
 			if (response.status == 401) {
-        console.log('User not authenticated, redirecting to Slack');
+        console.log('User not authenticated, requesting authentication');
 				goto('login');
 			} else {
 				notifier.danger('Retrieve of class index failed.');

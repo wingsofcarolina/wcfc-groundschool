@@ -40,4 +40,11 @@ public class StudentDAO extends SuperDAO {
 			return null;
 		}
 	}
+
+	public List<Student> getAllForSection(String section) {
+		Datastore ds = Persistence.instance().datastore();
+		Query<Student> query = ds.find(Student.class);
+		List<Student> users = query.filter(Filters.eq("section", section)).iterator().toList();
+		return users;
+	}
 }

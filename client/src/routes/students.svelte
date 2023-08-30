@@ -4,11 +4,26 @@
 	import { notifier } from '@beyonk/svelte-notifications'
 	import { user } from '../store.js'
 	import { getUser } from '../common.js'
+	import Tabs from "../tabs/Tabs.svelte";
+	import Single from "../tabs/Single.svelte"
+	import Bulk from "../tabs/Bulk.svelte"
+	import List from "../tabs/List.svelte"
+	import Email from "../tabs/Email.svelte"
 
 	let view = false;
 	let name = null;
 	let email = null;
 	let files = null;
+
+	let tabComponent;
+
+  // List of tab items with labels, values and assigned components
+  let items = [
+    { label: "Single", value: 1, component: Single },
+    { label: "Bulk", value: 2, component: Bulk },
+		{ label: "List", value: 3, component: List },
+		//{ label: "Email", value: 4, component: Email }
+  ];
 
 	let sections = [
 		{ id: 'PRIVATE', text: `Private` },
@@ -26,62 +41,10 @@
 			view = true;
 		}
 	});
-
-	const addStudent = async () => {
-    if (name == null || email == null) {
-      notifier.danger("Either name or email missing, both required.")
-    } else {
-			var json = JSON.stringify({
-				section: section.id,
-				name: name,
-				email: email
-			});
-
-      const response = await fetch('/api/addStudent', {
-				method: "post",
-        withCredentials: true,
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: json
-      });
-      if (response.ok) {
-        notifier.success('Student added successfully');
-        section = null;
-      } else {
-        console.log(response);
-        notifier.danger('Student add failed, what gives?');
-      }
-    }
-  }
-
-	const uploadCSV = async () => {
-    if (files == null) {
-      notifier.danger("No file selected.")
-    } else {
-      const formData = new FormData();
-      formData.append('section', section.id);
-      formData.append('file', files[0]);
-
-      const response = await fetch('/api/uploadStudents', {
-          method: 'post',
-          body: formData
-      });
-      if (response.ok) {
-        notifier.success('File uploaded successfully');
-        section = null;
-      } else {
-        console.log(response);
-        notifier.danger('File failed to upload');
-      }
-    }
-  }
-
 </script>
 
 <svelte:head>
-	<title>Login</title>
+	<title>Students</title>
 </svelte:head>
 
 {#if view}
@@ -90,58 +53,29 @@
 
 	<center>
 		<div class="narrow">
+			Groundschool Class<br>
+			<select class="class_selection"
+						bind:value={section}
+						on:change={() => tabComponent.changeClass(section)}>
+				{#each sections as s}
+					<option value={s}>
+						{s.text}
+					</option>
+				{/each}
+			</select>
 
-			<p> This is a student management page which allows class administrators to
-				upload a CSV file with all students, or enter students one at a time. </p>
-
-				<select class="class_selection" bind:value={section}>
-					{#each sections as s}
-						<option value={s}>
-							{s.text}
-						</option>
-					{/each}
-				</select>
-				:: Select Class
-
-			<div class=subtitle>Add Student</div>
-			<hr>
-			<div class="section">
-				<div class="contact_block">
-					<div class="contact_info">
-						<div class="contact_row">
-							<input type="text" id="name" name="name" placeholder="Student Name"
-							size=40 bind:value={name}>
-						</div>
-						<div class="contact_row">
-							<input type="text" id="email" name="email" placeholder="Email Address"
-							size=40 bind:value={email}>
-						</div>
-						<input id="submit" type="submit" value="Submit Login" on:click={() => addStudent()}>
-					</div>
-				</div>
-			</div>
-
-			<div class=subtitle>Upload CSV</div>
-			<hr>
-			<div class="section">
-				<div class="contact_block">
-					<div class="contact_info">
-						<input id="file" type="file" bind:files>
-						<input id="submit" type="submit" value="Upload CSV File" on:click={() => uploadCSV()}>
-					</div>
-				</div>
-			</div>
+			<Tabs section={section} bind:this={tabComponent} {items} />
 
 		</div>
 	</center>
 {/if}
-
 <style>
 file {
 	width: 400px;
 }
 .class_selection {
 	width: 200px;
+	text-align: center;
 }
 .auth {
 	margin-top: 3em;

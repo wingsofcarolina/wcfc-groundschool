@@ -1,5 +1,6 @@
 package org.wingsofcarolina.gs.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,6 +43,14 @@ public class Admin implements Person {
 		this.userId = Persistence.instance().getID(ID_KEY, 1000);
 	}
 	
+	public Admin(String string, Admin admin) {
+		this.email = email;
+		this.name = admin.getName();
+		this.roles = admin.getRoles();
+		this.uuid = admin.getUUID();
+		this.userId = Persistence.instance().getID(ID_KEY, 1000);
+	}
+
 	public long getId() {
 		return userId;
 	}

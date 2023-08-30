@@ -115,6 +115,10 @@ public class Student implements Person {
 		return (List<Student>) dao.getAll();
 	}
 
+	public static List<Student> getAllForSection(String section) {
+		return dao.getAllForSection(section);
+	}
+	
 	public static Student getByID(long id) {
 		return (Student) dao.getByID(id);
 	}
@@ -134,4 +138,5 @@ public class Student implements Person {
 	public void delete() {
 		dao.delete(this);
 	}
+
 }

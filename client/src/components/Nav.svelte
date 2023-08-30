@@ -1,12 +1,25 @@
 <script>
 	import { goto } from '@sapper/app';
-  import { NotificationDisplay } from '@beyonk/svelte-notifications'
+  import { NotificationDisplay, notifier } from '@beyonk/svelte-notifications'
   import { user, adminState } from '../store.js'
   import Switch from '../components/Switch.svelte'
 
 	export let segment;
 
   const home = async () => {
+    goto('/');
+  }
+
+	const logout = async (email) => {
+    const response = await fetch('/api/logout', {
+      method: "get",
+      withCredentials: true,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+		user.set(null);
     goto('/');
   }
 </script>
@@ -35,7 +48,7 @@
   {#if $user &&  ! $user.anonymous}
     <div class="right">
       <div class="user">
-        {$user.name}
+        <span on:click={() => logout()}>{$user.name}</span>
       </div>
     </div>
   {/if}
@@ -98,6 +111,7 @@
   }
   .user {
     padding: 1em 0.5em;
+		cursor: pointer;
   }
 	.selected {
 		position: relative;

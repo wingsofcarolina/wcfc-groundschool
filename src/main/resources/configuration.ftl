@@ -7,6 +7,9 @@ gsroot: ${GSROOT!'/gs_root'}
 # container. Otherwise give the IP:PORT for the MongoDB process.
 mongodb: ${MONGODB!'mongodb'}
 
+# URL of the server where the groundschool service is running
+gsServer: ${GSSERVER!'https://groundschool.wingsofcarolina.org'}
+
 # Operational mode, DEV or PROD
 mode: ${MODE!'PROD'}
 

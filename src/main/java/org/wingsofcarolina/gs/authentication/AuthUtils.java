@@ -58,7 +58,7 @@ public class AuthUtils {
 	// String, and the SameSite setting gets added to the end, and the .header()
 	// function is used instead. What a hack.
 	public static String sameSite(NewCookie cookie) {
-		return cookie.toString() + ";SameSite=none";
+		return cookie.toString() + ";SameSite=None";
 	}
 	
 	public SecretKeySpec getKey() {

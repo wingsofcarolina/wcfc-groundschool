@@ -17,7 +17,9 @@
 	<div class="narrow">
 
 		<p> You have attempted to authenticate with the WCFC Groundschool
-			server and have encountered a failure. Please contact the server
+			server and have encountered a failure. If you waited too long to use
+			your validation URL your code may have timed out. If that is the case
+			try authenticating again, otherwise please contact the server
 			administrators via the website <a href="contact">contact</a> page
 			for further assistance.
 		</p>

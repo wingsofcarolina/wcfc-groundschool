@@ -22,9 +22,9 @@
 		});
 
 		if (!response.ok) {
-			notifier.warning('Sending of request failed, contact class instructor(s) for help.');
+			notifier.warning('Request failed, contact instructor(s) for help.');
 		} else {
-			notifier.success('Authentication request sent successfully.');
+			notifier.success('Authentication requested.');
 			email = null;
 		}
 		goto('/');

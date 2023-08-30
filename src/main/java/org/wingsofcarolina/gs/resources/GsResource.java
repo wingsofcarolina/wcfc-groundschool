@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -73,6 +74,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wingsofcarolina.gs.domain.Admin;
 import org.wingsofcarolina.gs.domain.Person;
+import org.wingsofcarolina.gs.domain.Role;
 import org.wingsofcarolina.gs.domain.Student;
 import org.wingsofcarolina.gs.email.EmailLogin;
 import org.wingsofcarolina.gs.email.VerificationCodeCache;
@@ -437,6 +439,7 @@ public class GsResource {
 			@PathParam("code") Integer code) throws URISyntaxException, APIException {
 		
 		NewCookie cookie = null;
+		String redirect = "/";
 		
 		LOG.info("Code : {}   UUID: {}", code, uuid);
 		
@@ -445,6 +448,7 @@ public class GsResource {
 				LOG.info("Authenticated student : {}", student);
 				Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated student : " + student);
 				cookie = authUtils.generateCookie(new User(student));
+				redirect += student.getSection().toLowerCase();
 		} else {
 			Admin admin = Admin.getByUUID(uuid);
 			if (admin != null && VerificationCodeCache.instance().verifyCode(admin.getEmail(), code)) {
@@ -456,10 +460,21 @@ public class GsResource {
 		
 		// User authenticated and identified. Save the info.
 		if (cookie != null) {
-			return Response.seeOther(new URI("/")).header("Set-Cookie", AuthUtils.sameSite(cookie)).build();
+			return Response.seeOther(new URI(redirect)).header("Set-Cookie", AuthUtils.sameSite(cookie)).build();
 		} else {
 			return Response.seeOther(new URI("/failure")).header("Set-Cookie", AuthUtils.instance().removeCookie()).build();
 		}
+	}
+	
+	@GET
+	@Path("logout")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response logout(@CookieParam("wcfc.gs.token") Cookie cookie) throws URISyntaxException {
+		User user = AuthUtils.instance().getUserFromCookie(cookie);
+		if (user != null ) {
+			return Response.seeOther(new URI("/")).header("Set-Cookie", AuthUtils.instance().removeCookie()).build();
+		}
+		return Response.status(404).build();
 	}
 	
 	@GET
@@ -527,23 +542,102 @@ public class GsResource {
 	}
 	
 	@POST
-	@Path("addStudent")
+	@Path("addAdmin")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response addStudent(Map<String, String> request) {
-		String section = request.get("section");
+	public Response addAdmin(Map<String, String> request) {
 		String name = request.get("name");
 		String email = request.get("email");
 		
-		Student student = Student.getByEmail(email);
-		if (student == null) {
-			student = new Student(section, name, email);
-			student.save();
-			LOG.info("Student {} added to {} section", email, section);
+		List<Role> roles = new ArrayList<Role>();
+		roles.add(Role.ADMIN);
+		
+		Admin admin = Admin.getByEmail(email);
+		if (admin == null) {
+			admin = new Admin(name, email, roles);
+			admin.save();
+			LOG.info("Admin {}/{} added to system", name, email);
 		} else {
-			LOG.info("Student {} already exists", email, section);
+			LOG.info("Admin {} already exists", email);
 		}
 		
 		return Response.ok().build();
+	}
+	
+	@GET
+	@Path("students/{section}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response students(@PathParam("section") String section) {
+		List<Student> students = Student.getAllForSection(section.toUpperCase());
+		
+		return Response.ok().entity(students).build();
+	}
+	
+	@DELETE
+	@Path("student/{email}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteStudent(@CookieParam("wcfc.gs.token") Cookie cookie,
+			@PathParam("email") String email) {
+		User user = AuthUtils.instance().getUserFromCookie(cookie);
+		if (user != null && user.getAdmin() == true) {
+			Student student = Student.getByEmail(email);
+			if (student != null) {
+				student.delete();
+				return Response.ok().build();
+			} else {
+				return Response.status(404).build();
+			}
+		} else {
+			return Response.status(401).build();
+		}
+	}
+	
+	@DELETE
+	@Path("students/{section}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteSection(@CookieParam("wcfc.gs.token") Cookie cookie,
+			@PathParam("section") String section) {
+		User user = AuthUtils.instance().getUserFromCookie(cookie);
+		if (user != null && user.getAdmin() == true) {
+			List<Student> students = Student.getAllForSection(section.toUpperCase());
+			for (Integer i = 0; i < students.size(); i++) {
+				students.get(i).delete();
+			}
+			return Response.ok().build();
+		} else {
+			return Response.status(401).build();
+		}
+	}
+	
+	@POST
+	@Path("addStudent")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response addStudent(@CookieParam("wcfc.gs.token") Cookie cookie,
+			Map<String, String> request) {
+		User user = AuthUtils.instance().getUserFromCookie(cookie);
+		if (user != null && user.getAdmin() == true) {
+			String section = request.get("section");
+			String name = request.get("name");
+			String email = request.get("email");
+			
+			Student student = Student.getByEmail(email);
+			if (student == null) {
+				student = new Student(section, name, email);
+				student.save();
+				LOG.info("Student {} added to {} section", email, section);
+			} else {
+				if ( ! student.getSection().equals(section)) {
+					student.setSection(section);
+					student.save();
+					LOG.info("Student {} updated to be in {} section", email, section);
+				} else {
+					LOG.info("Student {} already exists", email);
+				}
+			}
+			
+			return Response.ok().build();
+		} else {
+			return Response.status(401).build();
+		}
 	}
 
 
@@ -551,70 +645,75 @@ public class GsResource {
 	@Path("uploadStudents")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response uploadStudents(@FormDataParam("section") String section,
+	public Response uploadStudents(@CookieParam("wcfc.gs.token") Cookie cookie,
+			@FormDataParam("section") String section,
 			@FormDataParam("file") InputStream uploadedInputStream,
 			@FormDataParam("file") FormDataContentDisposition fileDetails)
 			throws IOException, CsvException, ParseException {
 		
-		// Normalize the class/section name
-		section = section.toUpperCase();
-		
-		LOG.info("Starting upload of student file for {}....", section);
-		UUID uuid = UUID.randomUUID();
-	    File targetFile = new File("/tmp/" + uuid.toString() + ".tmp");
-	    OutputStream outStream = new FileOutputStream(targetFile);
-
-	    byte[] buffer = new byte[8 * 1024];
-	    int bytesRead;
-	    while ((bytesRead = uploadedInputStream.read(buffer)) != -1) {
-	        outStream.write(buffer, 0, bytesRead);
-	    }
-	    uploadedInputStream.close();
-	    outStream.close();
-
-	    CSVParser parser = new CSVParserBuilder()
-	    	    .withSeparator(',')
-	    	    .withIgnoreQuotations(false)
+		User user = AuthUtils.instance().getUserFromCookie(cookie);
+		if (user != null && user.getAdmin() == true) {
+			// Normalize the class/section name
+			section = section.toUpperCase();
+			
+			LOG.info("Starting upload of student file for {}....", section);
+			UUID uuid = UUID.randomUUID();
+		    File targetFile = new File("/tmp/" + uuid.toString() + ".tmp");
+		    OutputStream outStream = new FileOutputStream(targetFile);
+	
+		    byte[] buffer = new byte[8 * 1024];
+		    int bytesRead;
+		    while ((bytesRead = uploadedInputStream.read(buffer)) != -1) {
+		        outStream.write(buffer, 0, bytesRead);
+		    }
+		    uploadedInputStream.close();
+		    outStream.close();
+	
+		    CSVParser parser = new CSVParserBuilder()
+		    	    .withSeparator(',')
+		    	    .withIgnoreQuotations(false)
+		    	    .build();
+	
+	    	CSVReader csvReader = new CSVReaderBuilder(new FileReader(targetFile))
+	    	    .withCSVParser(parser)
+	            .withSkipLines(2)
 	    	    .build();
-
-    	CSVReader csvReader = new CSVReaderBuilder(new FileReader(targetFile))
-    	    .withSkipLines(0)
-    	    .withCSVParser(parser)
-            .withSkipLines(2)
-    	    .build();
-    	List<String[]> entries = csvReader.readAll();
-    	
-    	// Create the students
-    	Iterator<String[]> it = entries.iterator();
-    	while (it.hasNext()) {
-    		String[] line = it.next();
-    		
-    		String email = line[8];
-    		Student student = Student.getByEmail(email);
-    		
-    		if (student == null) {
-	    		StringBuilder sb = new StringBuilder();
-	    		sb.append(line[0]).append(" ");
-	    		if ( ! line[1].isEmpty()) sb.append(line[1]).append(" ");
-	    		sb.append(line[2]);
-	    		String name = sb.toString().trim();
+	    	List<String[]> entries = csvReader.readAll();
+	    	
+	    	// Create the students
+	    	Iterator<String[]> it = entries.iterator();
+	    	while (it.hasNext()) {
+	    		String[] line = it.next();
 	    		
-	    		sb = new StringBuilder();
-	    		sb.append(line[3]).append(", ");
-	    		sb.append(line[4]).append(", ");
-	    		sb.append(line[5]).append(", ");
-	    		sb.append(line[6]).append(" ");
-	    		String address = sb.toString().trim();
+	    		String email = line[15];
+	    		Student student = Student.getByEmail(email);
 	    		
-	    		student = new Student(section, name, email);
-	    		student.save();
-    		LOG.info("Created student : {}", student);
-    		} else {
-    			LOG.info("Student exists : {}", student.toString());
-    		}
-    	}
-    	
-	    return Response.ok().build();
+	    		if (student == null) {
+	    			// Build the student name from first/middle/last fields
+		    		StringBuilder sb = new StringBuilder();
+		    		sb.append(line[7]).append(" ");
+		    		if ( ! line[8].isEmpty()) sb.append(line[8]).append(" ");
+		    		sb.append(line[9]);
+		    		String name = sb.toString().trim();
+		    		
+		    		student = new Student(section, name, email);
+		    		student.save();
+	    		LOG.info("Created student : {}", student);
+	    		} else {
+	    			if ( ! student.getSection().equals(section)) {
+	    				student.setSection(section);
+	    				student.save();
+	    	    		LOG.info("Updated student : {}", student);
+	    			} else {
+	    				LOG.info("Student {} already exists", email);
+	    			}
+	    		}
+	    	}
+	    	
+		    return Response.ok().build();
+		} else {
+			return Response.status(401).build();
+		}
 	}
 	
 	public static String getFileTypeByTika(File file) {        
@@ -634,36 +733,42 @@ public class GsResource {
 	@Path("update")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response update(@FormDataParam("label") String label,
+	public Response update(@CookieParam("wcfc.gs.token") Cookie cookie,
+			@FormDataParam("label") String label,
 			@FormDataParam("lesson") Integer lesson,
 			@FormDataParam("path") String path,
 			@FormDataParam("required") Boolean required,
 			@FormDataParam("section") String section)
 			throws IOException, CsvException, ParseException {
 		
-		boolean found = false;
-
-		Index index = getSectionIndex(section);
-		for (Index child : index.getChildren()) {
-			if (child.getPath().equals(path)) {
-		    	LOG.error("Modifying entry : {}", path);
-
-				child.setLesson(lesson);
-				child.setLabel(label);
-				child.setRequired(required);
-
-				writeSectionIndex(section, index);
-
-				found = true;
+		User user = AuthUtils.instance().getUserFromCookie(cookie);
+		if (user != null && user.getAdmin() == true) {
+			boolean found = false;
+	
+			Index index = getSectionIndex(section);
+			for (Index child : index.getChildren()) {
+				if (child.getPath().equals(path)) {
+			    	LOG.error("Modifying entry : {}", path);
+	
+					child.setLesson(lesson);
+					child.setLabel(label);
+					child.setRequired(required);
+	
+					writeSectionIndex(section, index);
+	
+					found = true;
+				}
 			}
-		}
-		
-		if (found) {
-			return Response.ok().build();
+			
+			if (found) {
+				return Response.ok().build();
+			} else {
+		    	LOG.error("Modify failed, entry not found : {}", path);
+	
+				return Response.status(404).build();
+			}
 		} else {
-	    	LOG.error("Modify failed, entry not found : {}", path);
-
-			return Response.status(404).build();
+			return Response.status(401).build();
 		}
 	}
 	

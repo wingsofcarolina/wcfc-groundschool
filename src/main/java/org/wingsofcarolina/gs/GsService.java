@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.wingsofcarolina.gs.common.RuntimeExceptionMapper;
+import org.wingsofcarolina.gs.email.EmailLogin;
 import org.wingsofcarolina.gs.healthcheck.MinimalHealthCheck;
 import org.wingsofcarolina.gs.persistence.Persistence;
 import org.wingsofcarolina.gs.resources.GsResource;
@@ -77,6 +78,9 @@ public class GsService extends Application<GsConfiguration> {
 		
 		// Set up the Persistence singleton
 		new Persistence().initialize(config.getMongodb());
+		
+		// Make sure the email class knows the right server to reference
+		EmailLogin.initialize(config.getGsServer());
 
 		// Set exception mappers
 		if (config.getMode().contentEquals("PROD")) {
@@ -100,7 +104,7 @@ public class GsService extends Application<GsConfiguration> {
         cors.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, "true");
         cors.setInitParameter(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, "true");
         cors.setInitParameter(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "/");
-
+        cors.setInitParameter(CrossOriginFilter.ACCESS_CONTROL_ALLOW_HEADERS_HEADER, "*");
         // Add URL mapping
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }

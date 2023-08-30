@@ -50,16 +50,25 @@ public class TestResource {
 	@Path("makeAdmins")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response makeAdmins() {
+		Admin admin;
+		
 		List<Role> roles = new ArrayList<Role>();
-		
 		roles.add(Role.ADMIN);
-		
-		new Admin("dfrye@planez.co", "Dwight Frye", roles).save();
-		new Admin("dwight@openweave.org", "Dwight Frye", roles).save();
-		new Admin("george.scheer@gmail.com", "George Scheer", roles).save();
-		new Admin("cfi@wingsofcarolina.org", "George Scheer", roles).save();
-		new Admin("sue.davis@wingsofcarolina.org", "Sue Davis", roles).save();
-		
+		admin = new Admin("dfrye@planez.co", "Dwight Frye", roles);
+		admin.save();
+		new Admin("dwight@openweave.org", admin).save();
+		admin = new Admin("george.scheer@gmail.com", "George Scheer", roles);
+		admin.save();
+		new Admin("cfi@wingsofcarolina.org", admin).save();
+		admin = new Admin("sue.davis@wingsofcarolina.org", "Sue Davis", roles);
+		admin.save();
+		new Admin("bookkeeper@wingsofcarolina.org", admin).save();
+
+		roles.clear();
+		roles.add(Role.USER);
+		new Admin("airplanehunter@hotmail.com", "John Hunter", roles).save();
+		new Admin("dwightrfrye@gmail.com", "Herbie Frye", roles).save();
+
 		return Response.ok().build();
 	}
 }

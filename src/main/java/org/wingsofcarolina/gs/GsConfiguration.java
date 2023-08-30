@@ -13,6 +13,7 @@ public class GsConfiguration extends Configuration {
 	private static GsConfiguration instance = null;
 
 	@JsonProperty String mode;
+	@JsonProperty String gsServer;
 	@JsonProperty String gsroot;
 	@JsonProperty String mongodb;
 	@JsonProperty Boolean auth;
@@ -41,6 +42,10 @@ public class GsConfiguration extends Configuration {
 	
 	public String getMongodb() {
 		return mongodb;
+	}
+	
+	public String getGsServer() {
+		return gsServer;
 	}
 
 	public Boolean getAuth() {
