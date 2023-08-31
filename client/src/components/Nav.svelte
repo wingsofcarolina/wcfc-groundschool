@@ -18,6 +18,7 @@
 				'Accept': 'application/json'
 			}
 		});
+		notifier.success('User ' + $user.name + ' logged out.');
 		user.set(null);
 		goto('/');
 	}

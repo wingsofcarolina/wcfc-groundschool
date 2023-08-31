@@ -28,18 +28,20 @@ public class VerificationCodeCache {
 		return instance;
 	}
 	
-	public Integer getVerificationCode(String email) {
+	public Integer getVerificationCode(String uuid) {
 		Integer code = random.nextInt(999999 - 100000) + 100000;
-		cache.put(email, new Entry(code));
+		cache.put(uuid, new Entry(code));
 		
 		return code;
 	}
 	
-	public Boolean verifyCode(String email, Integer code) {
-		Entry query = cache.remove(email);
+	public Boolean verifyCode(String uuid, Integer code) {
+		Entry query = cache.remove(uuid);
 		if (query != null && code.equals(query.getCode())) {
+			LOG.info("Verified {} using code {}", uuid, code);
 			return true;
 		} else {
+			LOG.info("Failed to verify {} using code {}", uuid, code);
 			return false;
 		}
 	}

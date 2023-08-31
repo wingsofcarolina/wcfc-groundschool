@@ -9,6 +9,7 @@ import com.mongodb.client.result.UpdateResult;
 
 import org.wingsofcarolina.gs.domain.*;
 import dev.morphia.Datastore;
+// import co.planez.padawan.domain.dao.*;
 import dev.morphia.Morphia;
 import dev.morphia.query.Query;
 import dev.morphia.query.experimental.filters.Filters;
@@ -28,6 +29,9 @@ public class Persistence {
 			datastore.getMapper().mapPackage("dev.morphia.example");
 			datastore.ensureIndexes();
 			
+			// Create DAOs
+			// daoStore.put(User.class, new UserDAO(datastore));
+
 			// Make this a singleton
 			instance = this;
 		}

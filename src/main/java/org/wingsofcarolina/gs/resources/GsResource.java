@@ -389,8 +389,12 @@ public class GsResource {
 	@Produces(MediaType.TEXT_HTML)
 	@SuppressWarnings("unchecked")
 	public Response slackAuth(@QueryParam("code") String code) throws URISyntaxException, APIException {
+		NewCookie cookie = null;
+		User user = null;
+		String redirect = "/";
+
 		LOG.info("Code : {}", code);
-		
+
 		Map<String, Object> details = slackAuth.authenticate(code);
 		Map<String, Object> user_details = (Map<String, Object>)details.get("authed_user");
 		
@@ -403,13 +407,32 @@ public class GsResource {
 		String name = userMap.get("name");
 		String email = userMap.get("email");
 		
-		User user = new User(name, email, user_id);
-		LOG.info("Authenticated user : {}", user);
+		Student student = Student.getByEmail(email);
+		if (student != null) {
+				LOG.info("Authenticated student : {}", student);
+				Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated student : " + student);
+				cookie = authUtils.generateCookie(new User(student));
+				redirect += student.getSection().toLowerCase();
+				user = new User(student);
+		} else {
+			Admin admin = Admin.getByEmail(email);
+			if (admin != null) {
+				LOG.info("Authenticated admin user : {}", admin);
+				Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated admin user : " + admin);
+				cookie = authUtils.generateCookie(new User(admin));
+				user = new User(admin);
+			}
+		}
+		
 		Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated user : " + user);
 		
+		
 		// User authenticated and identified. Save the info.
-		NewCookie cookie = authUtils.generateCookie(user);
-        return Response.seeOther(new URI("/")).header("Set-Cookie", AuthUtils.sameSite(cookie)).build();
+		if (cookie != null) {
+			return Response.seeOther(new URI(redirect)).header("Set-Cookie", AuthUtils.sameSite(cookie)).build();
+		} else {
+			return Response.seeOther(new URI("/failure")).header("Set-Cookie", AuthUtils.instance().removeCookie()).build();
+		}
 	}
 	
 
@@ -443,14 +466,14 @@ public class GsResource {
 		LOG.info("Code : {}   UUID: {}", code, uuid);
 		
 		Student student = Student.getByUUID(uuid);
-		if (student != null && VerificationCodeCache.instance().verifyCode(student.getEmail(), code)) {
+		if (student != null && VerificationCodeCache.instance().verifyCode(student.getUUID(), code)) {
 				LOG.info("Authenticated student : {}", student);
 				Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated student : " + student);
 				cookie = authUtils.generateCookie(new User(student));
 				redirect += student.getSection().toLowerCase();
 		} else {
 			Admin admin = Admin.getByUUID(uuid);
-			if (admin != null && VerificationCodeCache.instance().verifyCode(admin.getEmail(), code)) {
+			if (admin != null && VerificationCodeCache.instance().verifyCode(admin.getUUID(), code)) {
 				LOG.info("Authenticated admin user : {}", admin);
 				Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated admin user : " + admin);
 				cookie = authUtils.generateCookie(new User(admin));
@@ -461,6 +484,7 @@ public class GsResource {
 		if (cookie != null) {
 			return Response.seeOther(new URI(redirect)).header("Set-Cookie", AuthUtils.sameSite(cookie)).build();
 		} else {
+			LOG.info("Failed to verify {} with code {}", uuid, code);
 			return Response.seeOther(new URI("/failure")).header("Set-Cookie", AuthUtils.instance().removeCookie()).build();
 		}
 	}

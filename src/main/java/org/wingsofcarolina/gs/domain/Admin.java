@@ -43,7 +43,7 @@ public class Admin implements Person {
 		this.userId = Persistence.instance().getID(ID_KEY, 1000);
 	}
 	
-	public Admin(String string, Admin admin) {
+	public Admin(String email, Admin admin) {
 		this.email = email;
 		this.name = admin.getName();
 		this.roles = admin.getRoles();

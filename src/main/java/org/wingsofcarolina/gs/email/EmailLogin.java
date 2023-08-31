@@ -67,7 +67,7 @@ public class EmailLogin {
 	
 	public void emailTo(String email, String uuid) {
 		if (SERVER != null) {
-			Integer code = VerificationCodeCache.instance().getVerificationCode(email);
+			Integer code = VerificationCodeCache.instance().getVerificationCode(uuid);
 			
 			String htmlBody = HTMLBODY.replace("SERVER", SERVER).replace("UUID", uuid).replace("EMAIL", email).replace("CODE", code.toString());
 			String textBody = TEXTBODY.replace("SERVER", SERVER).replace("UUID", uuid).replace("EMAIL", email).replace("CODE", code.toString());
@@ -85,7 +85,7 @@ public class EmailLogin {
 								.withSubject(new Content().withCharset("UTF-8").withData(SUBJECT)))
 						.withSource(FROM);
 				client.sendEmail(request);
-				LOG.info("Email sent to {} with id {}", email, uuid);
+				LOG.info("Email sent to {} with id {} and code {}", email, uuid, code);
 			} catch (Exception ex) {
 				LOG.info("The email was not sent. Error message: {}", ex.getMessage());
 			}
