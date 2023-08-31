@@ -434,7 +434,6 @@ public class GsResource {
 	@GET
 	@Path("verify/{uuid}/{code}")
 	@Produces(MediaType.TEXT_HTML)
-	@SuppressWarnings("unchecked")
 	public Response verify(@PathParam("uuid") String uuid,
 			@PathParam("code") Integer code) throws URISyntaxException, APIException {
 		
@@ -466,15 +465,15 @@ public class GsResource {
 		}
 	}
 	
-	@GET
+	@POST
 	@Path("logout")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response logout(@CookieParam("wcfc.gs.token") Cookie cookie) throws URISyntaxException {
 		User user = AuthUtils.instance().getUserFromCookie(cookie);
 		if (user != null ) {
-			return Response.seeOther(new URI("/")).header("Set-Cookie", AuthUtils.instance().removeCookie()).build();
+			LOG.info("User {} / {} logged out.", user.getName(), user.getEmail());
 		}
-		return Response.status(404).build();
+		return Response.ok().header("Set-Cookie", AuthUtils.instance().removeCookie()).build();
 	}
 	
 	@GET

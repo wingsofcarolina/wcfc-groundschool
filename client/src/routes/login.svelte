@@ -53,7 +53,7 @@
 		"Submit Login" button. If your email address is found in the system an email
 		will be sent to the registered address. That email will have a URL which
 		will return you to the system with your authentication browser cookie set.
-		his is intended to be a one-time operation, but if for some reason you clear
+		This is intended to be a one-time operation, but if for some reason you clear
 		the cookies in your browser you may have to re-authenticate since your
 		credentials are stored in a browser cookie. </p>
 
@@ -69,6 +69,14 @@
 				<input id="submit" type="submit" value="Submit Login" on:click={() => sendMessage()}>
 			</div>
 		</div>
+	</div>
+
+	<p>Or authenticate with Slack</p>
+	<div class="auth">
+		<a href="https://slack.com/oauth/v2/authorize?user_scope=identity.basic,identity.email&client_id=REDACTED">
+			<img alt="Sign in with Slack" height="40" width="172" src="https://platform.slack-edge.com/img/sign_in_with_slack.png"
+			 srcset="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x" />
+		</a>
 	</div>
 
 </center>

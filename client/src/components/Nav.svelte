@@ -6,22 +6,21 @@
 
 	export let segment;
 
-  const home = async () => {
-    goto('/');
+	const home = async () => {
+    goto('/#');
   }
 
-	const logout = async (email) => {
-    const response = await fetch('/api/logout', {
-      method: "get",
-      withCredentials: true,
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    });
+	const logout = async () => {
+		const response = await fetch( '/api/logout', {
+			method: "post",
+			withCredentials: true,
+			headers: {
+				'Accept': 'application/json'
+			}
+		});
 		user.set(null);
-    goto('/');
-  }
+		goto('/');
+	}
 </script>
 
 <div class="banner">
