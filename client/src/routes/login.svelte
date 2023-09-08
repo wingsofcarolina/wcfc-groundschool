@@ -4,6 +4,7 @@
 	import { notifier } from '@beyonk/svelte-notifications'
 
 	let email = null;
+	let warning = false;
 
 	onMount(function() {
 	});
@@ -26,8 +27,8 @@
 		} else {
 			notifier.success('Authentication requested.');
 			email = null;
+			warning = true;
 		}
-		goto('/');
 	}
 
 </script>
@@ -36,48 +37,71 @@
 	<title>Login</title>
 </svelte:head>
 
-<div class=title>Authenticate</div>
+{#if ! warning}
+	<div class=title>Authenticate</div>
+{:else}
+	<div class=title>Authentication Requested</div>
+{/if}
 <hr class="highlight">
 
 <center>
-	<div class="narrow">
+	{#if ! warning}
+		<div class="narrow">
 
-		<p> Class content is intended to be available to only the registered/paid
-		members of the ground school classes. Contact
-		<a href="mailto:cfi@wingsofcarolina.org">George Scheer</a> or
-		<a href="mailto:bookkeeper@wingsofcarolina.org">Sue Davis</a> if you have need
-		to register, or if you have any questions. </p>
+			<p> Class content is intended to be available to only the registered/paid
+			members of the ground school classes. Contact
+			<a href="mailto:cfi@wingsofcarolina.org">George Scheer</a> or
+			<a href="mailto:bookkeeper@wingsofcarolina.org">Sue Davis</a> if you have need
+			to register, or if you have any questions. </p>
 
-		<p>If you <i><b>are</b></i> already registered, simply enter the email
-		address you provided during registration in the field  below and click the
-		"Submit Login" button. If your email address is found in the system an email
-		will be sent to the registered address. That email will have a URL which
-		will return you to the system with your authentication browser cookie set.
-		This is intended to be a one-time operation, but if for some reason you clear
-		the cookies in your browser you may have to re-authenticate since your
-		credentials are stored in a browser cookie. </p>
+			<p>If you <i><b>are</b></i> already registered, simply enter the email
+			address you provided during registration in the field  below and click the
+			"Submit Login" button. If your email address is found in the system an email
+			will be sent to the registered address. That email will have a URL which
+			will return you to the system with your authentication browser cookie set.
+			This is intended to be a one-time operation, but if for some reason you clear
+			the cookies in your browser you may have to re-authenticate since your
+			credentials are stored in a browser cookie. </p>
 
-	</div>
+		</div>
 
-	<div class="section">
-		<div class="contact_block">
-			<div class="contact_info">
-				<div class="contact_row">
-					<input type="text" id="email" name="email" placeholder="Email"
-					size=40 bind:value={email}>
+		<div class="section">
+			<div class="contact_block">
+				<div class="contact_info">
+					<div class="contact_row">
+						<input type="text" id="email" name="email" placeholder="Email"
+						size=40 bind:value={email}>
+					</div>
+					<input id="submit" type="submit" value="Submit Login" on:click={() => sendMessage()}>
 				</div>
-				<input id="submit" type="submit" value="Submit Login" on:click={() => sendMessage()}>
 			</div>
 		</div>
-	</div>
 
-	<p>Or authenticate with Slack</p>
-	<div class="auth">
-		<a href="https://slack.com/oauth/v2/authorize?user_scope=identity.basic,identity.email&client_id=REDACTED">
-			<img alt="Sign in with Slack" height="40" width="172" src="https://platform.slack-edge.com/img/sign_in_with_slack.png"
-			 srcset="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x" />
-		</a>
-	</div>
+		<p>Or authenticate with Slack</p>
+		<div class="auth">
+			<a href="https://slack.com/oauth/v2/authorize?user_scope=identity.basic,identity.email&client_id=REDACTED">
+				<img alt="Sign in with Slack" height="40" width="172" src="https://platform.slack-edge.com/img/sign_in_with_slack.png"
+				 srcset="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x" />
+			</a>
+		</div>
+	{:else}
+		<div class="narrow">
+			<div class=warning> An email has been sent to the email address entered. Close this page
+				and use the link in the verification email to log into the system.</div>
+
+			<img src="/icons8-email.png" alt="Check Your Email!">
+
+			<div class=warning> If you do not use the verification URL within about two (2)
+				hours the system will purge your verification code and the link will fail. If
+				you attempt to use the URL a second time, it will fail.</div>
+
+			<div class=warning> Once logged in, you should never have to request verification
+				or use a verification URL again. A cookie will be placed on your browser so
+				that the system will recognize you the next time you come to the site.</div>
+
+			<div class=warning> You can close this browser page or tab now.</div>
+		</div>
+	{/if}
 
 </center>
 
@@ -106,6 +130,11 @@
 .narrow p {
 	width: 70%;
 	text-align: left;
+}
+.warning {
+	width: 70%;
+	text-align: left;
+	margin-bottom: 20px;
 }
 .contact_block {
   display: flex;

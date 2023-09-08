@@ -23,6 +23,9 @@
 			administrators via the website <a href="contact">contact</a> page
 			for further assistance.
 		</p>
+		<p> If you <i>clicked on the verification URL a second time</i> please
+			re-read the instructions given. It is a <i>one use only</i> URL and
+			once used is no longer valid.</p>
 		<p> We apologize for the inconvenience. </p>
 	</div>
 

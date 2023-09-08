@@ -48,7 +48,7 @@
   {#if $user &&  ! $user.anonymous}
     <div class="right">
       <div class="user">
-        <span on:click={() => logout()}>{$user.name}</span>
+        <span>{$user.name}</span>
       </div>
     </div>
   {/if}
@@ -111,7 +111,6 @@
   }
   .user {
     padding: 1em 0.5em;
-		cursor: pointer;
   }
 	.selected {
 		position: relative;

@@ -7,6 +7,8 @@
 
   export function changeClass(section){}
 
+  function emailAllStudents() {}
+
 </script>
 
 <div class=subtitle>Email All Students</div>
@@ -24,7 +26,7 @@
       <textarea placeholder="Email to students ......" bind:value={text} />
     </div>
 
-    <button on:click={() => removeAllStudents()}>
+    <button on:click={() => emailAllStudents()}>
       Email All Students In {section.text}
     </button>
   </div>

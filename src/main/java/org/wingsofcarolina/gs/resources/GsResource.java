@@ -457,35 +457,42 @@ public class GsResource {
 	@GET
 	@Path("verify/{uuid}/{code}")
 	@Produces(MediaType.TEXT_HTML)
-	public Response verify(@PathParam("uuid") String uuid,
+	public Response verify(@CookieParam("wcfc.gs.token") Cookie cookie,
+			@PathParam("uuid") String uuid,
 			@PathParam("code") Integer code) throws URISyntaxException, APIException {
 		
-		NewCookie cookie = null;
-		String redirect = "/";
-		
-		LOG.info("Code : {}   UUID: {}", code, uuid);
-		
-		Student student = Student.getByUUID(uuid);
-		if (student != null && VerificationCodeCache.instance().verifyCode(student.getUUID(), code)) {
-				LOG.info("Authenticated student : {}", student);
-				Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated student : " + student);
-				cookie = authUtils.generateCookie(new User(student));
-				redirect += student.getSection().toLowerCase();
-		} else {
-			Admin admin = Admin.getByUUID(uuid);
-			if (admin != null && VerificationCodeCache.instance().verifyCode(admin.getUUID(), code)) {
-				LOG.info("Authenticated admin user : {}", admin);
-				Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated admin user : " + admin);
-				cookie = authUtils.generateCookie(new User(admin));
+		User user = AuthUtils.instance().getUserFromCookie(cookie);
+		if (user == null) {
+			NewCookie newcookie = null;
+			String redirect = "/";
+			
+			LOG.info("Code : {}   UUID: {}", code, uuid);
+			
+			Student student = Student.getByUUID(uuid);
+			if (student != null && VerificationCodeCache.instance().verifyCode(student.getUUID(), code)) {
+					LOG.info("Authenticated student : {}", student);
+					Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated student : " + student);
+					newcookie = authUtils.generateCookie(new User(student));
+					redirect += student.getSection().toLowerCase();
+			} else {
+				Admin admin = Admin.getByUUID(uuid);
+				if (admin != null && VerificationCodeCache.instance().verifyCode(admin.getUUID(), code)) {
+					LOG.info("Authenticated admin user : {}", admin);
+					Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated admin user : " + admin);
+					newcookie = authUtils.generateCookie(new User(admin));
+				}
 			}
-		}
-		
-		// User authenticated and identified. Save the info.
-		if (cookie != null) {
-			return Response.seeOther(new URI(redirect)).header("Set-Cookie", AuthUtils.sameSite(cookie)).build();
+			
+			// User authenticated and identified. Save the info.
+			if (newcookie != null) {
+				return Response.seeOther(new URI(redirect)).header("Set-Cookie", AuthUtils.sameSite(newcookie)).build();
+			} else {
+				LOG.info("Failed to verify {} with code {}", uuid, code);
+				return Response.seeOther(new URI("/failure")).build();
+			}
 		} else {
-			LOG.info("Failed to verify {} with code {}", uuid, code);
-			return Response.seeOther(new URI("/failure")).header("Set-Cookie", AuthUtils.instance().removeCookie()).build();
+			LOG.info("User {} clicked on the URL again!", user);
+			return Response.seeOther(new URI("/known")).build();
 		}
 	}
 	
