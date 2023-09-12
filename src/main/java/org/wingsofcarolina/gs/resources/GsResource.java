@@ -490,7 +490,7 @@ public class GsResource {
 				return Response.seeOther(new URI("/failure")).build();
 			}
 		} else {
-			LOG.info("User {} clicked on the URL again!", user);
+			LOG.info("{} clicked on the URL again!", user);
 			return Response.seeOther(new URI("/")).build();
 		}
 	}
