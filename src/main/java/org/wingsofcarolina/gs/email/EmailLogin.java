@@ -2,6 +2,9 @@ package org.wingsofcarolina.gs.email;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wingsofcarolina.gs.domain.Person;
+import org.wingsofcarolina.gs.domain.VerificationCode;
+import org.wingsofcarolina.gs.model.User;
 
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
@@ -21,24 +24,22 @@ public class EmailLogin {
 	static String SERVER = null;
 
 	// The subject line for the email.
-	static final String SUBJECT = "WCFC Groundschool Login";
+	static final String SUBJECT = "WCFC Ground School Login";
 
 	// The HTML body for the email.
 	static final String HTMLBODY = "<html><div class=body>"
 			+ "<img src=https://groundschool.wingsofcarolina.org/WCFC-logo.jpg>"
-			+ "<div class=title>WCFC Groundschool Login</div>"
-			+ "<p>This email contains a URL you can use to log into the WCFC groundschool server. "
+			+ "<div class=title>WCFC Ground School Login</div>"
+			+ "<p>This email contains a URL you can use to log into the WCFC Ground School server. "
 			+ "This URL is good for roughly 2 hours after which you will need to request another login. Once "
 			+ "your login is verified a token will be stored in your browser and subsequent attempts "
 			+ "to access the server will NOT require logging in again, as long as you use the same "
 			+ "system/browser and don't clear browser data. </p>"
-			+ "<p>This URL can be used <b>ONLY ONCE</b>. Invoking this URL will clear the verification code from "
-			+ "the system's cache and it will no longer successfully validate you.</p>"
-			+ "<p>If you need another URL you'll have to re-submit your email address"
-			+ "and receive another verification email.</p>"			
-			+ "<div class=link><a href=SERVER/api/verify/UUID/CODE>Log into the WCFC Groundschool server for EMAIL</a></div>"
-			+ "<p>Thank you for joining the WCFC groundschool. Good luck with your training!</p>"
-			+ "<div class=signature>-- WCFC Groundschool Server Administration</div>"
+			+ "<div class=link><a href=SERVER/api/verify/UUID/CODE>Log into the WCFC Ground School server for EMAIL</a></div>"
+			+ "<p>If that link fails, paste the following URL into your browser instead :</p>"
+			+ "<div class=link>SERVER/api/verify/UUID/CODE</div>"
+			+ "<p>Thank you for joining the WCFC ground school. Good luck with your training!</p>"
+			+ "<div class=signature>-- WCFC Ground School Server Administration</div>"
 			+ "</div></html>"
 			+ "<style>p{width:70%;}"
 			+ ".body{margin-top:30px;margin-left:30px;}"
@@ -47,19 +48,17 @@ public class EmailLogin {
 			+ ".signature{margin-left:30px;}</style>";
 
 	// The email body for recipients with non-HTML email clients.
-	static final String TEXTBODY = "WCFC Groundschool Login\n"
-			+ "This email contains a URL you can use to log into the WCFC groundschool server.\n"
+	static final String TEXTBODY = "WCFC Ground School Login\n"
+			+ "This email contains a URL you can use to log into the WCFC Ground School server.\n"
 			+ "This URL is good for roughly 2 hours after which you will need to request another login.\n"
 			+ "Once your login is verified a token will be stored in your browser and subsequent attempts\n"
 			+ "to access the server will NOT require logging in again, as long as you use the same\n"
 			+ "system/browser and don't clear browser data.\n\n"
-			+ "This URL can be used ONLY ONCE. Invoking this URL will clear the verification code from\n"
-			+ "the system's cache and it will no longer successfully validate you.\n\n"
-			+ "If you need another URL you'll have to re-submit your email address\n"
-			+ "and receive another verification email.\n\n"
 			+ "SERVER/api/verify/UUID/CODE\n\n"
-			+ "Thank you for joining the WCFC groundschool. Good luck with your training!\n\n"
-			+ "-- WCFC Groundschool Server Administration";
+			+ "If that link fails, paste the following URL into your browser instead :\n\n"
+			+ "SERVER/api/verify/UUID/CODE\n\n"
+			+ "Thank you for joining the WCFC ground School. Good luck with your training!\n\n"
+			+ "-- WCFC Ground School Server Administration";
 
 	private static final Logger LOG = LoggerFactory.getLogger(EmailLogin.class);
 	
@@ -69,7 +68,7 @@ public class EmailLogin {
 	
 	public void emailTo(String email, String uuid) {
 		if (SERVER != null) {
-			Integer code = VerificationCodeCache.instance().getVerificationCode(uuid);
+			Integer code = VerificationCode.makeEntry(uuid).getCode();
 			
 			String htmlBody = HTMLBODY.replace("SERVER", SERVER).replace("UUID", uuid).replace("EMAIL", email).replace("CODE", code.toString());
 			String textBody = TEXTBODY.replace("SERVER", SERVER).replace("UUID", uuid).replace("EMAIL", email).replace("CODE", code.toString());

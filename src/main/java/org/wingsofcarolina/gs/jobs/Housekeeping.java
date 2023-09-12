@@ -8,10 +8,11 @@ import org.knowm.sundial.annotations.CronTrigger;
 import org.knowm.sundial.exceptions.JobInterruptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wingsofcarolina.gs.email.VerificationCodeCache;
+import org.wingsofcarolina.gs.domain.VerificationCode;
 
-//@CronTrigger(cron = "0/100 * * * * ?")  // Fire every minute, for testing
-@CronTrigger(cron = "0 0 * * * ?")  // Fire at the top of every hour
+//@CronTrigger(cron = "0/100 * * * * ?")    // Fire every minute, for testing
+//@CronTrigger(cron = "0 0 * * * ?")        // Fire at the top of every hour
+@CronTrigger(cron = "0 */10 * * * ?")     // Fire every 30 minutes
 public class Housekeeping extends Job {
 	private static final Logger LOG = LoggerFactory.getLogger(Housekeeping.class);
 
@@ -19,11 +20,11 @@ public class Housekeeping extends Job {
 	
 	@Override
 	public void doRun() throws JobInterruptException {
-		LOG.debug("Housekeeping triggered : {}", new Date().toString());
+		LOG.info("Housekeeping triggered : {}", new Date().toString());
 		
 		// Expunge all ancient/expired verification codes
-		VerificationCodeCache.instance().cleanCache();
+		VerificationCode.cleanCache();
 		
-		LOG.debug("Housekeeping completed.");
+		LOG.info("Housekeeping completed.");
 	}
 }

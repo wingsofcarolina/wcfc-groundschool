@@ -96,7 +96,7 @@
       <img src='blank_icon.png' alt='X'>
     {/if}
   {/if}
-  <span class="title" on:click={() => fetchFile({item})}>{item.label} {item.required ? "" : "(Optional)"}</span>
+  <div class="title" on:click={() => fetchFile({item})}>{item.label} {item.required ? "" : "(Optional)"}</div>
 </div>
 
 <ModifyDialog bind:this="{dialog}" section={section} item={item} on:modify/>
@@ -110,7 +110,9 @@
   font-size: 1.1em;
 }
 .title {
+  display: inline-block;
   margin-left: 3em;
   cursor: pointer;
+  width: 35em;
 }
 </style>

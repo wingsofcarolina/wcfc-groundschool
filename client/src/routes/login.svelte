@@ -91,8 +91,8 @@
 
 			<img src="/icons8-email.png" alt="Check Your Email!">
 
-			<div class=warning> If you do not use the verification URL within about two (2)
-				hours the system will purge your verification code and the link will fail. If
+			<div class=warning> If you do not use the verification URL within about <i>two
+				hours</i> the system will purge your verification code and the link will fail. If
 				you attempt to use the URL a second time, it will fail.</div>
 
 			<div class=warning> Once logged in, you should never have to request verification

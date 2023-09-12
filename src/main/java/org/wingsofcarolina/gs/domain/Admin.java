@@ -79,6 +79,10 @@ public class Admin implements Person {
 		}
 	}
 	
+	public Boolean isStudent() {
+		return false;
+	}
+	
 	public String getPassword() {
 		return password;
 	}

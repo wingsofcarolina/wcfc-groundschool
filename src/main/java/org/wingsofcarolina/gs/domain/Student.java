@@ -46,6 +46,10 @@ public class Student implements Person {
 		return false;
 	}
 	
+	public Boolean isStudent() {
+		return true;
+	}
+	
 	public long getId() {
 		return studentId;
 	}
@@ -138,5 +142,4 @@ public class Student implements Person {
 	public void delete() {
 		dao.delete(this);
 	}
-
 }

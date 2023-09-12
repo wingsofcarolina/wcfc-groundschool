@@ -89,7 +89,7 @@ public class GsService extends Application<GsConfiguration> {
 
 		// Now set up the API
 		env.jersey().register(new GsResource(config));
-		env.jersey().register(new TestResource(config));
+		//env.jersey().register(new TestResource(config));
 		env.healthChecks().register("check", new MinimalHealthCheck());
 	}
 	

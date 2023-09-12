@@ -32,6 +32,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.DELETE;
@@ -43,6 +44,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
@@ -76,8 +78,8 @@ import org.wingsofcarolina.gs.domain.Admin;
 import org.wingsofcarolina.gs.domain.Person;
 import org.wingsofcarolina.gs.domain.Role;
 import org.wingsofcarolina.gs.domain.Student;
+import org.wingsofcarolina.gs.domain.VerificationCode;
 import org.wingsofcarolina.gs.email.EmailLogin;
-import org.wingsofcarolina.gs.email.VerificationCodeCache;
 import org.wingsofcarolina.gs.model.User;
 import org.wingsofcarolina.gs.slack.Slack;
 import org.wingsofcarolina.gs.slack.SlackAuthService;
@@ -451,6 +453,7 @@ public class GsResource {
 				return Response.ok().build();
 			}
 		}
+		LOG.info("Authentication for {}, person not found", email);
 		return Response.status(404).build();
 	}
 	
@@ -467,22 +470,18 @@ public class GsResource {
 			String redirect = "/";
 			
 			LOG.info("Code : {}   UUID: {}", code, uuid);
-			
-			Student student = Student.getByUUID(uuid);
-			if (student != null && VerificationCodeCache.instance().verifyCode(student.getUUID(), code)) {
-					LOG.info("Authenticated student : {}", student);
-					Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated student : " + student);
-					newcookie = authUtils.generateCookie(new User(student));
-					redirect += student.getSection().toLowerCase();
-			} else {
-				Admin admin = Admin.getByUUID(uuid);
-				if (admin != null && VerificationCodeCache.instance().verifyCode(admin.getUUID(), code)) {
-					LOG.info("Authenticated admin user : {}", admin);
-					Slack.instance().sendString(Slack.Channel.NOTIFY, "Authenticated admin user : " + admin);
-					newcookie = authUtils.generateCookie(new User(admin));
+			VerificationCode verify = VerificationCode.getByPersonUUID(uuid);
+			if (verify != null) {
+				Person person = Person.getPerson(uuid);
+				LOG.info("Authenticated user {}, admin == {}", person.getName(), person.isAdmin());
+				newcookie = authUtils.generateCookie(new User(person));
+				if (person.isStudent() ) {
+					redirect += ((Student)person).getSection().toLowerCase();
 				}
+				verify.setVerified(true);
+				verify.save();
 			}
-			
+
 			// User authenticated and identified. Save the info.
 			if (newcookie != null) {
 				return Response.seeOther(new URI(redirect)).header("Set-Cookie", AuthUtils.sameSite(newcookie)).build();

@@ -26,8 +26,8 @@
 			{/if}
 			appears that you have clicked on the verification URL in your email
 			more than once. You should understand that the verification URL sent to
-			you for validation is a <b>one use only</b> URL, and clicking on it again
-			simply brings you to this page. </p>
+			you for validation is needed only once, and clicking on it again
+			will bring you to this page. </p>
 		<p>The initial use of the URL caused a cookie to be placed on that instance
 			of your browser. The system will from that point forward recognize you
 			and allow you to use the system. That is, in fact, how it recognized your

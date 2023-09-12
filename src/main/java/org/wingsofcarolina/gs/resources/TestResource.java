@@ -3,11 +3,8 @@ package org.wingsofcarolina.gs.resources;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -19,9 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.wingsofcarolina.gs.GsConfiguration;
 import org.wingsofcarolina.gs.domain.Admin;
 import org.wingsofcarolina.gs.domain.Role;
-import org.wingsofcarolina.gs.domain.Student;
-import org.wingsofcarolina.gs.email.EmailLogin;
-import org.wingsofcarolina.gs.email.VerificationCodeCache;
 
 /**
  * @author dwight
@@ -36,14 +30,6 @@ public class TestResource {
 	@SuppressWarnings("static-access")
 	public TestResource(GsConfiguration config) throws IOException, ListFolderErrorException, DbxException {
 		this.config = config;
-	}
-	
-	@GET
-	@Path("cleanCache")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response cleanCache() {
-		VerificationCodeCache.instance().cleanCache();
-		return Response.ok().build();
 	}
 	
 	@GET

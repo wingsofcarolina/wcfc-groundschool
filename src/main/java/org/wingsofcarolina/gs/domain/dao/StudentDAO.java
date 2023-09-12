@@ -16,7 +16,7 @@ public class StudentDAO extends SuperDAO {
 	private static final Logger LOG = LoggerFactory.getLogger(StudentDAO.class);
 	
 	public StudentDAO() {
-		super(Admin.class);
+		super(Student.class);
 	}
 
 	public Student getByEmail(String email) {
