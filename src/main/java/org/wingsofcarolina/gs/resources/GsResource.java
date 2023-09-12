@@ -495,7 +495,7 @@ public class GsResource {
 		}
 	}
 	
-	@POST
+	@GET
 	@Path("logout")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response logout(@CookieParam("wcfc.gs.token") Cookie cookie) throws URISyntaxException {
@@ -503,7 +503,7 @@ public class GsResource {
 		if (user != null ) {
 			LOG.info("User {} / {} logged out.", user.getName(), user.getEmail());
 		}
-		return Response.ok().header("Set-Cookie", AuthUtils.instance().removeCookie()).build();
+		return Response.seeOther(new URI("/")).header("Set-Cookie", AuthUtils.instance().removeCookie()).build();
 	}
 	
 	@GET
