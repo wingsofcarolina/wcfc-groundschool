@@ -55,8 +55,6 @@ public class EmailLogin {
 			+ "to access the server will NOT require logging in again, as long as you use the same\n"
 			+ "system/browser and don't clear browser data.\n\n"
 			+ "SERVER/api/verify/UUID/CODE\n\n"
-			+ "If that link fails, paste the following URL into your browser instead :\n\n"
-			+ "SERVER/api/verify/UUID/CODE\n\n"
 			+ "Thank you for joining the WCFC ground School. Good luck with your training!\n\n"
 			+ "-- WCFC Ground School Server Administration";
 

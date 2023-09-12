@@ -491,7 +491,7 @@ public class GsResource {
 			}
 		} else {
 			LOG.info("User {} clicked on the URL again!", user);
-			return Response.seeOther(new URI("/known")).build();
+			return Response.seeOther(new URI("/")).build();
 		}
 	}
 	
