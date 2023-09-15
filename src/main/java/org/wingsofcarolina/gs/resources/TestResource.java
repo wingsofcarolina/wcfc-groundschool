@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.wingsofcarolina.gs.GsConfiguration;
 import org.wingsofcarolina.gs.domain.Admin;
 import org.wingsofcarolina.gs.domain.Role;
+import org.wingsofcarolina.gs.domain.Student;
 
 /**
  * @author dwight

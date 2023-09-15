@@ -7,12 +7,14 @@ public class User {
 	private String email;
 	private String uuid;
 	private Boolean admin = false;
+	private Boolean student = false;
 	
 	public User(Person person) {
 		this.name = person.getName();
 		this.email = person.getEmail();
 		this.uuid = person.getUUID();
 		this.admin = person.isAdmin();
+		this.student = person.isStudent();
 	}
 	
 	public User(String name, String email, String uuid) {
@@ -29,7 +31,7 @@ public class User {
 		return email;
 	}
 	
-	public Boolean getAdmin() {
+	public Boolean isAdmin() {
 		return admin;
 	}
 
@@ -37,6 +39,14 @@ public class User {
 		this.admin = admin;
 	}
 	
+	public Boolean isStudent() {
+		return student;
+	}
+
+	public void setStudent(Boolean student) {
+		this.student = student;
+	}
+
 	public String getUUID() {
 		return uuid;
 	}

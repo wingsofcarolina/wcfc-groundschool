@@ -90,7 +90,7 @@ public class AuthUtils {
 		claims.put("version", 1);
 		claims.put("email", user.getEmail());
 		claims.put("userId", user.getUUID());
-		claims.put("admin", user.getAdmin());
+		claims.put("admin", user.isAdmin());
 		
 		String compactJws = Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, key).compact();
 

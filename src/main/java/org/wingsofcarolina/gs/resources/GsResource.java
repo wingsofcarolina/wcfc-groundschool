@@ -7,14 +7,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.nio.file.Files;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -32,19 +30,16 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
@@ -162,7 +157,7 @@ public class GsResource {
 	        if (user != null) {
 		        reply.put("name", user.getName());
 		        reply.put("email", user.getEmail());
-		        reply.put("admin", user.getAdmin());
+		        reply.put("admin", user.isAdmin());
 		        reply.put("anonymous", false);
 
 		        return Response.ok().entity(reply).build();
@@ -253,8 +248,9 @@ public class GsResource {
 	@POST
 	@Path("fetch")
 	@Produces("application/pdf")
-	public Response fetchFile(Map<String, String> request) throws IOException, DbxException {
-		
+	public Response fetchFile(@CookieParam("wcfc.gs.token") Cookie cookie,
+			Map<String, String> request) throws IOException, DbxException {
+        
 		String name = request.get("name");
 		
 		File file = new File(gs_root + "/" + name);
@@ -442,12 +438,12 @@ public class GsResource {
 	@Path("email/{email}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response email(@PathParam("email") String email) {
-		Student student = Student.getByEmail(email);
+		Student student = Student.getByEmail(email.toLowerCase());
 		if (student != null) {
 			new EmailLogin().emailTo(email, student.getUUID());
 			return Response.ok().build();
 		} else {
-			Admin admin = Admin.getByEmail(email);
+			Admin admin = Admin.getByEmail(email.toLowerCase());
 			if (admin !=null) {
 				new EmailLogin().emailTo(email, admin.getUUID());
 				return Response.ok().build();
@@ -463,11 +459,12 @@ public class GsResource {
 	public Response verify(@CookieParam("wcfc.gs.token") Cookie cookie,
 			@PathParam("uuid") String uuid,
 			@PathParam("code") Integer code) throws URISyntaxException, APIException {
-		
+
+		String redirect = "/";
+
 		User user = AuthUtils.instance().getUserFromCookie(cookie);
 		if (user == null) {
 			NewCookie newcookie = null;
-			String redirect = "/";
 			
 			LOG.info("Code : {}   UUID: {}", code, uuid);
 			VerificationCode verify = VerificationCode.getByPersonUUID(uuid);
@@ -476,7 +473,8 @@ public class GsResource {
 				LOG.info("Authenticated user {}, admin == {}", person.getName(), person.isAdmin());
 				newcookie = authUtils.generateCookie(new User(person));
 				if (person.isStudent() ) {
-					redirect += ((Student)person).getSection().toLowerCase();
+					Student student = (Student)person;
+					redirect += student.getSection().toLowerCase();
 				}
 				verify.setVerified(true);
 				verify.save();
@@ -490,8 +488,13 @@ public class GsResource {
 				return Response.seeOther(new URI("/failure")).build();
 			}
 		} else {
+			Person person = Person.getPerson(uuid);
+			if (person.isStudent()) {
+				Student student = Student.getByUUID(uuid);
+				redirect += student.getSection().toLowerCase();
+			}
 			LOG.info("{} clicked on the URL again!", user);
-			return Response.seeOther(new URI("/")).build();
+			return Response.seeOther(new URI(redirect)).build();
 		}
 	}
 	
@@ -607,7 +610,7 @@ public class GsResource {
 	public Response deleteStudent(@CookieParam("wcfc.gs.token") Cookie cookie,
 			@PathParam("email") String email) {
 		User user = AuthUtils.instance().getUserFromCookie(cookie);
-		if (user != null && user.getAdmin() == true) {
+		if (user != null && user.isAdmin() == true) {
 			Student student = Student.getByEmail(email);
 			if (student != null) {
 				student.delete();
@@ -626,7 +629,7 @@ public class GsResource {
 	public Response deleteSection(@CookieParam("wcfc.gs.token") Cookie cookie,
 			@PathParam("section") String section) {
 		User user = AuthUtils.instance().getUserFromCookie(cookie);
-		if (user != null && user.getAdmin() == true) {
+		if (user != null && user.isAdmin() == true) {
 			List<Student> students = Student.getAllForSection(section.toUpperCase());
 			for (Integer i = 0; i < students.size(); i++) {
 				students.get(i).delete();
@@ -643,7 +646,7 @@ public class GsResource {
 	public Response addStudent(@CookieParam("wcfc.gs.token") Cookie cookie,
 			Map<String, String> request) {
 		User user = AuthUtils.instance().getUserFromCookie(cookie);
-		if (user != null && user.getAdmin() == true) {
+		if (user != null && user.isAdmin() == true) {
 			String section = request.get("section");
 			String name = request.get("name");
 			String email = request.get("email");
@@ -681,7 +684,7 @@ public class GsResource {
 			throws IOException, CsvException, ParseException {
 		
 		User user = AuthUtils.instance().getUserFromCookie(cookie);
-		if (user != null && user.getAdmin() == true) {
+		if (user != null && user.isAdmin() == true) {
 			// Normalize the class/section name
 			section = section.toUpperCase();
 			
@@ -725,7 +728,7 @@ public class GsResource {
 		    		sb.append(line[9]);
 		    		String name = sb.toString().trim();
 		    		
-		    		student = new Student(section, name, email);
+		    		student = new Student(section, name, email.toLowerCase());
 		    		student.save();
 	    		LOG.info("Created student : {}", student);
 	    		} else {
@@ -771,7 +774,7 @@ public class GsResource {
 			throws IOException, CsvException, ParseException {
 		
 		User user = AuthUtils.instance().getUserFromCookie(cookie);
-		if (user != null && user.getAdmin() == true) {
+		if (user != null && user.isAdmin() == true) {
 			boolean found = false;
 	
 			Index index = getSectionIndex(section);

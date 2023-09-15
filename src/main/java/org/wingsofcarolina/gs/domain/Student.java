@@ -97,7 +97,7 @@ public class Student implements Person {
 	public void setId(ObjectId id) {
 		this.id = id;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Student [section=" + section + ", name=" + name + ", email=" + email + "]";
