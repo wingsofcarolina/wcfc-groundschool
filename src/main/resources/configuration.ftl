@@ -43,10 +43,10 @@ server:
     requestLog:
         appenders:
           - type: file
-            currentLogFilename: log/server-http.log
+            currentLogFilename: ${LOG_DIR!'/log'}/groundschool-http.log
             threshold: ALL
             archive: true
-            archivedLogFilenamePattern: log/server-%i-%d-http.log
+            archivedLogFilenamePattern: ${LOG_DIR!'/log'}/groundschool-%i-%d-http.log
             maxFileSize: 500MB
             archivedFileCount: 5
             timeZone: UTC
@@ -66,10 +66,10 @@ logging:
         timeZone: UTC
         target: stdout
       - type: file
-        currentLogFilename: ./log/server.log
+        currentLogFilename: ${LOG_DIR!'/log'}/groundschool.log
         threshold: ALL
         archive: true
-        archivedLogFilenamePattern: ./log/server-%i-%d.log
+        archivedLogFilenamePattern: ${LOG_DIR!'/log'}/groundschool-%i-%d.log
         maxFileSize: 500MB
         archivedFileCount: 5
         timeZone: UTC

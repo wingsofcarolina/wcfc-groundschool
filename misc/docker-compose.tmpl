@@ -1,0 +1,30 @@
+version: '3'
+services:
+
+  mongodb:
+    container_name: mongo-6.0.1
+    image: amd64/mongo:6.0.1
+    ports:
+     - "27019:27017"
+    volumes:
+      - ./data/mongo:/data/db
+    networks:
+     - groundschool
+
+  server:
+    container_name: groundschool.server
+    image: reg.planez.co/groundschool:{VERSION}
+    ports:
+      - "9300:9300"
+    environment:
+      - MONGODB=mongodb://mongodb
+      - MODE=PROD
+      - AUTH=ON
+    volumes:
+     - ./gs_root:/gs_root
+     - /var/log/wcfc:/log
+    networks:
+     - groundschool
+
+networks:
+  groundschool:
