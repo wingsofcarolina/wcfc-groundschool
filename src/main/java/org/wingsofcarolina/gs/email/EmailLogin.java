@@ -29,33 +29,32 @@ public class EmailLogin {
 	// The HTML body for the email.
 	static final String HTMLBODY = "<html><div class=body>"
 			+ "<img src=https://groundschool.wingsofcarolina.org/WCFC-logo.jpg>"
-			+ "<div class=title>WCFC Ground School Login</div>"
-			+ "<p>This email contains a URL you can use to log into the WCFC Ground School server. "
-			+ "This URL is good for roughly 2 hours after which you will need to request another login. Once "
+			+ "<div class=title>WCFC Groundschool Login</div>"
+			+ "<p>This email contains a verification code you can use to log into the WCFC Groundschool server. "
+			+ "This code is good for roughly 2 hours after which you will need to request another verification code. Once "
 			+ "your login is verified a token will be stored in your browser and subsequent attempts "
 			+ "to access the server will NOT require logging in again, as long as you use the same "
 			+ "system/browser and don't clear browser data. </p>"
-			+ "<div class=link><a href=SERVER/api/verify/UUID/CODE>Log into the WCFC Ground School server for EMAIL</a></div>"
-			+ "<p>If that link fails, paste the following URL into your browser instead :</p>"
-			+ "<div class=link>SERVER/api/verify/UUID/CODE</div>"
+			+ "<p>Enter the following code into the login verification input :</p>"
+			+ "<div class=code>CODE</div>"
 			+ "<p>Thank you for joining the WCFC ground school. Good luck with your training!</p>"
-			+ "<div class=signature>-- WCFC Ground School Server Administration</div>"
+			+ "<div class=signature>-- WCFC Groundschool Server Administration</div>"
 			+ "</div></html>"
 			+ "<style>p{width:70%;}"
 			+ ".body{margin-top:30px;margin-left:30px;}"
 			+ ".title{font-size:1.2em;font-weight:bold;}"
-			+ ".link{text-decoration: none;margin-left:30px;}"
-			+ ".signature{margin-left:30px;}</style>";
+			+ ".code{text-decoration: none;margin:30px;font-size:36pt;font-family:Verdana}"
+			+ ".signature{margin-left:30px;margin-bottom:30px;}</style>";
 
 	// The email body for recipients with non-HTML email clients.
 	static final String TEXTBODY = "WCFC Ground School Login\n"
-			+ "This email contains a URL you can use to log into the WCFC Ground School server.\n"
-			+ "This URL is good for roughly 2 hours after which you will need to request another login.\n"
-			+ "Once your login is verified a token will be stored in your browser and subsequent attempts\n"
+			+ "This email contains a verification code you can use to log into the WCFC Groundschool server.\n"
+			+ "This code is good for roughly 2 hours after which you will need to request another verification\n"
+			+ "code. Once your login is verified a token will be stored in your browser and subsequent attempts\n"
 			+ "to access the server will NOT require logging in again, as long as you use the same\n"
 			+ "system/browser and don't clear browser data.\n\n"
-			+ "SERVER/api/verify/UUID/CODE\n\n"
-			+ "Thank you for joining the WCFC ground School. Good luck with your training!\n\n"
+			+ "        CODE\n\n"
+			+ "Thank you for joining the WCFC ground school. Good luck with your training!\n\n"
 			+ "-- WCFC Ground School Server Administration";
 
 	private static final Logger LOG = LoggerFactory.getLogger(EmailLogin.class);

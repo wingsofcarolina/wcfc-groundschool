@@ -2,7 +2,9 @@
 	import { onMount } from 'svelte';
 	import { goto } from '@sapper/app';
 	import { notifier } from '@beyonk/svelte-notifications'
+	import VerificationCode from '../components/VerificationCode.svelte'
 
+	let code;
 	let email = null;
 	let warning = false;
 
@@ -31,17 +33,32 @@
 		}
 	}
 
+	const verifyUser = async (code) => {
+		const response = await fetch('/api/verify/' + code, {
+			method: "get",
+			withCredentials: true,
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			}
+		});
+
+		if (!response.ok) {
+			notifier.warning('Request failed, contact webmaster for help.');
+		} else {
+			email = null;
+			warning = true;
+			var target = await response.json();
+			goto(target['target'])
+		}
+	}
 </script>
 
 <svelte:head>
 	<title>Login</title>
 </svelte:head>
 
-{#if ! warning}
-	<div class=title>Authenticate</div>
-{:else}
-	<div class=title>Authentication Requested</div>
-{/if}
+<div class=title>Authenticate</div>
 <hr class="highlight">
 
 <center>
@@ -54,7 +71,7 @@
 			<a href="mailto:bookkeeper@wingsofcarolina.org">Sue Davis</a> if you have need
 			to register, or if you have any questions. </p>
 
-			<p>If you <i><b>are</b></i> already registered, simply enter the email
+			<p>If you <i>are</i> already registered, simply enter the email
 			address you provided during registration in the field  below and click the
 			"Submit Login" button. If your email address is found in the system an email
 			will be sent to the registered address. That email will have a URL which
@@ -76,36 +93,39 @@
 				</div>
 			</div>
 		</div>
-
-		<p>Or authenticate with Slack</p>
-		<div class="auth">
-			<a href="https://slack.com/oauth/v2/authorize?user_scope=identity.basic,identity.email&client_id=REDACTED">
-				<img alt="Sign in with Slack" height="40" width="172" src="https://platform.slack-edge.com/img/sign_in_with_slack.png"
-				 srcset="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x" />
-			</a>
-		</div>
 	{:else}
 		<div class="narrow">
-			<div class=warning> An email has been sent to the email address entered. Close this page
-				and use the link in the verification email to log into the system.</div>
 
-			<img src="/icons8-email.png" alt="Check Your Email!">
+			<div class=warning> If your address is registered with the system, an
+			email has been sent to the address entered. The email will have a
+			six-digit verification code. Enter that code below and click on the
+			"Verify Code" button to validate your login.</div>
 
-			<div class=warning> If you do not use the verification URL within about <i>two
-				hours</i> the system will purge your verification code and the link will fail. If
-				you attempt to use the URL a second time, it will fail.</div>
+			<div class=verification>
+				<VerificationCode length="{6}" bind:code="{code}" />
+				<input id="submit" type="submit" value="Verify Code" on:click={() => verifyUser(code)}>
+			</div>
 
-			<div class=warning> Once logged in, you should never have to request verification
-				or use a verification URL again. A cookie will be placed on your browser so
-				that the system will recognize you the next time you come to the site.</div>
+			<div class=warning> If you do not use the verification code within about
+			<i>two hours</i> the system will purge your verification code and an
+			attempt to use it at that point will fail. If you attempt to use the code
+			a second time, it will fail.</div>
 
-			<div class=warning> You can close this browser page or tab now.</div>
+			<div class=warning> Once logged in, you should not have to request
+			verification again on the browser used for verification. A cookie will be
+			placed on that browser so that the system will recognize it the next time
+			you come to the site.</div>
+
 		</div>
 	{/if}
 
 </center>
 
 <style>
+.verification {
+	width: 350px;
+	margin: 50px;
+}
 .auth {
 	margin-top: 3em;
 }

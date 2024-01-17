@@ -29,4 +29,15 @@ public class VerificationCodeDAO extends SuperDAO {
 			return null;
 		}
 	}
+
+	public VerificationCode getByCode(Integer code) {
+		Datastore ds = Persistence.instance().datastore();
+		Query<VerificationCode> query = ds.find(VerificationCode.class);
+		List<VerificationCode> users = query.filter(Filters.eq("code", code)).iterator().toList();
+		if (users.size() > 0) {
+			return users.get(0);
+		} else {
+			return null;
+		}
+	}
 }

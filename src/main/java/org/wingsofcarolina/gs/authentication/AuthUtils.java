@@ -10,6 +10,7 @@ import javax.ws.rs.core.NewCookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wingsofcarolina.gs.GsConfiguration;
+import org.wingsofcarolina.gs.domain.Person;
 import org.wingsofcarolina.gs.model.User;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -87,26 +88,28 @@ public class AuthUtils {
 		Claims claims = new DefaultClaims();
 		claims.setIssuedAt(new Date());
 		claims.setSubject(user.getName());
-		claims.put("version", 1);
 		claims.put("email", user.getEmail());
 		claims.put("userId", user.getUUID());
 		claims.put("admin", user.isAdmin());
+		claims.put("version", 1);
 		
 		String compactJws = Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, key).compact();
 
 		return compactJws;
 	}
 
+	public NewCookie generateCookie(Person person) {
+		return generateCookie(new User(person));
+	}
+
 	public NewCookie generateCookie(User user) {
-		boolean secure = GsConfiguration.instance().getMode().compareTo("DEV") == 0 ? false : true;
 		int maxAge = 86400*30;  // Seconds per day, times days to live
-		NewCookie cookie = new NewCookie("wcfc.gs.token", generateToken(user), "/", null, "WCFC Groundschool ID", maxAge, secure, true);
+		NewCookie cookie = new NewCookie("wcfc.gs.token", generateToken(user), "/", null, "WCFC Groundschool ID", maxAge, true, true);
 		return cookie;
 	}
 
 	public NewCookie removeCookie() {
-		boolean secure = GsConfiguration.instance().getMode().compareTo("DEV") == 0 ? false : true;
-		return new NewCookie("wcfc.gs.token", null, "/", null, "WCFC Groundschool ID", 0, secure, true);
+		return new NewCookie("wcfc.gs.token", null, "/", null, "WCFC Groundschool ID", 0, true, true);
 	}
 
 	public User getUserFromCookie(Cookie cookie) {
@@ -121,7 +124,14 @@ public class AuthUtils {
 					(String) body.get("email"),
 					(String) body.get("userId")
 			);
-			user.setAdmin((Boolean) body.get("admin"));
+
+			HashMap<?, ?> mymap = mapper.convertValue(body, HashMap.class);
+
+			if (mymap.containsKey("admin")) {
+				user.setAdmin((Boolean) body.get("admin"));
+			} else {
+				user.setAdmin(false);
+			}
 		}
 		return user;
 	}

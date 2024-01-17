@@ -454,48 +454,33 @@ public class GsResource {
 	}
 	
 	@GET
-	@Path("verify/{uuid}/{code}")
-	@Produces(MediaType.TEXT_HTML)
-	public Response verify(@CookieParam("wcfc.gs.token") Cookie cookie,
-			@PathParam("uuid") String uuid,
-			@PathParam("code") Integer code) throws URISyntaxException, APIException {
+	@Path("verify/{code}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response verify(@PathParam("code") Integer code) {
 
 		String redirect = "/";
 
-		User user = AuthUtils.instance().getUserFromCookie(cookie);
-		if (user == null) {
-			NewCookie newcookie = null;
-			
-			LOG.info("Code : {}   UUID: {}", code, uuid);
-			VerificationCode verify = VerificationCode.getByPersonUUID(uuid);
-			if (verify != null) {
-				Person person = Person.getPerson(uuid);
-				LOG.info("Authenticated user {}, admin == {}", person.getName(), person.isAdmin());
-				newcookie = authUtils.generateCookie(new User(person));
-				if (person.isStudent() ) {
-					Student student = (Student)person;
-					redirect += student.getSection().toLowerCase();
-				}
-				verify.setVerified(true);
-				verify.save();
-			}
-
-			// User authenticated and identified. Save the info.
-			if (newcookie != null) {
-				return Response.seeOther(new URI(redirect)).header("Set-Cookie", AuthUtils.sameSite(newcookie)).build();
-			} else {
-				LOG.info("Failed to verify {} with code {}", uuid, code);
-				return Response.seeOther(new URI("/failure")).build();
-			}
-		} else {
-			Person person = Person.getPerson(uuid);
-			if (person.isStudent()) {
-				Student student = Student.getByUUID(uuid);
+		VerificationCode vc = VerificationCode.getByCode(code);
+		if (vc != null) {
+			Person person = Person.getPerson(vc.getUUID());
+			LOG.info("Authenticated user {}, code {}, admin == {}", person.getName(), vc.getCode(), person.isAdmin());
+			NewCookie newcookie = authUtils.generateCookie(new User(person));
+			if (person.isStudent() ) {
+				Student student = (Student)person;
 				redirect += student.getSection().toLowerCase();
 			}
-			LOG.info("{} clicked on the URL again!", user);
-			return Response.seeOther(new URI(redirect)).build();
+	
+			// Remove used verification codes
+			vc.delete();
+			
+			// User authenticated and identified. Save the info.
+			Map<String, String> target = new HashMap<String, String>();
+			target.put("target", redirect);
+			NewCookie cookie = authUtils.generateCookie(person);
+			return Response.ok().entity(target).header("Set-Cookie", AuthUtils.sameSite(cookie)).build();
 		}
+		
+		return Response.status(404).build();
 	}
 	
 	@GET
