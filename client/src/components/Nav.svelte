@@ -73,7 +73,7 @@
 		height:100%;
 		margin: 0;
 		background: #ffffff;
-		font-size: 14pt;
+		font-size: 12pt;
 	}
   .banner {
     display:inline-block;
