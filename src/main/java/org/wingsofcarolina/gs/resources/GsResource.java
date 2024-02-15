@@ -570,7 +570,7 @@ public class GsResource {
 		
 		Admin admin = Admin.getByEmail(email);
 		if (admin == null) {
-			admin = new Admin(name, email, roles);
+			admin = new Admin(email, name, roles);
 			admin.save();
 			LOG.info("Admin {}/{} added to system", name, email);
 		} else {
