@@ -10,6 +10,7 @@
 
   let handouts = items.filter(items => items.lesson == lesson);
 
+  console.log('Handouts : ', handouts);
   onMount(async () => {
   });
 
@@ -22,14 +23,7 @@
 
   {#if handouts}
     {#each handouts as item, index}
-      {#if item.required}
-        <Handout section={section} item={item} index={index} maxIndex={handouts.length} on:modify/>
-      {/if}
-    {/each}
-    {#each handouts as item, index}
-      {#if ! item.required}
-        <Handout section={section} item={item} index={index} maxIndex={handouts.length} on:modify/>
-      {/if}
+      <Handout section={section} item={item} index={index} maxIndex={handouts.length} on:modify/>
     {/each}
   {/if}
 </div>
