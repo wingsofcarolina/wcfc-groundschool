@@ -10,9 +10,9 @@ public interface Person {
 	
 	public static Person getPerson(String uuid) {
 		
-		Person person = Student.getByUUID(uuid);
+		Person person = Admin.getByUUID(uuid);
 		if (person == null) {
-			person = Admin.getByUUID(uuid);
+			person = Student.getByUUID(uuid);
 		}
 		return person;
 	}
