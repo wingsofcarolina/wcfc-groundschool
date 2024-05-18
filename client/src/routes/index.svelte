@@ -57,10 +57,12 @@
 				had your registration information uploaded to the system. You gain
 				access to the system by entering your email address, having it verified
 				by the system which will send an email to your registered email address.
-				That email will contain a link which will authenticate your access to
-				the class materials. A cookie will be placed on your browser identifying
-				you so this authentication need only happen once per system/browser
-				unless you clear your browser data. </p>
+				That email will contain a code. That code should be entered into the
+				Authenticate page, and the "Verify Code" button is clicked. If the code
+				matches then you will be permitted to access the the class materials. A
+				cookie will be placed on your browser identifying you so this
+				authentication need only happen once per system/browser unless you clear
+				your browser data. </p>
 
 				<p> The links in the navigation bar above will take you to the various
 				published class materials. If you have questions about the material use
