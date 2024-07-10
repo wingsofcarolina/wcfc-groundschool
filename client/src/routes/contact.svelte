@@ -64,13 +64,17 @@
 
 <center>
 <div class="narrow">
-	<p> Use the form below to send a message to the administrators of the Groundschool
-		server. We welcome messages, particulary if you see a problem that we might be
-		able to address. Reporting issues/problems aids us in creating a better service
-		for you and your fellow groundschool participants.
 
-		The message is sent to a channel in the Groundschool Slack workspace where it
-		will be addressed by one of the administrators.
+	<p> Use the form below to send a message to the administrator of the
+		groundschool server or class instructors. We welcome messages, including
+		questions about class material or problems with the groundschool server.
+		Reporting issues/problems aids us in creating a better service for you and
+		your fellow groundschool participants.
+
+		The message is sent to a channel in the groundschool Slack workspace as well
+		as to all instructors participating in groundschool instruction. Problems
+		with the groundschool server itself will be addressed by one of the server
+		administrator.
 	</p>
 </div>
 </center>
