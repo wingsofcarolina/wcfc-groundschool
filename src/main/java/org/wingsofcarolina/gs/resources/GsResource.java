@@ -74,7 +74,7 @@ import org.wingsofcarolina.gs.domain.Person;
 import org.wingsofcarolina.gs.domain.Role;
 import org.wingsofcarolina.gs.domain.Student;
 import org.wingsofcarolina.gs.domain.VerificationCode;
-import org.wingsofcarolina.gs.email.EmailLogin;
+import org.wingsofcarolina.gs.email.EmailUtils;
 import org.wingsofcarolina.gs.model.User;
 import org.wingsofcarolina.gs.slack.Slack;
 import org.wingsofcarolina.gs.slack.SlackAuthService;
@@ -352,7 +352,7 @@ public class GsResource {
 		String phone = request.getOrDefault("phone", "NONE");
 		String email = request.getOrDefault("email", "NONE");
 		String message = request.getOrDefault("message", "NONE");
-
+		
 		ZoneId zoneId = ZoneId.of("US/Eastern");
 		LOG.info("Zone : {}", zoneId);
 		ZonedDateTime now = LocalDateTime.now().atZone(zoneId);
@@ -373,6 +373,8 @@ public class GsResource {
 		}
 		ab.addFields(Field.builder().isShort(false).title("Message").value(message).build());
 		
+		new EmailUtils().emailInstructors(name, phone, email, message);
+
 		MessageRequest msg = MessageRequest.builder().username("Groundschool Contact")
 				.channel("contact")
 				.text("*Groundschool contact sent at : " + dateFormatGmt.format(now) + "*") // + SlackMarkdown.EMOJI.decorate("new"))
@@ -440,12 +442,12 @@ public class GsResource {
 	public Response email(@PathParam("email") String email) {
 		Student student = Student.getByEmail(email.toLowerCase());
 		if (student != null) {
-			new EmailLogin().emailTo(email, student.getUUID());
+			new EmailUtils().emailTo(email, student.getUUID());
 			return Response.ok().build();
 		} else {
 			Admin admin = Admin.getByEmail(email.toLowerCase());
 			if (admin !=null) {
-				new EmailLogin().emailTo(email, admin.getUUID());
+				new EmailUtils().emailTo(email, admin.getUUID());
 				return Response.ok().build();
 			}
 		}

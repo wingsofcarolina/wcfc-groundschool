@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.wingsofcarolina.gs.common.RuntimeExceptionMapper;
-import org.wingsofcarolina.gs.email.EmailLogin;
+import org.wingsofcarolina.gs.email.EmailUtils;
 import org.wingsofcarolina.gs.healthcheck.MinimalHealthCheck;
 import org.wingsofcarolina.gs.persistence.Persistence;
 import org.wingsofcarolina.gs.resources.GsResource;
@@ -80,7 +80,7 @@ public class GsService extends Application<GsConfiguration> {
 		new Persistence().initialize(config.getMongodb());
 		
 		// Make sure the email class knows the right server to reference
-		EmailLogin.initialize(config.getGsServer());
+		EmailUtils.initialize(config.getGsroot(), config.getGsServer());
 
 		// Set exception mappers
 		if (config.getMode().contentEquals("PROD")) {
