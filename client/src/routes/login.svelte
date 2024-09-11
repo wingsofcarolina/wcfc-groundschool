@@ -71,14 +71,20 @@
 			<a href="mailto:bookkeeper@wingsofcarolina.org">Sue Davis</a> if you have need
 			to register, or if you have any questions. </p>
 
-			<p>If you <i>are</i> already registered, simply enter the email
-			address you provided during registration in the field  below and click the
-			"Submit Login" button. If your email address is found in the system an email
-			will be sent to the registered address. That email will have a URL which
-			will return you to the system with your authentication browser cookie set.
-			This is intended to be a one-time operation, but if for some reason you clear
-			the cookies in your browser you may have to re-authenticate since your
-			credentials are stored in a browser cookie. </p>
+			<p>If you <i>are</i> already registered, simply enter the email address
+			you provided during registration in the field  below and click the "Submit
+			Login" button. If your email address is found in the system an email will
+			be sent to the registered address. That email will have a six-digit code
+			which should be used as your verification code. Enter this six-digit code
+			on the Authentication verification page.</p>
+
+			<p>If your email address is <b>NOT found</b> contact any of the class
+			administrators for help.</p>
+
+			<p>This is intended to be a one-time operation, but if for some reason you
+			clear the cookies in your browser you may have to re-authenticate since
+			your credentials are stored in a browser cookie.
+			</p>
 
 		</div>
 
