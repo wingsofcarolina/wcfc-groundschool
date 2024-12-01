@@ -635,7 +635,7 @@ public class GsResource {
 		User user = AuthUtils.instance().getUserFromCookie(cookie);
 		if (user != null && user.isAdmin() == true) {
 			String section = request.get("section");
-			String name = request.get("name");
+			String name = request.get("name").toLowerCase();
 			String email = request.get("email");
 			
 			Student student = Student.getByEmail(email);
