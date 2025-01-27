@@ -32,6 +32,10 @@
         name = email = null;
       } else {
         console.log(response);
+        if (response.status === 409) {
+          let json = await response.json()
+          notifier.danger(json.message)
+        }
         notifier.danger('Student add failed, what gives?');
       }
     }

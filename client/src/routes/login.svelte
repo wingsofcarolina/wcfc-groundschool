@@ -9,7 +9,10 @@
 	let warning = false;
 
 	onMount(function() {
-	});
+		var ele = document.getElementById('email');
+		console.log(ele);
+		ele.focus();
+    });
 
 	const sendMessage = async () => {
 		if (email == null || email === "") {
@@ -92,7 +95,7 @@
 			<div class="contact_block">
 				<div class="contact_info">
 					<div class="contact_row">
-						<input type="text" id="email" name="email" placeholder="Email"
+						<input id="email" type="text" name="email" placeholder="Email"
 						size=40 bind:value={email}>
 					</div>
 					<input id="submit" type="submit" value="Submit Login" on:click={() => sendMessage()}>
@@ -132,9 +135,6 @@
 	width: 350px;
 	margin: 50px;
 }
-.auth {
-	margin-top: 3em;
-}
 .title {
   font-size: 2em;
   text-align: center;
@@ -172,7 +172,7 @@
   text-align: center;
 }
 
-input, textarea {
+input {
 	font-family: 'Courier', sans-serif;
 	padding: 10px;
 	margin: 10px 0;

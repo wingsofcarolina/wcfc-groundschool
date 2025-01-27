@@ -1,8 +1,15 @@
 <script>
+    import { onMount } from "svelte";
+
     export let length
     let els = []
     let values = []
     export let code = 'typing'
+
+    onMount(async () => {
+        var ele = document.getElementById("b-first-input");
+        ele.focus();
+    });
 
     $: {
         (() => {

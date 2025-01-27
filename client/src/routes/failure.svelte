@@ -32,9 +32,6 @@
 </center>
 
 <style>
-.auth {
-	margin-top: 3em;
-}
 .title {
   font-size: 2em;
   text-align: center;

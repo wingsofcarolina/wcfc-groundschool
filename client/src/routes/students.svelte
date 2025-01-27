@@ -8,7 +8,6 @@
 	import Single from "../tabs/Single.svelte"
 	import Bulk from "../tabs/Bulk.svelte"
 	import List from "../tabs/List.svelte"
-	import Email from "../tabs/Email.svelte"
 
 	let view = false;
 	let name = null;
@@ -21,8 +20,7 @@
   let items = [
     { label: "Single", value: 1, component: Single },
     { label: "Bulk", value: 2, component: Bulk },
-		{ label: "List", value: 3, component: List },
-		//{ label: "Email", value: 4, component: Email }
+	{ label: "List", value: 3, component: List }
   ];
 
 	let sections = [
@@ -56,7 +54,7 @@
 			Groundschool Class<br>
 			<select class="class_selection"
 						bind:value={section}
-						on:change={() => tabComponent.changeClass(section)}>
+						on:blur={() => tabComponent.changeClass(section)}>
 				{#each sections as s}
 					<option value={s}>
 						{s.text}
@@ -70,22 +68,12 @@
 	</center>
 {/if}
 <style>
-file {
-	width: 400px;
-}
 .class_selection {
 	width: 200px;
 	text-align: center;
 }
-.auth {
-	margin-top: 3em;
-}
 .title {
   font-size: 2em;
-  text-align: center;
-}
-.subtitle {
-  font-size: 1.5em;
   text-align: center;
 }
 hr {
@@ -102,41 +90,7 @@ hr {
   border-radius: 3px;
 	margin: 0px auto 50px auto;
 }
-.section {
-  width: 100%;
-  margin-bottom: 3em;
-}
 .narrow {
 	width: 70%;
-}
-.narrow p {
-	text-align: left;
-}
-.contact_block {
-  display: flex;
-  justify-content: space-around;
-  margin: 20px;
-  font-size: 20px;
-}
-.contact_info {
-  text-align: center;
-}
-input, textarea {
-	font-family: 'Courier', sans-serif;
-	padding: 10px;
-	margin: 10px 0;
-	border:0;
-	box-shadow:0 0 15px 4px rgba(0,0,0,0.06);
-	font-family: inherit;
-}
-input[type=submit] {
-		padding:5px 15px;
-		background:#ccc;
-		border:0 none;
-		cursor:pointer;
-		-webkit-border-radius: 5px;
-		border-radius: 5px;
-		height: 50px;
-		width: 100%;
 }
 </style>

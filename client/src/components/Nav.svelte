@@ -32,6 +32,7 @@
 	{#if $user &&  ! $user.anonymous && $user.admin }
 	  <div class="switch">
 	    <Switch bind:value={$adminState} label="Admin Mode" design="inner"/>
+		<div class="right"><a href="/api/logout">Logout</a></div>
 	  </div>
 	{/if}
 </div>
@@ -48,7 +49,7 @@
   {#if $user &&  ! $user.anonymous}
     <div class="right">
       <div class="user">
-        <span>{$user.name}</span>
+		<span>{$user.name}</span>
       </div>
     </div>
   {/if}

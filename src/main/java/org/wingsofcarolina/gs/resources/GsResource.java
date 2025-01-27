@@ -440,16 +440,16 @@ public class GsResource {
 	@Path("email/{email}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response email(@PathParam("email") String email) {
-		Student student = Student.getByEmail(email.toLowerCase());
-		if (student != null) {
-			new EmailUtils().emailTo(email, student.getUUID());
+		Admin admin = Admin.getByEmail(email.toLowerCase());
+		if (admin != null) {
+			new EmailUtils().emailTo(email, admin.getUUID());
 			return Response.ok().build();
 		} else {
-			Admin admin = Admin.getByEmail(email.toLowerCase());
-			if (admin !=null) {
-				new EmailUtils().emailTo(email, admin.getUUID());
+			Student student = Student.getByEmail(email.toLowerCase());
+			if (student != null) {
+				new EmailUtils().emailTo(email, student.getUUID());
 				return Response.ok().build();
-			}
+			} 
 		}
 		LOG.info("Authentication for {}, person not found", email);
 		return Response.status(404).build();
@@ -636,21 +636,27 @@ public class GsResource {
 		if (user != null && user.isAdmin() == true) {
 			String section = request.get("section");
 			String name = request.get("name").toLowerCase();
-			String email = request.get("email");
+			String email = request.get("email").toLowerCase();
 			
-			Student student = Student.getByEmail(email);
-			if (student == null) {
-				student = new Student(section, name, email);
-				student.save();
-				LOG.info("Student {} added to {} section", email, section);
-			} else {
-				if ( ! student.getSection().equals(section)) {
-					student.setSection(section);
+			Admin admin = Admin.getByEmail(email);
+			if (admin == null) {
+				Student student = Student.getByEmail(email);
+				if (student == null) {
+					student = new Student(section, name, email);
 					student.save();
-					LOG.info("Student {} updated to be in {} section", email, section);
+					LOG.info("Student {} added to {} section", email, section);
 				} else {
-					LOG.info("Student {} already exists", email);
+					if ( ! student.getSection().equals(section)) {
+						student.setSection(section);
+						student.save();
+						LOG.info("Student {} updated to be in {} section", email, section);
+					} else {
+						LOG.info("Student {} already exists", email);
+					}
 				}
+			} else {
+				Map<String, String> reply = Map.of("message", "Email already registered as an admin. Don't do that again George.");
+				return Response.status(409).entity(reply).build();
 			}
 			
 			return Response.ok().build();
