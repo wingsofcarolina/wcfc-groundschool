@@ -1,5 +1,7 @@
 package org.wingsofcarolina.gs.resources;
 
+import com.dropbox.core.DbxException;
+import com.dropbox.core.v2.files.ListFolderErrorException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,9 +10,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import com.dropbox.core.DbxException;
-import com.dropbox.core.v2.files.ListFolderErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wingsofcarolina.gs.GsConfiguration;
@@ -22,40 +21,42 @@ import org.wingsofcarolina.gs.domain.Student;
  * @author dwight
  *
  */
-@Path("/test")	// Note that this is actually accessed as /api due to the setUrPattern() call in GsService
+@Path("/test") // Note that this is actually accessed as /api due to the setUrPattern() call in GsService
 public class TestResource {
-	private static final Logger LOG = LoggerFactory.getLogger(TestResource.class);
-	
-	private static GsConfiguration config;
 
-	@SuppressWarnings("static-access")
-	public TestResource(GsConfiguration config) throws IOException, ListFolderErrorException, DbxException {
-		this.config = config;
-	}
-	
-	@GET
-	@Path("makeAdmins")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response makeAdmins() {
-		Admin admin;
-		
-		List<Role> roles = new ArrayList<Role>();
-		roles.add(Role.ADMIN);
-		admin = new Admin("dfrye@planez.co", "Dwight Frye", roles);
-		admin.save();
-		new Admin("dwight@openweave.org", admin).save();
-		admin = new Admin("george.scheer@gmail.com", "George Scheer", roles);
-		admin.save();
-		new Admin("cfi@wingsofcarolina.org", admin).save();
-		admin = new Admin("sue.davis@wingsofcarolina.org", "Sue Davis", roles);
-		admin.save();
-		new Admin("bookkeeper@wingsofcarolina.org", admin).save();
+  private static final Logger LOG = LoggerFactory.getLogger(TestResource.class);
 
-		roles.clear();
-		roles.add(Role.USER);
-		new Admin("airplanehunter@hotmail.com", "John Hunter", roles).save();
-		new Admin("dwightrfrye@gmail.com", "Herbie Frye", roles).save();
+  private static GsConfiguration config;
 
-		return Response.ok().build();
-	}
+  @SuppressWarnings("static-access")
+  public TestResource(GsConfiguration config)
+    throws IOException, ListFolderErrorException, DbxException {
+    this.config = config;
+  }
+
+  @GET
+  @Path("makeAdmins")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response makeAdmins() {
+    Admin admin;
+
+    List<Role> roles = new ArrayList<Role>();
+    roles.add(Role.ADMIN);
+    admin = new Admin("dfrye@planez.co", "Dwight Frye", roles);
+    admin.save();
+    new Admin("dwight@openweave.org", admin).save();
+    admin = new Admin("george.scheer@gmail.com", "George Scheer", roles);
+    admin.save();
+    new Admin("cfi@wingsofcarolina.org", admin).save();
+    admin = new Admin("sue.davis@wingsofcarolina.org", "Sue Davis", roles);
+    admin.save();
+    new Admin("bookkeeper@wingsofcarolina.org", admin).save();
+
+    roles.clear();
+    roles.add(Role.USER);
+    new Admin("airplanehunter@hotmail.com", "John Hunter", roles).save();
+    new Admin("dwightrfrye@gmail.com", "Herbie Frye", roles).save();
+
+    return Response.ok().build();
+  }
 }
