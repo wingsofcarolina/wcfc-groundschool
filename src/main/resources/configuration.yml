@@ -1,26 +1,26 @@
 ######
 
-gsroot: ${GSROOT!'/gs_root'}
+gsroot: ${GSROOT:-/gs_root}
 
 # Location of the MongoDB server
 # If on a Docker network, just give the name of the MongoDB
 # container. Otherwise give the IP:PORT for the MongoDB process.
-mongodb: ${MONGODB!'mongodb'}
+mongodb: ${MONGODB:-mongodb}
 
 # URL of the server where the groundschool service is running
-gsServer: ${GSSERVER!'https://groundschool.wingsofcarolina.org'}
+gsServer: ${GSSERVER:-https://groundschool.wingsofcarolina.org}
 
 # Operational mode, DEV or PROD
-mode: ${MODE!'PROD'}
+mode: ${MODE:-PROD}
 
 # Authentication, ON or OFF
-auth: ${AUTH!'ON'}
-mockAdmin: ${MOCKADMIN!'OFF'}
-mockUser: ${MOCKUSER!"NONE"}
+auth: ${AUTH:-ON}
+mockAdmin: ${MOCKADMIN:-OFF}
+mockUser: ${MOCKUSER:-NONE}
 
 # Slack channels
-slackNotify: ${SLACK!'REDACTED/REDACTED'}     # Targets #notification
-slackContact: ${SLACK!'REDACTED/REDACTED'}    # Targets #contact
+slackNotify: ${SLACK:-REDACTED/REDACTED}     # Targets #notification
+slackContact: ${SLACK:-REDACTED/REDACTED}    # Targets #contact
 
 # Configure the Sundial job management system    
 sundial:
@@ -37,16 +37,16 @@ server:
     type: simple
     connector:
         type: http
-        port: ${SERVER_PORT!'9300'}
+        port: ${SERVER_PORT:-9300}
     applicationContextPath: /
     adminContextPath: /admin
     requestLog:
         appenders:
           - type: file
-            currentLogFilename: ${LOG_DIR!'/log'}/groundschool-http.log
+            currentLogFilename: ${LOG_DIR:-/log}/groundschool-http.log
             threshold: ALL
             archive: true
-            archivedLogFilenamePattern: ${LOG_DIR!'/log'}/groundschool-%i-%d-http.log
+            archivedLogFilenamePattern: ${LOG_DIR:-/log}/groundschool-%i-%d-http.log
             maxFileSize: 500MB
             archivedFileCount: 5
             timeZone: UTC
@@ -54,11 +54,11 @@ server:
 # SLF4j Logging settings.
 logging:
   # The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
-  level: ${DEFAULT_LOGLEVEL!'INFO'}
+  level: ${DEFAULT_LOGLEVEL:-INFO}
 
   # Logger-specific levels.
   loggers:
-    "org.wingsofcarolina.gs": ${LOGLEVEL!'INFO'}
+    "org.wingsofcarolina.gs": ${LOGLEVEL:-INFO}
     
   appenders:
       - type: console
@@ -66,10 +66,10 @@ logging:
         timeZone: UTC
         target: stdout
       - type: file
-        currentLogFilename: ${LOG_DIR!'/log'}/groundschool.log
+        currentLogFilename: ${LOG_DIR:-/log}/groundschool.log
         threshold: ALL
         archive: true
-        archivedLogFilenamePattern: ${LOG_DIR!'/log'}/groundschool-%i-%d.log
+        archivedLogFilenamePattern: ${LOG_DIR:-/log}/groundschool-%i-%d.log
         maxFileSize: 500MB
         archivedFileCount: 5
         timeZone: UTC

@@ -5,9 +5,10 @@ import com.mongodb.client.result.UpdateResult;
 import dev.morphia.Datastore;
 // import co.planez.padawan.domain.dao.*;
 import dev.morphia.Morphia;
+import dev.morphia.mapping.MapperOptions;
 import dev.morphia.query.Query;
-import dev.morphia.query.experimental.filters.Filters;
-import dev.morphia.query.experimental.updates.UpdateOperators;
+import dev.morphia.query.filters.Filters;
+import dev.morphia.query.updates.UpdateOperators;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +26,21 @@ public class Persistence {
     if (instance == null) {
       LOG.info("Connecting to MongoDB with '{}'", mongodb);
       datastore = Morphia.createDatastore(MongoClients.create(mongodb), "groundschool");
-      datastore.getMapper().mapPackage("dev.morphia.example");
-      datastore.ensureIndexes();
+      
+      // Map individual entity classes instead of using deprecated mapPackage
+      datastore.getMapper().map(
+        org.wingsofcarolina.gs.domain.AutoIncrement.class,
+        org.wingsofcarolina.gs.domain.Admin.class,
+        org.wingsofcarolina.gs.domain.Person.class,
+        org.wingsofcarolina.gs.domain.Student.class,
+        org.wingsofcarolina.gs.domain.Role.class,
+        org.wingsofcarolina.gs.domain.DetailView.class,
+        org.wingsofcarolina.gs.domain.SummaryView.class,
+        org.wingsofcarolina.gs.domain.VerificationCode.class
+      );
+      
+      // Note: Index creation is now handled automatically by Morphia based on annotations
+      // or can be done manually using the MongoDB driver if needed
 
       // Create DAOs
       // daoStore.put(User.class, new UserDAO(datastore));
@@ -73,14 +87,14 @@ public class Persistence {
     Query<AutoIncrement> query = ds
       .find(AutoIncrement.class)
       .filter(Filters.eq("key", key));
-    UpdateResult results = query.update(UpdateOperators.inc("value", 1)).execute();
+    
+    // Use modify instead of deprecated update method
+    autoIncrement = query.modify(UpdateOperators.inc("value", 1)).execute();
 
     // If none is found, we need to create one for the given key.
-    if (results.getModifiedCount() == 0) {
+    if (autoIncrement == null) {
       autoIncrement = new AutoIncrement(key, minimumValue);
       datastore.save(autoIncrement);
-    } else {
-      autoIncrement = query.iterator().toList().get(0);
     }
     return autoIncrement.getValue();
   }

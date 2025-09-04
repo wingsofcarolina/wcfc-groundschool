@@ -1,17 +1,17 @@
 package org.wingsofcarolina.gs;
 
-import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
-import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
-import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
+import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
+import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.core.Application;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.forms.MultiPartBundle;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.FilterRegistration;
 import java.text.SimpleDateFormat;
 import java.util.EnumSet;
 import java.util.TimeZone;
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.knowm.dropwizard.sundial.SundialBundle;
 import org.knowm.dropwizard.sundial.SundialConfiguration;
@@ -32,7 +32,7 @@ public class GsService extends Application<GsConfiguration> {
   public static void main(String[] args) throws Exception {
     LOG.info("Starting : WCFC Groundschool Server");
     if (args.length < 2) {
-      new GsService().run(new String[] { "server", "configuration.ftl" });
+      new GsService().run(new String[] { "server", "configuration.yml" });
     } else {
       new GsService().run(args);
     }
@@ -40,10 +40,15 @@ public class GsService extends Application<GsConfiguration> {
 
   @Override
   public void initialize(Bootstrap<GsConfiguration> bootstrap) {
-    // bootstrap.addBundle(new AssetsBundle("/doc", "/doc", "index.html","html"));
-    bootstrap.addBundle(
-      new TemplateConfigBundle(new TemplateConfigBundleConfiguration())
+    // Enable environment variable substitution
+    bootstrap.setConfigurationSourceProvider(
+      new SubstitutingSourceProvider(
+        bootstrap.getConfigurationSourceProvider(),
+        new EnvironmentVariableSubstitutor(false)
+      )
     );
+
+    // bootstrap.addBundle(new AssetsBundle("/doc", "/doc", "index.html","html"));
     bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
     bootstrap.addBundle(new MultiPartBundle());
     bootstrap.addBundle(

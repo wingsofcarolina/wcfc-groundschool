@@ -1,8 +1,8 @@
 package org.wingsofcarolina.gs.responses;
 
-import javax.ws.rs.core.NewCookie;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
+import jakarta.ws.rs.core.NewCookie;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.ResponseBuilder;
 import org.wingsofcarolina.gs.common.Error;
 
 public class AbstractResponse {
