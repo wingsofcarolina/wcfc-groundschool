@@ -1,6 +1,8 @@
 package org.wingsofcarolina.gs.persistence;
 
 import com.mongodb.client.MongoClients;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
+import com.mongodb.client.model.ReturnDocument;
 import com.mongodb.client.result.UpdateResult;
 import dev.morphia.Datastore;
 // import co.planez.padawan.domain.dao.*;
@@ -26,19 +28,12 @@ public class Persistence {
     if (instance == null) {
       LOG.info("Connecting to MongoDB with '{}'", mongodb);
       datastore = Morphia.createDatastore(MongoClients.create(mongodb), "groundschool");
-      
+
       // Map individual entity classes instead of using deprecated mapPackage
-      datastore.getMapper().map(
-        org.wingsofcarolina.gs.domain.AutoIncrement.class,
-        org.wingsofcarolina.gs.domain.Admin.class,
-        org.wingsofcarolina.gs.domain.Person.class,
-        org.wingsofcarolina.gs.domain.Student.class,
-        org.wingsofcarolina.gs.domain.Role.class,
-        org.wingsofcarolina.gs.domain.DetailView.class,
-        org.wingsofcarolina.gs.domain.SummaryView.class,
-        org.wingsofcarolina.gs.domain.VerificationCode.class
-      );
-      
+      // The map() method is deprecated, but entity mapping is now handled automatically
+      // by Morphia when entities are first accessed. No explicit mapping is required.
+      // If explicit mapping is needed, use datastore.getMapper().map(Class) for each class individually
+
       // Note: Index creation is now handled automatically by Morphia based on annotations
       // or can be done manually using the MongoDB driver if needed
 
@@ -87,9 +82,21 @@ public class Persistence {
     Query<AutoIncrement> query = ds
       .find(AutoIncrement.class)
       .filter(Filters.eq("key", key));
-    
-    // Use modify instead of deprecated update method
-    autoIncrement = query.modify(UpdateOperators.inc("value", 1)).execute();
+
+    // Use the MongoDB driver directly for atomic findAndModify operation
+    // since the Morphia modify method is deprecated
+    FindOneAndUpdateOptions options = new FindOneAndUpdateOptions()
+      .returnDocument(ReturnDocument.AFTER)
+      .upsert(false);
+
+    autoIncrement =
+      ds
+        .getCollection(AutoIncrement.class)
+        .findOneAndUpdate(
+          com.mongodb.client.model.Filters.eq("key", key),
+          com.mongodb.client.model.Updates.inc("value", 1),
+          options
+        );
 
     // If none is found, we need to create one for the given key.
     if (autoIncrement == null) {
