@@ -1,12 +1,19 @@
+/**
+ * @param {number} month
+ * @param {number} year
+ * @param {function} dayProps
+ * @param {number} weekStart
+ */
 const getCalendarPage = (month, year, dayProps, weekStart = 0) => {
   let date = new Date(year, month, 1);
   date.setDate(date.getDate() - date.getDay() + weekStart);
   let nextMonth = month === 11 ? 0 : month + 1;
   // ensure days starts on Sunday
   // and end on saturday
+  /** @type {any[]} */
   let weeks = [];
   while (date.getMonth() !== nextMonth || date.getDay() !== weekStart || weeks.length !== 6) {
-    if (date.getDay() === weekStart) weeks.unshift({ days: [], id: `${year}${month}${year}${weeks.length}` });
+    if (date.getDay() === weekStart) weeks.unshift({ days: /** @type {any[]} */([]), id: `${year}${month}${year}${weeks.length}` });
     const updated = Object.assign({
       partOfMonth: date.getMonth() === month,
       day: date.getDate(),
@@ -21,9 +28,17 @@ const getCalendarPage = (month, year, dayProps, weekStart = 0) => {
   return { month, year, weeks };
 };
 
+/**
+ * @param {Date} start
+ * @param {Date} end
+ * @param {function|null} selectableCallback
+ */
 const getDayPropsHandler = (start, end, selectableCallback) => {
   let today = new Date();
   today.setHours(0, 0, 0, 0);
+  /**
+   * @param {Date} date
+   */
   return date => {
     const isInRange = date >= start && date <= end;
     return {
@@ -34,6 +49,12 @@ const getDayPropsHandler = (start, end, selectableCallback) => {
   };
 };
 
+/**
+ * @param {Date} start
+ * @param {Date} end
+ * @param {function|null} selectableCallback
+ * @param {number} weekStart
+ */
 export function getMonths(start, end, selectableCallback = null, weekStart = 0) {
   start.setHours(0, 0, 0, 0);
   end.setHours(0, 0, 0, 0);
@@ -48,6 +69,10 @@ export function getMonths(start, end, selectableCallback = null, weekStart = 0) 
   return months;
 }
 
+/**
+ * @param {Date} a
+ * @param {Date} b
+ */
 export const areDatesEquivalent = (a, b) => a.getDate() === b.getDate()
   && a.getMonth() === b.getMonth()
   && a.getFullYear() === b.getFullYear();

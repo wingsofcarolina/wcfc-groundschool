@@ -5,9 +5,13 @@
 	import { user } from '$lib/store.js'
 	import { getUser } from '$lib/common.js'
 
+	/** @type {string|null} */
 	let name;
+	/** @type {string|null} */
 	let phone;
+	/** @type {string|null} */
 	let email;
+	/** @type {string|null} */
 	let message;
 
 	onMount(function() {
@@ -34,7 +38,7 @@
 
       const response = await fetch('/api/contact', {
         method: "post",
-        withCredentials: true,
+        credentials: 'include',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
@@ -95,7 +99,7 @@
 				size=40 bind:value={phone}>
 			</div>
 			<div class="contact_row">
-				<textarea type="text" id="message" name="message" placeholder="Message"
+				<textarea id="message" name="message" placeholder="Message"
 				cols=41 rows=5 bind:value={message}></textarea>
 			</div>
 			<input id="submit" type="submit" value="Send Message" on:click={() => sendMessage()}>

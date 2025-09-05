@@ -15,7 +15,7 @@
 	const getUser = async () => {
 		const response = await fetch('/api/user', {
 			method: "get",
-			withCredentials: true,
+			credentials: 'include',
 			headers: {
 				'Accept': 'application/json'
 			}

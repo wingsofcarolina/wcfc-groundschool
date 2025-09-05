@@ -5,6 +5,7 @@
   const dispatch = createEventDispatcher();
 
   export let visible = false;
+  /** @type {any} */
   export let section = null;
 
   let label = null;
@@ -18,9 +19,9 @@
   }
 
   const removeAllStudents = async () => {
-    const response = await fetch('/api/students/' + section.id, {
+    const response = await fetch('/api/students/' + (section?.id || ''), {
       method: "delete",
-      withCredentials: true,
+      credentials: 'include',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -45,10 +46,10 @@
 <div id='deleteDialog' class='dialog' style="visibility : {visible ? 'visible' : 'hidden'}">
   <div class='dialog_contents'>
     <div class='dialog_label'>Delete All Students in Class</div>
-    <div class='dialog_text'>{section.text}</div>
+    <div class='dialog_text'>{section?.text || ''}</div>
     <p>
-      <button on:click={cancelDeleteDialog.bind()}>No</button>
-      <button on:click={removeAllStudents.bind()}>Yes</button>
+      <button on:click={cancelDeleteDialog}>No</button>
+      <button on:click={removeAllStudents}>Yes</button>
   </div>
 </div>
 

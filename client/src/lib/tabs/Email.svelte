@@ -1,10 +1,15 @@
 <script>
   import * as notifier from '@beyonk/svelte-notifications/src/notifier.js'
 
+  /** @type {any} */
   let text = null;
 
+  /** @type {any} */
   export let section;
 
+  /**
+   * @param {any} section
+   */
   export function changeClass(section){}
 
   function emailAllStudents() {}

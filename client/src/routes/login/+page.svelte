@@ -4,14 +4,16 @@
 	import * as notifier from '@beyonk/svelte-notifications/src/notifier.js'
 	import VerificationCode from '$lib/components/VerificationCode.svelte'
 
+	/** @type {string} */
 	let code;
+	/** @type {string|null} */
 	let email = null;
 	let warning = false;
 
 	onMount(function() {
 		var ele = document.getElementById('email');
 		console.log(ele);
-		ele.focus();
+		if (ele) ele.focus();
     });
 
 	const sendMessage = async () => {
@@ -20,7 +22,7 @@
 		}
 		const response = await fetch('/api/email/' + email, {
 			method: "get",
-			withCredentials: true,
+			credentials: 'include',
 			headers: {
 				'Accept': 'application/json',
 				'Content-Type': 'application/json'
@@ -36,10 +38,13 @@
 		}
 	}
 
+	/**
+	 * @param {string} code
+	 */
 	const verifyUser = async (code) => {
 		const response = await fetch('/api/verify/' + code, {
 			method: "get",
-			withCredentials: true,
+			credentials: 'include',
 			headers: {
 				'Accept': 'application/json',
 				'Content-Type': 'application/json'

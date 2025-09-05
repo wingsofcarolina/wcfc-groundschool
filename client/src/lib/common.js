@@ -1,12 +1,13 @@
 import { user } from './store.js'
 import { getSanitizingConverter } from 'pagedown';
+import * as notifier from '@beyonk/svelte-notifications/src/notifier.js'
 
 var converter = getSanitizingConverter();
 
 export const getUser = async () => {
   const response = await fetch('/api/user', {
     method: "get",
-    withCredentials: true,
+    credentials: 'include',
     headers: {
       'Accept': 'application/json'
     }
@@ -25,11 +26,17 @@ export const getUser = async () => {
   }
 }
 
+/**
+ * @param {string} rawText
+ */
 export function convert(rawText) {
   let rawMarkup = converter.makeHtml(rawText);
   return rawMarkup.replace(/^(?:<p>)?(.*?)(?:<\/p>)?$/, "$1")
 }
 
+/**
+ * @param {number[]} ldt
+ */
 export function jsDate(ldt) {
   let date = new Date(ldt[0],ldt[1]-1,ldt[2]);
   date.setHours(ldt[3]);
@@ -37,6 +44,9 @@ export function jsDate(ldt) {
   return date;
 }
 
+/**
+ * @param {any} event
+ */
 export function inTheFuture(event) {
   let now = new Date();
   let eventDate = jsDate(event.eventDate);
@@ -49,18 +59,29 @@ export function inTheFuture(event) {
   return eventEnd > now;
 }
 
+/**
+ * @param {number[]|null} ldt
+ */
 export function toDate(ldt) {
   if (ldt) {
     return ldt[0] + '-' + zeroPad(ldt[1]) + "-" + zeroPad(ldt[2]);
   }
   return null;
 }
+
+/**
+ * @param {number[]|null} ldt
+ */
 export function toTime(ldt) {
   if (ldt) {
     return zeroPad(ldt[3]) + ':' + zeroPad(ldt[4]);
   }
   return null;
 }
+
+/**
+ * @param {number[]|null} ldt
+ */
 export function toDateTime(ldt) {
   if (ldt) {
     return toDate(ldt) + "  " + toTime(ldt);
@@ -68,6 +89,10 @@ export function toDateTime(ldt) {
     return null;
   }
 }
+
+/**
+ * @param {number} value
+ */
 function zeroPad(value) {
   if (value < 10)
     return '0' + value;

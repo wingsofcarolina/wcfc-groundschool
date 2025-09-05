@@ -8,9 +8,13 @@
   export let item;
   export let section;
 
+  /** @type {string|null} */
   let label = null;
+  /** @type {string|null} */
   let lesson = null;
+  /** @type {boolean|null} */
   let required = null;
+  /** @type {any} */
   let files = null;
 
   export const raise = () => {
@@ -26,6 +30,9 @@
     visible = false;
   }
 
+  /**
+   * @param {any} item
+   */
   const refresh = async (item) => {
     var request = { command : 'refresh' };
     dispatch('modify', request );
@@ -40,7 +47,7 @@
       const formData = new FormData();
       formData.append('label', label);
       formData.append('path', item.path);
-      formData.append('required', required);
+      formData.append('required', required ? 'true' : 'false');
       formData.append('section', section);
       formData.append('lesson', lesson);
       // for (var pair of formData.entries()) {
@@ -52,7 +59,7 @@
       });
       if (response.ok) {
         notifier.success('Entry modified successfully');
-        refresh();
+        refresh(item);
       } else {
         notifier.danger('Entry modification failed');
       }
@@ -78,8 +85,8 @@
       </label>
     </div>
     <p>
-    <button on:click={cancelUploadDialog.bind()}>Cancel</button>
-    <input type="submit" value="Submit" on:click={modifyOldHandout.bind()}>
+    <button on:click={cancelUploadDialog}>Cancel</button>
+    <input type="submit" value="Submit" on:click={modifyOldHandout}>
   </div>
 </div>
 

@@ -1,10 +1,15 @@
 <script>
   import * as notifier from '@beyonk/svelte-notifications/src/notifier.js'
 
+  /** @type {FileList|null} */
   let files = null;
 
+  /** @type {any} */
   export let section;
 
+  /**
+   * @param {any} section
+   */
   export function changeClass(section){}
 
 	const uploadCSV = async () => {

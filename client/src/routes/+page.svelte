@@ -24,13 +24,15 @@
 
 	function acceptCookie() {
 		 var el = document.getElementById('cookie-banner');
+		 if (!el) return;
 		 //if (el) el.style.visibility = "hidden";
 		 var fadeEffect = setInterval(function() {
+			 if (!el || !el.style) return;
 			 if (!el.style.opacity) {
-				 el.style.opacity = 1;
+				 el.style.opacity = '1';
 			 }
-			 if (el.style.opacity > 0) {
-				 el.style.opacity -= 0.1;
+			 if (parseFloat(el.style.opacity) > 0) {
+				 el.style.opacity = (parseFloat(el.style.opacity) - 0.1).toString();
 			 } else {
 				 clearInterval(fadeEffect);
 			 }
@@ -83,7 +85,7 @@
 			By using this website, you agree to our
 			<a href='about'>cookie policy</a>
 		</p>
-		<button class='close' on:click={acceptCookie.bind()}>&times;</button>
+		<button class='close' on:click={acceptCookie}>&times;</button>
 	</div>
 
 <style>

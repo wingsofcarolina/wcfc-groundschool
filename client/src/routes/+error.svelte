@@ -37,8 +37,8 @@
 
 <h1>{status}</h1>
 
-<p>{error.message}</p>
+<p>{error?.message}</p>
 
-{#if dev && error.stack}
-	<pre>{error.stack}</pre>
+{#if dev && (/** @type {any} */(error))?.stack}
+	<pre>{(/** @type {any} */(error)).stack}</pre>
 {/if}

@@ -7,9 +7,12 @@
   export let visible = false;
   export let section = 0;
 
+  /** @type {any} */
   let label = null;
   let required = true;
+  /** @type {any} */
   let lesson = null;
+  /** @type {any} */
   let files = null;
 
   export const raise = () => visible = true
@@ -20,6 +23,9 @@
     visible = false;
   }
 
+  /**
+   * @param {any} item
+   */
   const refresh = async (item) => {
     var request = { command : 'refresh' };
     dispatch('modify', request );
@@ -33,8 +39,8 @@
     } else {
       const formData = new FormData();
       formData.append('label', label);
-      formData.append('required', required);
-      formData.append('section', section);
+      formData.append('required', required.toString());
+      formData.append('section', section.toString());
       formData.append('lesson', lesson);
       formData.append('file', files[0]);
       // for (var pair of formData.entries()) {
@@ -46,8 +52,8 @@
       });
       if (response.ok) {
         notifier.success('File uploaded successfully');
-        section = lesson = label = null;
-        refresh();
+        lesson = label = null;
+        refresh(null);
       } else {
         console.log(response);
         if (response.status == 413)
@@ -78,8 +84,8 @@
       </label>
     </div>
     <p>
-    <button on:click={cancelUploadDialog.bind()}>Cancel</button>
-    <input type="submit" value="Submit" on:click={uploadNewHandout.bind()}>
+    <button on:click={cancelUploadDialog}>Cancel</button>
+    <input type="submit" value="Submit" on:click={uploadNewHandout}>
   </div>
 </div>
 

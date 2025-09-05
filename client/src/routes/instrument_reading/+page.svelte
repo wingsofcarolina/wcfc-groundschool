@@ -15,7 +15,7 @@
 	const getUser = async () => {
 		const response = await fetch('/api/user', {
 			method: "get",
-			withCredentials: true,
+			credentials: 'include',
 			headers: {
 				'Accept': 'application/json'
 			}
@@ -110,7 +110,7 @@ tool.  </p>
 />
 
 <Product title="Instrument Flying Handbook (FAA-H-8083-15B) Date: 2012"
-	pub="ASA reprint"
+	publisher="ASA reprint"
 	notes='This is available for $23.66 from Amazon, timely delivery. This is an
 	FAA manual available for digital download from the FAA website.   It has been
 	reprinted in book form by ASA and is available as an ASA book from Amazon. It
@@ -121,7 +121,7 @@ tool.  </p>
 />
 
 <Product title="ASA Instrument Procedures Handbook (FAA-H-8083-16B) Date: 2017"
-	pub="ASA reprint"
+	publisher="ASA reprint"
 	notes='This is available from Amazon in timely fashion for $29.95.  16B
 	appears to be the most current revision.  This is a relatively new FAA
 	publication and is one of the better efforts.  You can find it on the
@@ -131,7 +131,7 @@ tool.  </p>
 />
 
 <Product title="ASA Instrument Rating Test Prep (ASA-TP-I-21) Date: 2021"
-	pub="ASA"
+	publisher="ASA"
 	notes='This is an ASA original book available for $19.42 from Amazon in approximately
 	2 weeks. The Test Prep is not an FAA document and so is not available on the FAA website.'
 	url="https://www.amazon.com/Instrument-Rating-Test-Prep-2021/dp/1619549670/ref=sr_1_3?crid=2INEG77PA5PIX&dchild=1&keywords=asa+instrument+rating+test+prep+2021&qid=1611114437&sprefix=ASA+Instrument+Rating+Test+Prep+%2Caps%2C174&sr=8-3"
@@ -162,7 +162,7 @@ tool.  </p>
 
 
 <Product title="FAR/AIM"
-	pub="ASA 2021 edition (or subsequent edition as available)"
+	publisher="ASA 2021 edition (or subsequent edition as available)"
 
 	notes='Available from Amazon for $14.90.   The club keeps current copies of
 	the FAR/AIM volume in inventory.<br>

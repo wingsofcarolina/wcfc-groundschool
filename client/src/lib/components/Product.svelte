@@ -2,9 +2,13 @@
   import { onMount } from 'svelte'
   import Section from "$lib/components/Section.svelte";
 
+  /** @type {string} */
   export let title;
+  /** @type {string|null} */
   export let publisher = null;
+  /** @type {string} */
   export let notes;
+  /** @type {string|null} */
   export let url = null;
 
   onMount(async () => {

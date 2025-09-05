@@ -3,15 +3,21 @@
   import * as notifier from '@beyonk/svelte-notifications/src/notifier.js'
   import DeleteAllDialog from "$lib/components/DeleteAllDialog.svelte";
 
+  /** @type {any} */
   let students;
+  /** @type {any} */
   let dialog;
 
+  /** @type {any} */
   export let section;
 
   onMount(async () => {
 		getStudents();
 	});
 
+  /**
+   * @param {any} change
+   */
   export function changeClass(change){
     section = change;
     getStudents();
@@ -20,7 +26,7 @@
   const getStudents = async () => {
     const response = await fetch('/api/students/' + section.id, {
 			method: "get",
-      withCredentials: true,
+      credentials: 'include',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -34,10 +40,13 @@
     }
   }
 
+  /**
+   * @param {any} email
+   */
   const removeStudent = async (email) => {
     const response = await fetch('/api/student/' + email, {
       method: "delete",
-      withCredentials: true,
+      credentials: 'include',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -55,6 +64,9 @@
     dialog.raise();
   }
 
+  /**
+   * @param {any} event
+   */
   const modify = (event) => {
     getStudents();
   }

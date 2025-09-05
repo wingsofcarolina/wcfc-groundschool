@@ -15,12 +15,12 @@
 	const logout = async () => {
 		const response = await fetch( '/api/logout', {
 			method: "post",
-			withCredentials: true,
+			credentials: 'include',
 			headers: {
 				'Accept': 'application/json'
 			}
 		});
-		notifier.success('User ' + $user.name + ' logged out.');
+		notifier.success('User ' + ($user?.name || 'Unknown') + ' logged out.');
 		user.set(null);
 		goto('/');
 	}
@@ -28,7 +28,7 @@
 
 <div class="banner">
   <div class=branding>
-    <div class=logo on:click={home.bind()}><img src=/WCFC-logo.jpg alt="WCFC Groundschool"></div>
+    <div class=logo on:click={home}><img src=/WCFC-logo.jpg alt="WCFC Groundschool"></div>
     <div class=title>WCFC Ground School Materials</div>
   </div>
 	{#if $user &&  ! $user.anonymous && $user.admin }

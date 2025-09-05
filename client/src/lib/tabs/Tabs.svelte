@@ -1,12 +1,21 @@
 <script>
+  /** @type {any[]} */
   export let items = [];
   export let activeTabValue = 1;
 
+  /** @type {any} */
   export let section;
+  /** @type {any} */
   let tabComponent;
 
+  /**
+   * @param {any} tabValue
+   */
   const handleClick = tabValue => () => (activeTabValue = tabValue);
 
+  /**
+   * @param {any} section
+   */
   export function changeClass(section){
     console.log('Tabs : changing class')
     tabComponent.changeClass(section);

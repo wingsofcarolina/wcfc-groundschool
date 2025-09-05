@@ -11,6 +11,7 @@
   export let index = -1;
   export let maxIndex = -1;
 
+  /** @type {any} */
   let dialog;
 
   const dispatch = createEventDispatcher();
@@ -21,6 +22,9 @@
     // console.log('Idx : ' + index + '  Max : ' + maxIndex + ' : ' + item.label);
   });
 
+  /**
+   * @param {any} item
+   */
   const fetchFile = async (item) => {
     var name = item.item.path;
     var json = JSON.stringify({
@@ -28,7 +32,7 @@
     });
     const response = await fetch('/api/fetch', {
       method: "post",
-      withCredentials: true,
+      credentials: 'include',
       headers: {
         'Accept': 'application/pdf',
         'Content-Type': 'application/json'
@@ -44,22 +48,37 @@
     }
   }
 
+  /**
+   * @param {any} item
+   */
   const moveUpFile = async (item) => {
     var request = { command : 'moveUp', entity: item };
     dispatch('modify', request );
   }
+  /**
+   * @param {any} item
+   */
   const moveDownFile = async (item) => {
     var request = { command : 'moveDown', entity: item };
     dispatch('modify', request );
   }
+  /**
+   * @param {any} item
+   */
   const deleteFile = async (item) => {
     var request = { command : 'delete', entity: item };
     dispatch('modify', request );
   }
+  /**
+   * @param {any} item
+   */
   const editFileData = async (item) => {
     dialog.raise(item);
   }
 
+  /**
+   * @param {...any} list
+   */
   function combine(...list){
     return list.reduce(
        (a,b)=>{

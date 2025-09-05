@@ -15,7 +15,7 @@
 	const getUser = async () => {
 		const response = await fetch('/api/user', {
 			method: "get",
-			withCredentials: true,
+			credentials: 'include',
 			headers: {
 				'Accept': 'application/json'
 			}
@@ -86,7 +86,7 @@ tool.  </p>
 <div class="subtitle">Required books:</div>
 
 <Product title="Jeppesen Guided Flight Discovery Instrument/Commercial (10001784-005) Date: 2016"
-	pub="Jeppesen"
+	publisher="Jeppesen"
 	notes="Available for $79.95 from MyPilotStore. Our primary text for the WCFC
 	Commercial Certificate Ground School will be the Guided Flight Discovery
 	INSTRUMENT / COMMERCIAL manual, published by Jeppesen. You will need a copy of
@@ -97,7 +97,7 @@ tool.  </p>
 />
 
 <Product title="Jeppesen Guided Flight Discovery Instrument/Commercial (10001784-005) Date: 2016 E-book"
-	pub="Jeppesen"
+	publisher="Jeppesen"
 	notes="The Jeppesen website lists only this E-book version as its most current
 	edition. $73.99 as an E-book. It appears to be the same 2016 edition available
 	in book form from MyPilotStore. Amazon lists many volumes of the Instrument /
@@ -124,7 +124,7 @@ tool.  </p>
 <div class="subtitle">Recommended books:</div>
 
 <Product title="FAR/AIM"
-	pub="ASA 2021 edition (or subsequent edition as available)"
+	publisher="ASA 2021 edition (or subsequent edition as available)"
 
 	notes='Available from Amazon for $14.90.   The club keeps current copies of
 	the FAR/AIM volume in inventory.<br>
@@ -155,7 +155,7 @@ tool.  </p>
 />
 
 <Product title="Weather Theory: Aviation Weather, FAA AC 00-6B"
-	pub="ASA reprint (latest edition)"
+	publisher="ASA reprint (latest edition)"
 	notes='This is available for $14.95 with quick delivery from Amazon. This is
 	actually an FAA Advisory Circular reprinted by ASA in book form. You can also
 	access and/or download it in .pdf form
@@ -168,7 +168,7 @@ tool.  </p>
 />
 
 <Product title="Weather Services: Aviation Weather Services, FAA AC 00-45H"
-	pub="ASA reprint (latest edition)"
+	publisher="ASA reprint (latest edition)"
 	notes='This is another FAA advisory circular (AC) reprinted in book form by
 	ASA and available for $24.95 w/ quick delivery from Amazon. (Change 1). Also
 	available for free <a href="https://www.faa.gov/regulations_policies/advisory_circulars/index.cfm/go/document.list?omni=ACs&rows=10&startAt=0&q=FAA+AC+45H&display=current&parentTopicId"

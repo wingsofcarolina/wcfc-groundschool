@@ -1,34 +1,41 @@
 <script>
     import { onMount } from "svelte";
 
+    /** @type {number|number[]} */
     export let length
+    /** @type {HTMLInputElement[]} */
     let els = []
+    /** @type {(number|null)[]} */
     let values = []
+    /** @type {string} */
     export let code = 'typing'
 
     onMount(async () => {
         var ele = document.getElementById("b-first-input");
-        ele.focus();
+        if (ele) ele.focus();
     });
 
     $: {
         (() => {
             if (values.length != length || values.includes(null)) return code = 'typing'
-            code = 0
+            let numCode = 0
             values.forEach((value, index) => {
-                code += value * (10 ** (length - index - 1))
+                numCode += (value || 0) * (10 ** (length - index - 1))
             })
-            code = code.toString().padStart(length, '0')
+            code = numCode.toString().padStart(length, '0')
         })()
     }
 
+    /**
+     * @param {KeyboardEvent} e
+     */
     function handleMoveAndBackspace(e) {
-        let targetIndex = +e.target.getAttribute('index')
+        let targetIndex = +(/** @type {HTMLInputElement} */(e.target).getAttribute('data-index') || '0')
 
         switch(e.key) {
             case 'ArrowRight': //ArrowRight
                 e.preventDefault()
-                els[min((length - 1), targetIndex + 1)].focus()
+                els[min((Array.isArray(length) ? length.reduce((a, b) => a + b, 0) : length) - 1, targetIndex + 1)].focus()
                 break
             case 'ArrowLeft': //ArrowLeft
                 e.preventDefault()
@@ -48,25 +55,39 @@
         }
     }
 
+    /**
+     * @param {KeyboardEvent} e
+     */
     function handleKey(e) {
         if (Number.isNaN(+e.key)) return
-        values[e.target.getAttribute('index')] = +e.key
-        els[min((length - 1), +e.target.getAttribute('index') + 1)].focus()
+        let index = +(/** @type {HTMLInputElement} */(e.target).getAttribute('data-index') || '0')
+        values[index] = +e.key
+        els[min((Array.isArray(length) ? length.reduce((a, b) => a + b, 0) : length) - 1, index + 1)].focus()
     }
 
+    /**
+     * @param {ClipboardEvent} e
+     */
     function handlePaste(e) {
-        if (Number.isNaN(+e.clipboardData.getData('text'))) return
-        waterfall({target: e.target, arr: e.clipboardData.getData('text')})
+        if (!e.clipboardData || Number.isNaN(+e.clipboardData.getData('text'))) return
+        waterfall({target: /** @type {HTMLInputElement} */(e.target), arr: e.clipboardData.getData('text')})
     }
 
+    /**
+     * @param {{target: HTMLInputElement, arr: string}} data
+     */
     function waterfall(data) {
         let [first, ...rest] = data.arr
-        values[data.target.getAttribute('index')] = +first
-        els[min((length - 1), +data.target.getAttribute('index') + 1)].focus()
-        if (data.target.getAttribute('index') == length - 1 || rest.length === 0) return
-        waterfall({target: els[+data.target.getAttribute('index') + 1], arr: rest })
+        let index = +(data.target.getAttribute('data-index') || '0')
+        values[index] = +first
+        els[min((Array.isArray(length) ? length.reduce((a, b) => a + b, 0) : length) - 1, index + 1)].focus()
+        if (index == (Array.isArray(length) ? length.reduce((a, b) => a + b, 0) : length) - 1 || rest.length === 0) return
+        waterfall({target: els[index + 1], arr: rest.join('')})
     }
 
+    /**
+     * @param {number} length
+     */
     function range(length) {
         let arr = []
 
@@ -77,16 +98,28 @@
         return arr
     }
 
+    /**
+     * @param {number} a
+     * @param {number} b
+     */
     function min(a, b) {
         if (a < b) return a
         return b
     }
 
+    /**
+     * @param {number} a
+     * @param {number} b
+     */
     function max(a, b) {
         if (a > b) return a
         return b
     }
 
+    /**
+     * @param {number} idx
+     * @param {number[]} arr
+     */
     function getTotalLength(idx, arr) {
         return arr.slice(0, idx).reduce((previousValue, currentValue) => previousValue + currentValue, 0)
     }
@@ -99,12 +132,12 @@
                 <span>-</span>
             {/if}
             {#each range(part) as index}
-                <input id="{index == 0 ? 'a-first-input' : ''}" type="number" on:keydown="{handleMoveAndBackspace}" on:keypress|preventDefault="{handleKey}" on:paste|preventDefault="{handlePaste}" bind:this="{els[index + getTotalLength(idx, length)]}" bind:value="{values[index + getTotalLength(idx,length)]}" index="{index + getTotalLength(idx, length)}">
+                <input id="{index == 0 ? 'a-first-input' : ''}" type="number" on:keydown="{handleMoveAndBackspace}" on:keypress|preventDefault="{handleKey}" on:paste|preventDefault="{handlePaste}" bind:this="{els[index + getTotalLength(idx, length)]}" bind:value="{values[index + getTotalLength(idx,length)]}" data-index="{index + getTotalLength(idx, length)}">
             {/each}
         {/each}
     {:else}
         {#each range(length) as index}
-            <input id="{index == 0 ? 'b-first-input' : ''}" type="number" on:keydown="{handleMoveAndBackspace}" on:keypress|preventDefault="{handleKey}" on:paste|preventDefault="{handlePaste}" bind:this="{els[index]}" bind:value="{values[index]}" index="{index}">
+            <input id="{index == 0 ? 'b-first-input' : ''}" type="number" on:keydown="{handleMoveAndBackspace}" on:keypress|preventDefault="{handleKey}" on:paste|preventDefault="{handlePaste}" bind:this="{els[index]}" bind:value="{values[index]}" data-index="{index}">
         {/each}
     {/if}
 </section>

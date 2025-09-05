@@ -1,11 +1,17 @@
 <script>
   import * as notifier from '@beyonk/svelte-notifications/src/notifier.js'
 
+  /** @type {string|null} */
   let name = null;
+  /** @type {string|null} */
   let email = null;
 
+  /** @type {any} */
   export let section;
 
+  /**
+   * @param {any} section
+   */
   export function changeClass(section){}
 
   const addStudent = async () => {
@@ -20,7 +26,7 @@
 
       const response = await fetch('/api/addStudent', {
 				method: "post",
-        withCredentials: true,
+        credentials: 'include',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'

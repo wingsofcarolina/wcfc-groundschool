@@ -6,6 +6,7 @@
 
   export let section;
 
+  /** @type {any} */
   let data = null;
   let maxLesson = 0;
 
@@ -13,10 +14,10 @@
     getIndex(section);
   });
 
-	const getIndex = async (section) => {
+	const getIndex = async (/** @type {any} */ section) => {
 		const response = await fetch('/api/index/' + section, {
 			method: "get",
-			withCredentials: true,
+			credentials: 'include',
 			headers: {
 				'Accept': 'application/json'
 			}
@@ -33,14 +34,14 @@
 		}
 	}
 
-	const sleep = (milliseconds) => {
+	const sleep = (/** @type {number} */ milliseconds) => {
 	  return new Promise(resolve => setTimeout(resolve, milliseconds))
 	}
 
-	const deleteItem = async (item) => {
+	const deleteItem = async (/** @type {any} */ item) => {
 		const response = await fetch( '/api/delete/' + section + '?path=' + item.path, {
 			method: "delete",
-			withCredentials: true,
+			credentials: 'include',
 			headers: {
 				'Accept': 'application/json'
 			}
@@ -56,10 +57,10 @@
 		}
 	}
 
-	const move = async (direction, item) => {
+	const move = async (/** @type {any} */ direction, /** @type {any} */ item) => {
 		const response = await fetch( '/api/' + direction + '/' + section + '?path=' + item.path, {
 			method: "put",
-			withCredentials: true,
+			credentials: 'include',
 			headers: {
 				'Accept': 'application/json'
 			}
@@ -73,7 +74,7 @@
 		}
 	}
 
-  const modify = (event) => {
+  const modify = (/** @type {any} */ event) => {
     var entity = event.detail.entity;
     if (entity != null) {
 		   var item = entity.item;
@@ -95,7 +96,7 @@
 
 <div class="outer">
 	<div class="inner">
-		{#if data}
+		{#if /** @type {any} */ (data)}
       {#key data}
 			   <Section section={section} label={data.label} items={data.children} on:modify={modify}/>
       {/key}

@@ -8,7 +8,7 @@
   export let items;
   export let section;
 
-  let handouts = items.filter(items => items.lesson == lesson);
+  let handouts = items.filter(/** @type {function(any): boolean} */(items => items.lesson == lesson));
 
   console.log('Handouts : ', handouts);
   onMount(async () => {

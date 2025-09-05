@@ -7,6 +7,7 @@
 
     export let label;
     export let design = 'inner label'
+    /** @type {any[]} */
     export let options = [];
 		export let fontSize = 16;
 	  export let value = 'off';
@@ -14,7 +15,7 @@
     let checked = false;
 		const uniqueID = Math.floor(Math.random() * 100)
 
-    function handleClick(event){
+    function handleClick(/** @type {any} */ event){
         const target = event.target
 
         const state = target.getAttribute('aria-checked')

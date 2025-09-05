@@ -14,6 +14,7 @@
 	let email = null;
 	let files = null;
 
+	/** @type {any} */
 	let tabComponent;
 
   // List of tab items with labels, values and assigned components
