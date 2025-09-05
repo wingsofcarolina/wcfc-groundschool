@@ -95,7 +95,9 @@
           <td>{student.name}</td>
           <td>{student.email}</td>
           <td>
-            <span class=remove on:click={() => removeStudent(student.email)}>Delete</span>
+            <button type="button" class=remove on:click={() => removeStudent(student.email)} on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? removeStudent(student.email) : null} aria-label="Delete student {student.name}">
+              Delete
+            </button>
           </td>
         </tr>
       {/each}
@@ -123,5 +125,10 @@ table {
   color: blue;
   cursor: pointer;
   text-align: center;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  text-decoration: underline;
 }
 </style>

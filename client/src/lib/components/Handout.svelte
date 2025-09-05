@@ -101,21 +101,31 @@
 
 <div class="handout">
   {#if $user &&  $adminState == 'on' && ! $user.anonymous}
-    <img style="cursor:pointer;" use:tippy={deleteProps} src='delete_icon.png' alt='Del' on:click={() => deleteFile({item})}>
-    <img style="cursor:pointer;" use:tippy={editProps} src='edit_icon.png' alt='Edt' on:click={() => editFileData({item})}>
+    <button type="button" class="icon-button" use:tippy={deleteProps} on:click={() => deleteFile({item})} aria-label="Delete file">
+      <img src='delete_icon.png' alt='Del'>
+    </button>
+    <button type="button" class="icon-button" use:tippy={editProps} on:click={() => editFileData({item})} aria-label="Edit file properties">
+      <img src='edit_icon.png' alt='Edt'>
+    </button>
     <img src='blank_icon.png' alt='X'>
     {#if index != 0}
-      <img style="cursor:pointer;" use:tippy={moveUpProps} src='arrow_up_icon.png' alt='Up' on:click={() => moveUpFile({item})}>
+      <button type="button" class="icon-button" use:tippy={moveUpProps} on:click={() => moveUpFile({item})} aria-label="Move file up">
+        <img src='arrow_up_icon.png' alt='Up'>
+      </button>
     {:else}
       <img src='blank_icon.png' alt='X'>
     {/if}
     {#if index != maxIndex - 1}
-      <img style="cursor:pointer;" use:tippy={moveDownProps} src='arrow_down_icon.png' alt='Dwn' on:click={() => moveDownFile({item})}>
+      <button type="button" class="icon-button" use:tippy={moveDownProps} on:click={() => moveDownFile({item})} aria-label="Move file down">
+        <img src='arrow_down_icon.png' alt='Dwn'>
+      </button>
     {:else}
       <img src='blank_icon.png' alt='X'>
     {/if}
   {/if}
-  <div class="title" on:click={() => fetchFile({item})}>{item.label} {item.required ? "" : "(Optional)"}</div>
+  <button type="button" class="title" on:click={() => fetchFile({item})} on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? fetchFile({item}) : null}>
+    {item.label} {item.required ? "" : "(Optional)"}
+  </button>
 </div>
 
 <ModifyDialog bind:this="{dialog}" section={section} item={item} on:modify/>
@@ -128,10 +138,25 @@
   margin-top: 10px;
   font-size: 1.1em;
 }
+.icon-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-block;
+}
+.icon-button img {
+  display: block;
+}
 .title {
   display: inline-block;
   margin-left: 3em;
   cursor: pointer;
   width: 35em;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  text-align: left;
 }
 </style>

@@ -28,7 +28,9 @@
 
 <div class="banner">
   <div class=branding>
-    <div class=logo on:click={home}><img src=/WCFC-logo.jpg alt="WCFC Groundschool"></div>
+    <button type="button" class=logo on:click={home} on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? home() : null} aria-label="Go to home page">
+      <img src=/WCFC-logo.jpg alt="WCFC Groundschool">
+    </button>
     <div class=title>WCFC Ground School Materials</div>
   </div>
 	{#if $user &&  ! $user.anonymous && $user.admin }
@@ -64,6 +66,12 @@
     padding:10px;
     padding-bottom: 0px;
     cursor: pointer;
+    background: none;
+    border: none;
+    display: block;
+  }
+  .logo img {
+    display: block;
   }
   .title {
     float:right;

@@ -62,10 +62,14 @@
   <div class=title>{label}</div>
   {#if $user &&  $adminState == 'on' && ! $user.anonymous}
     <div class='upload'>
-      <img use:tippy={uploadProps} src='upload_icon.png' alt='Upld' on:click={() => /** @type {any} */ (dialog).raise()}>
+      <button type="button" class="upload-button" use:tippy={uploadProps} on:click={() => /** @type {any} */ (dialog).raise()} aria-label="Upload new file">
+        <img src='upload_icon.png' alt='Upld'>
+      </button>
     </div>
   {/if}
-  <div class="internal_button" on:click={() => requiredReading()}>Class Supplies</div>
+  <button type="button" class="internal_button" on:click={() => requiredReading()} on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? requiredReading() : null}>
+    Class Supplies
+  </button>
   <hr class="highlight">
 
   <div class="handoutlist">
@@ -90,7 +94,16 @@
 }
 .upload {
   float: right;
+}
+.upload-button {
+  background: none;
+  border: none;
+  padding: 0;
   cursor: pointer;
+  display: block;
+}
+.upload-button img {
+  display: block;
 }
 .internal_button {
   font-size: 1.2em;
@@ -99,6 +112,11 @@
   margin-top: 10px;
   margin-bottom: 10px;
   color: blue;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  width: 100%;
 }
 .handoutlist {
   margin-left: 10px;

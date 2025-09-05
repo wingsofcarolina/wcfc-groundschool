@@ -25,7 +25,9 @@
 <ul>
 {#each items as item}
 	<li class={activeTabValue === item.value ? 'active' : ''}>
-		<span on:click={handleClick(item.value)}>{item.label}</span>
+		<button type="button" on:click={handleClick(item.value)} on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? handleClick(item.value)() : null} aria-label="Switch to {item.label} tab">
+			{item.label}
+		</button>
 	</li>
 {/each}
 </ul>
@@ -56,20 +58,24 @@
 		margin-bottom: -1px;
 	}
 
-  span {
+  button {
     border: 1px solid transparent;
     border-top-left-radius: 0.25rem;
     border-top-right-radius: 0.25rem;
     display: block;
     padding: 0.5rem 1rem;
     cursor: pointer;
+    background: none;
+    font: inherit;
+    width: 100%;
+    text-align: left;
   }
 
-  span:hover {
+  button:hover {
     border-color: #e9ecef #e9ecef #dee2e6;
   }
 
-  li.active > span {
+  li.active > button {
     color: #495057;
     background-color: #d3dee6;
     border-color: #dee2e6 #dee2e6 #fff;
