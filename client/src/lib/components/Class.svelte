@@ -14,83 +14,98 @@
     getIndex(section);
   });
 
-	const getIndex = async (/** @type {any} */ section) => {
-		const response = await fetch('/api/index/' + section, {
-			method: "get",
-			credentials: 'include',
-			headers: {
-				'Accept': 'application/json'
-			}
-		});
-		if (!response.ok) {
-			if (response.status == 401) {
+  /**
+   * @param {any} section
+   */
+  const getIndex = async (section) => {
+    const response = await fetch('/api/index/' + section, {
+      method: "get",
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    if (!response.ok) {
+      if (response.status == 401) {
         console.log('User not authenticated, requesting authentication');
-				goto('login');
-			} else {
-				notifier.danger('Retrieve of class index failed.');
-			}
-		} else {
-			data = await response.json();
-		}
-	}
+        goto('login');
+      } else {
+        notifier.danger('Retrieve of class index failed.');
+      }
+    } else {
+      data = await response.json();
+    }
+  }
 
-	const sleep = (/** @type {number} */ milliseconds) => {
-	  return new Promise(resolve => setTimeout(resolve, milliseconds))
-	}
+  /**
+   * @param {number} milliseconds
+   */
+  const sleep = (milliseconds) => {
+    return new Promise(resolve => setTimeout(resolve, milliseconds))
+  }
 
-	const deleteItem = async (/** @type {any} */ item) => {
-		const response = await fetch( '/api/delete/' + section + '?path=' + item.path, {
-			method: "delete",
-			credentials: 'include',
-			headers: {
-				'Accept': 'application/json'
-			}
-		});
-		if (!response.ok) {
-			if (response.status == 401) {
-				goto('login');
-			} else {
-				notifier.danger('Delete of file failed.');
-			}
-		} else {
-			notifier.success("'" + item.label + "' deleted.");
-		}
-	}
+  /**
+   * @param {any} item
+   */
+  const deleteItem = async (item) => {
+    const response = await fetch( '/api/delete/' + section + '?path=' + item.path, {
+      method: "delete",
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    if (!response.ok) {
+      if (response.status == 401) {
+        goto('login');
+      } else {
+        notifier.danger('Delete of file failed.');
+      }
+    } else {
+      notifier.success("'" + item.label + "' deleted.");
+    }
+  }
 
-	const move = async (/** @type {any} */ direction, /** @type {any} */ item) => {
-		const response = await fetch( '/api/' + direction + '/' + section + '?path=' + item.path, {
-			method: "put",
-			credentials: 'include',
-			headers: {
-				'Accept': 'application/json'
-			}
-		});
-		if (!response.ok) {
-			if (response.status == 401) {
-				goto('login');
-			} else {
-				notifier.danger('Move up of file failed.');
-			}
-		}
-	}
+  /**
+   * @param {any} direction
+   * @param {any} item
+   */
+  const move = async (direction, item) => {
+    const response = await fetch( '/api/' + direction + '/' + section + '?path=' + item.path, {
+      method: "put",
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    if (!response.ok) {
+      if (response.status == 401) {
+        goto('login');
+      } else {
+        notifier.danger('Move up of file failed.');
+      }
+    }
+  }
 
-  const modify = (/** @type {any} */ event) => {
+  /**
+   * @param {any} event
+   */
+  const modify = async (event) => {
     var entity = event.detail.entity;
     if (entity != null) {
-		   var item = entity.item;
+      var item = entity.item;
     }
-		var command = event.detail.command;
+    var command = event.detail.command;
 
-		if (command == 'delete') {
-			deleteItem(item);
-		} else if (command == 'moveUp') {
-			move('moveUp', item);
-		} else if (command == 'moveDown') {
-			move('moveDown', item);
-		}
-		sleep(200).then(() => {
-			getIndex(section);
-		})
+    if (command == 'delete') {
+      await deleteItem(item);
+    } else if (command == 'moveUp') {
+      await move('moveUp', item);
+    } else if (command == 'moveDown') {
+      await move('moveDown', item);
+    }
+    await sleep(200);
+    getIndex(section);
   }
 </script>
 
