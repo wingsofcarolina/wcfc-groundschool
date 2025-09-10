@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store'
+import { writable } from "svelte/store";
 
 /** @typedef {Object} User
  * @property {boolean} admin
@@ -9,4 +9,4 @@ import { writable } from 'svelte/store'
 
 /** @type {import('svelte/store').Writable<User|null>} */
 export const user = writable(null);
-export const adminState = writable('off');
+export const adminState = writable("off");

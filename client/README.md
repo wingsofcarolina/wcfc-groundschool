@@ -37,7 +37,7 @@ The [src](src) directory contains the entry points for your app — `app.html`, 
 
 #### src/routes
 
-This is the heart of your SvelteKit app. There are two kinds of routes — *pages*, and *server routes*.
+This is the heart of your SvelteKit app. There are two kinds of routes — _pages_, and _server routes_.
 
 **Pages** are Svelte components written in `.svelte` files. When a user first visits the application, they will be served a server-rendered version of the route in question, plus some JavaScript that 'hydrates' the page and initialises a client-side router. From that point forward, navigating to other pages is handled entirely on the client for a fast, app-like feel.
 
@@ -45,9 +45,9 @@ This is the heart of your SvelteKit app. There are two kinds of routes — *page
 
 There are three simple rules for naming the files that define your routes:
 
-* A file called `src/routes/about/+page.svelte` corresponds to the `/about` route. A file called `src/routes/blog/[slug]/+page.svelte` corresponds to the `/blog/:slug` route, in which case `params.slug` is available to the route
-* The file `src/routes/+page.svelte` corresponds to the root of your app. `src/routes/about/+page.svelte` is treated the same as `src/routes/about/index.svelte`.
-* Files and directories with a leading underscore do *not* create routes. This allows you to colocate helper modules and components with the routes that depend on them — for example you could have a file called `src/routes/_helpers/datetime.js` and it would *not* create a `/_helpers/datetime` route
+- A file called `src/routes/about/+page.svelte` corresponds to the `/about` route. A file called `src/routes/blog/[slug]/+page.svelte` corresponds to the `/blog/:slug` route, in which case `params.slug` is available to the route
+- The file `src/routes/+page.svelte` corresponds to the root of your app. `src/routes/about/+page.svelte` is treated the same as `src/routes/about/index.svelte`.
+- Files and directories with a leading underscore do _not_ create routes. This allows you to colocate helper modules and components with the routes that depend on them — for example you could have a file called `src/routes/_helpers/datetime.js` and it would _not_ create a `/_helpers/datetime` route
 
 ### static
 

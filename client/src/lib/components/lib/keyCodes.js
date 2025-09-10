@@ -7,7 +7,9 @@ export const keyCodes = {
   pgdown: 34,
   enter: 13,
   escape: 27,
-  tab: 9
+  tab: 9,
 };
 
-export const keyCodesArray = Object.keys(keyCodes).map(k => keyCodes[/** @type {keyof typeof keyCodes} */ (k)]);
+export const keyCodesArray = Object.keys(keyCodes).map(
+  (k) => keyCodes[/** @type {keyof typeof keyCodes} */ (k)],
+);
