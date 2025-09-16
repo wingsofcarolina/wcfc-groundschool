@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte'
 	import { goto } from '$app/navigation'
-	import * as notifier from '@beyonk/svelte-notifications/src/notifier.js'
+	import { notifier } from '@beyonk/svelte-notifications'
 	import { user } from '$lib/store.js'
   import Class from "$lib/components/Class.svelte";
   import Product from "$lib/components/Product.svelte";
@@ -188,9 +188,9 @@ tool.  </p>
 	to be without one, even if I seldom take it in the airplane anymore and seldom
 	use one for serious flight planning. You might enjoy this
 	<a href="https://en.wikipedia.org/wiki/E6B">nice Wikipedia article on the history and</a>
-	uses of the E6B.
+	uses of the E6B.</p>
 
-	Here are several available models at different price points.
+	<p>Here are several available models at different price points.</p>
 
 	<Product title="Flight Computer: Standard full size aluminum E6-B computer, ASA or similar"
 	     notes="This is available for $28.50 from Amazon, quick delivery."
@@ -206,7 +206,7 @@ tool.  </p>
 	</p>
 	<p>Jepp also makes <a href="https://www.amazon.com/Jeppesen-Student-Flight-Computer-JS514101/dp/B003VSE90A/ref=pd_sbs_2?pd_rd_w=AjThF&pf_rd_p=c52600a3-624a-4791-b4c4-3b112e19fbbc&pf_rd_r=SZ8PXV4Y2XN1HSGMTM10&pd_rd_r=16541551-987d-4e0b-b531-0a20f7feeac0&pd_rd_wg=rYmUb&pd_rd_i=B003VSE90A&psc=1">
 	  a “student” model</a>, constructed of plasticized composite (cardboard) material. Not a
-	  jewel for the ages, but will get you through the class. $16.94 w/ quick delivery from Amazon.
+	  jewel for the ages, but will get you through the class. $16.94 w/ quick delivery from Amazon.</p>
 
 	<p> And if you have a pilot friend or family member, you might borrow one for
 	the duration of the class.  They probably don’t use it very often. </p>

@@ -1,10 +1,13 @@
 <script>
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-  import NotificationDisplay from '@beyonk/svelte-notifications/src/Notifications.svelte'
-  import * as notifier from '@beyonk/svelte-notifications/src/notifier.js'
+  // @ts-ignore
+  import { NotificationDisplay, notifier } from '@beyonk/svelte-notifications'
   import { user, adminState } from '$lib/store.js'
   import Switch from '$lib/components/Switch.svelte'
+
+  // Workaround for Svelte 5 compatibility
+  const NotificationComponent = /** @type {any} */ (NotificationDisplay);
 
 	$: segment = $page.route.id?.split('/')[1];
 
@@ -57,7 +60,8 @@
       </div>
     </div>
   {/if}
-  <NotificationDisplay />
+  <!-- svelte-ignore missing-declaration -->
+  <svelte:component this={NotificationComponent} />
 </div>
 
 <style>

@@ -1,5 +1,5 @@
 <script>
-  import * as notifier from '@beyonk/svelte-notifications/src/notifier.js'
+  import { notifier } from '@beyonk/svelte-notifications'
   import { createEventDispatcher } from 'svelte';
 
   const dispatch = createEventDispatcher();
@@ -50,6 +50,7 @@
     <p>
       <button on:click={cancelDeleteDialog}>No</button>
       <button on:click={removeAllStudents}>Yes</button>
+    </p>
   </div>
 </div>
 

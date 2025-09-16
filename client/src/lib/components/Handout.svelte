@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import { createEventDispatcher } from 'svelte';
   import { user, adminState } from '$lib/store.js'
-  import * as notifier from '@beyonk/svelte-notifications/src/notifier.js'
+  import { notifier } from '@beyonk/svelte-notifications'
   import ModifyDialog from '$lib/components/ModifyDialog.svelte'
   import tippy from "sveltejs-tippy";
 

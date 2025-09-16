@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte'
-  import * as notifier from '@beyonk/svelte-notifications/src/notifier.js'
+  import { notifier } from '@beyonk/svelte-notifications'
   import DeleteAllDialog from "$lib/components/DeleteAllDialog.svelte";
 
   /** @type {any} */
@@ -89,18 +89,22 @@
 <div class="section">
   {#if students && students.length > 0}
     <table>
-      <tr><th>Name</th><th>Email</th><th>Remove?</th></tr>
-      {#each students as student}
-        <tr>
-          <td>{student.name}</td>
-          <td>{student.email}</td>
-          <td>
-            <button type="button" class=remove on:click={() => removeStudent(student.email)} on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? removeStudent(student.email) : null} aria-label="Delete student {student.name}">
-              Delete
-            </button>
-          </td>
-        </tr>
-      {/each}
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Remove?</th></tr>
+      </thead>
+      <tbody>
+        {#each students as student}
+          <tr>
+            <td>{student.name}</td>
+            <td>{student.email}</td>
+            <td>
+              <button type="button" class=remove on:click={() => removeStudent(student.email)} on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? removeStudent(student.email) : null} aria-label="Delete student {student.name}">
+                Delete
+              </button>
+            </td>
+          </tr>
+        {/each}
+      </tbody>
     </table>
   {:else}
     <span class=nostudents>No students found in this class!</span>

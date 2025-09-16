@@ -1,5 +1,5 @@
 <script>
-  import * as notifier from '@beyonk/svelte-notifications/src/notifier.js'
+  import { notifier } from '@beyonk/svelte-notifications'
 
   /** @type {any} */
   let text = null;
@@ -28,7 +28,7 @@
 <center>
   <div class="section">
     <div class=email>
-      <textarea placeholder="Email to students ......" bind:value={text} />
+      <textarea placeholder="Email to students ......" bind:value={text}></textarea>
     </div>
 
     <button on:click={() => emailAllStudents()}>

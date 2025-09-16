@@ -1,5 +1,5 @@
 <script>
-  import * as notifier from '@beyonk/svelte-notifications/src/notifier.js'
+  import { notifier } from '@beyonk/svelte-notifications'
   import { createEventDispatcher } from 'svelte';
 
   const dispatch = createEventDispatcher();
@@ -85,8 +85,9 @@
       </label>
     </div>
     <p>
-    <button on:click={cancelUploadDialog}>Cancel</button>
-    <input type="submit" value="Submit" on:click={modifyOldHandout}>
+      <button on:click={cancelUploadDialog}>Cancel</button>
+      <input type="submit" value="Submit" on:click={modifyOldHandout}>
+    </p>
   </div>
 </div>
 

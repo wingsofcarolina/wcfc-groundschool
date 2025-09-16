@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation';
-  import * as notifier from '@beyonk/svelte-notifications/src/notifier.js'
+  import { notifier } from '@beyonk/svelte-notifications'
   import Section from "$lib/components/Section.svelte";
 
   export let section;

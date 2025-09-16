@@ -1,6 +1,6 @@
 import { user } from "./store.js";
 import { getSanitizingConverter } from "pagedown";
-import * as notifier from "@beyonk/svelte-notifications/src/notifier.js";
+import { notifier } from "@beyonk/svelte-notifications";
 
 var converter = getSanitizingConverter();
 

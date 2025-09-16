@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
   import { user, adminState } from '$lib/store.js'
-  import * as notifier from '@beyonk/svelte-notifications/src/notifier.js'
+  import { notifier } from '@beyonk/svelte-notifications'
   import tippy from "sveltejs-tippy";
   import Lesson from "$lib/components/Lesson.svelte";
   import UploadDialog from "$lib/components/UploadDialog.svelte";
