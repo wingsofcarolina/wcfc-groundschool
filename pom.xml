@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-v4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.wingsofcarolina</groupId>
-  <artifactId>groundschool</artifactId>
+  <artifactId>wcfc-groundschool</artifactId>
   <version>0.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>wcfc-groundschool</name>
