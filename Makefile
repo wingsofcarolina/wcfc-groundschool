@@ -18,7 +18,7 @@ $(APP_JAR): pom.xml client/node_modules $(JAVA_FILES) $(shell find src/main/reso
 	@mvn --batch-mode
 
 client/node_modules: client/package.json client/package-lock.json
-	@cd client && npm install --legacy-peer-deps
+	@cd client && npm ci --legacy-peer-deps
 
 docker/.build: $(APP_JAR)
 	@cd docker && $(CONTAINER_CMD) build . -t $(CONTAINER_TAG)
