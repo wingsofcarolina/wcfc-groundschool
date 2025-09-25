@@ -13,8 +13,6 @@ import java.text.SimpleDateFormat;
 import java.util.EnumSet;
 import java.util.TimeZone;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.knowm.dropwizard.sundial.SundialBundle;
-import org.knowm.dropwizard.sundial.SundialConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wingsofcarolina.gs.common.RuntimeExceptionMapper;
@@ -23,6 +21,7 @@ import org.wingsofcarolina.gs.healthcheck.MinimalHealthCheck;
 import org.wingsofcarolina.gs.persistence.Persistence;
 import org.wingsofcarolina.gs.resources.GsResource;
 import org.wingsofcarolina.gs.resources.TestResource;
+import org.wingsofcarolina.gs.services.HousekeepingService;
 import org.wingsofcarolina.gs.slack.Slack;
 
 public class GsService extends Application<GsConfiguration> {
@@ -51,16 +50,6 @@ public class GsService extends Application<GsConfiguration> {
     // bootstrap.addBundle(new AssetsBundle("/doc", "/doc", "index.html","html"));
     bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
     bootstrap.addBundle(new MultiPartBundle());
-    bootstrap.addBundle(
-      new SundialBundle<GsConfiguration>() {
-        @Override
-        public SundialConfiguration getSundialConfiguration(
-          GsConfiguration configuration
-        ) {
-          return configuration.getSundialConfiguration();
-        }
-      }
-    );
   }
 
   @Override
@@ -100,6 +89,16 @@ public class GsService extends Application<GsConfiguration> {
     env.jersey().register(new GsResource(config));
     //env.jersey().register(new TestResource(config));
     env.healthChecks().register("check", new MinimalHealthCheck());
+
+    // Add shutdown hook to properly shutdown housekeeping service
+    Runtime
+      .getRuntime()
+      .addShutdownHook(
+        new Thread(() -> {
+          LOG.info("Shutting down housekeeping service...");
+          HousekeepingService.getInstance().shutdown();
+        })
+      );
   }
 
   private void configureCors(Environment environment) {

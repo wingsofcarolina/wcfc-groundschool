@@ -22,15 +22,7 @@ mockUser: ${MOCKUSER:-NONE}
 slackNotify: ${SLACK:-REDACTED/REDACTED}     # Targets #notification
 slackContact: ${SLACK:-REDACTED/REDACTED}    # Targets #contact
 
-# Configure the Sundial job management system    
-sundial:
-  thread-pool-size: 10
-  shutdown-on-unload: true
-  start-delay-seconds: 0
-  start-scheduler-on-load: true
-  global-lock-on-load: false
-  annotated-jobs-package-name: org.wingsofcarolina.gs.jobs
-  tasks: [startjob, stopjob]
+# Sundial job management system has been replaced with opportunistic maintenance
   
 # Configure ports used by DropWizard
 server:

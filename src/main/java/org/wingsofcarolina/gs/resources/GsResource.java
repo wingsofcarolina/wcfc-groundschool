@@ -68,6 +68,7 @@ import org.wingsofcarolina.gs.domain.Student;
 import org.wingsofcarolina.gs.domain.VerificationCode;
 import org.wingsofcarolina.gs.email.EmailUtils;
 import org.wingsofcarolina.gs.model.User;
+import org.wingsofcarolina.gs.services.HousekeepingService;
 import org.wingsofcarolina.gs.slack.Slack;
 import org.wingsofcarolina.gs.slack.SlackAuthService;
 
@@ -140,6 +141,9 @@ public class GsResource {
   @Path("user")
   @Produces(MediaType.APPLICATION_JSON)
   public Response user(@CookieParam("wcfc.gs.token") Cookie cookie) {
+    // Trigger housekeeping if needed (runs asynchronously)
+    HousekeepingService.getInstance().triggerHousekeepingIfNeeded();
+
     Map<String, Object> reply = new HashMap<String, Object>();
 
     if (authEnabled) {

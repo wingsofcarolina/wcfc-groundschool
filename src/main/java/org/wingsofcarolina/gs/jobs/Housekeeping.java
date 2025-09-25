@@ -2,27 +2,28 @@ package org.wingsofcarolina.gs.jobs;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
-import org.knowm.sundial.Job;
-import org.knowm.sundial.annotations.CronTrigger;
-import org.knowm.sundial.annotations.SimpleTrigger;
-import org.knowm.sundial.exceptions.JobInterruptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wingsofcarolina.gs.domain.VerificationCode;
 
-//@CronTrigger(cron = "0/100 * * * * ?")    // Fire every minute, for testing
-//@CronTrigger(cron = "0 0 * * * ?")        // Fire at the top of every hour
-//@CronTrigger(cron = "0 */10 * * * ?")     // Fire every 30 minutes
-@SimpleTrigger(repeatInterval = 15, timeUnit = TimeUnit.MINUTES)
-public class Housekeeping extends Job {
+/**
+ * Legacy housekeeping class - now replaced by HousekeepingService
+ * This class is kept for reference but is no longer used.
+ * The actual housekeeping is now performed by HousekeepingService
+ * which runs opportunistically when there is activity.
+ */
+@Deprecated
+public class Housekeeping {
 
   private static final Logger LOG = LoggerFactory.getLogger(Housekeeping.class);
 
   SimpleDateFormat dateFormatGmt = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
 
-  @Override
-  public void doRun() throws JobInterruptException {
+  /**
+   * Legacy method - now replaced by HousekeepingService.performHousekeepingIfNeeded()
+   */
+  @Deprecated
+  public void doRun() {
     LOG.debug("Housekeeping triggered : {}", new Date().toString());
 
     // Expunge all ancient/expired verification codes

@@ -2,9 +2,6 @@ package org.wingsofcarolina.gs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.core.Configuration;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import org.knowm.dropwizard.sundial.SundialConfiguration;
 
 public class GsConfiguration extends Configuration {
 
@@ -39,15 +36,6 @@ public class GsConfiguration extends Configuration {
 
   public GsConfiguration() {
     GsConfiguration.instance = this;
-  }
-
-  @Valid
-  @NotNull
-  public SundialConfiguration sundialConfiguration = new SundialConfiguration();
-
-  @JsonProperty("sundial")
-  public SundialConfiguration getSundialConfiguration() {
-    return sundialConfiguration;
   }
 
   public static GsConfiguration instance() {
