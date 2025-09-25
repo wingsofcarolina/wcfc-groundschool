@@ -7,9 +7,6 @@ gsroot: ${GSROOT:-/gs_root}
 # container. Otherwise give the IP:PORT for the MongoDB process.
 mongodb: ${MONGODB:-mongodb}
 
-# URL of the server where the groundschool service is running
-gsServer: ${GSSERVER:-https://groundschool.wingsofcarolina.org}
-
 # Operational mode, DEV or PROD
 mode: ${MODE:-PROD}
 
@@ -26,14 +23,12 @@ slackContact: ${SLACK:-REDACTED/REDACTED}    # Targets #contact
 # Note: gmailServiceAccountKey is read directly from GMAIL_SERVICE_ACCOUNT_KEY environment variable
 gmailImpersonateUser: ${GMAIL_IMPERSONATE_USER:-no-reply@wingsofcarolina.org}
 
-# Sundial job management system has been replaced with opportunistic maintenance
-  
 # Configure ports used by DropWizard
 server:
     type: simple
     connector:
         type: http
-        port: ${SERVER_PORT:-9300}
+        port: ${SERVER_PORT:-9305}
     applicationContextPath: /
     adminContextPath: /admin
     requestLog:
