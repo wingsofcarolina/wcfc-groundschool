@@ -37,6 +37,18 @@ public class GsConfiguration extends Configuration {
   @JsonProperty
   String gmailImpersonateUser;
 
+  @JsonProperty
+  String gmailApiBaseUrl;
+
+  @JsonProperty
+  String slackApiBaseUrl;
+
+  @JsonProperty
+  String slackClientId;
+
+  @JsonProperty
+  String slackClientSecret;
+
   public GsConfiguration() {
     GsConfiguration.instance = this;
   }
@@ -87,6 +99,22 @@ public class GsConfiguration extends Configuration {
 
   public String getGmailImpersonateUser() {
     return gmailImpersonateUser;
+  }
+
+  public String getGmailApiBaseUrl() {
+    return gmailApiBaseUrl != null ? gmailApiBaseUrl : "https://www.googleapis.com";
+  }
+
+  public String getSlackApiBaseUrl() {
+    return slackApiBaseUrl != null ? slackApiBaseUrl : "https://hooks.slack.com";
+  }
+
+  public String getSlackClientId() {
+    return slackClientId;
+  }
+
+  public String getSlackClientSecret() {
+    return slackClientSecret;
   }
 
   public String getGs() {

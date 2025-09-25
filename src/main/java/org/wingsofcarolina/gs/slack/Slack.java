@@ -1,13 +1,13 @@
 package org.wingsofcarolina.gs.slack;
 
 import java.io.IOException;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wingsofcarolina.gs.GsConfiguration;
@@ -25,12 +25,20 @@ public class Slack {
 
   private String notificationUrl;
   private String contactUrl;
+  private String slackApiBaseUrl;
 
   private GsConfiguration config;
 
   public Slack(GsConfiguration config) {
+    this.config = config;
+    this.slackApiBaseUrl = config.getSlackApiBaseUrl();
+
     // Build webhook URLs from the configuration
-    if (config.getSlackNotify() != null && !config.getSlackNotify().isEmpty()) {
+    if (
+      config.getSlackNotify() != null &&
+      !config.getSlackNotify().isEmpty() &&
+      !"none".equals(config.getSlackNotify())
+    ) {
       if (config.getSlackNotify().startsWith("https://")) {
         notificationUrl = config.getSlackNotify();
       } else {
@@ -38,7 +46,8 @@ public class Slack {
         String[] tokenParts = config.getSlackNotify().split("/");
         if (tokenParts.length == 3) {
           notificationUrl =
-            "https://hooks.slack.com/services/" +
+            slackApiBaseUrl +
+            "/services/" +
             tokenParts[0] +
             "/" +
             tokenParts[1] +
@@ -49,10 +58,17 @@ public class Slack {
         }
       }
     } else {
-      throw new RuntimeException("Slack notification URL not configured!");
+      LOG.warn(
+        "Slack notification channel is disabled (token set to 'none' or not configured)"
+      );
+      notificationUrl = null;
     }
 
-    if (config.getSlackContact() != null && !config.getSlackContact().isEmpty()) {
+    if (
+      config.getSlackContact() != null &&
+      !config.getSlackContact().isEmpty() &&
+      !"none".equals(config.getSlackContact())
+    ) {
       if (config.getSlackContact().startsWith("https://")) {
         contactUrl = config.getSlackContact();
       } else {
@@ -60,7 +76,8 @@ public class Slack {
         String[] tokenParts = config.getSlackContact().split("/");
         if (tokenParts.length == 3) {
           contactUrl =
-            "https://hooks.slack.com/services/" +
+            slackApiBaseUrl +
+            "/services/" +
             tokenParts[0] +
             "/" +
             tokenParts[1] +
@@ -71,11 +88,15 @@ public class Slack {
         }
       }
     } else {
-      throw new RuntimeException("Slack contact URL not configured!");
+      LOG.warn(
+        "Slack contact channel is disabled (token set to 'none' or not configured)"
+      );
+      contactUrl = null;
     }
 
     Slack.instance = this;
-    this.config = config;
+
+    LOG.info("Slack service initialized with API base URL: {}", slackApiBaseUrl);
   }
 
   public static Slack instance() {
@@ -89,7 +110,7 @@ public class Slack {
 
   public void sendString(Channel channel, String msg) {
     if (msg != null) {
-      LOG.debug("{}", msg);
+      LOG.info("{}", msg);
       if (config.getMode().equals("PROD")) {
         sendMessage(channel, msg);
       }
@@ -101,6 +122,10 @@ public class Slack {
       LOG.info("Sending : {}", msg);
       if (config.getMode().equals("PROD")) {
         String url = getWebhookUrl(channel);
+        if (url == null) {
+          LOG.info("Slack channel {} is disabled, skipping message: {}", channel, msg);
+          return false;
+        }
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(url);
         String json = "{\"text\":\"GROUNDSCHOOL: " + escapeJson(msg) + "\"}";
@@ -108,10 +133,11 @@ public class Slack {
         httpPost.setEntity(stringEntity);
         try {
           CloseableHttpResponse response = httpclient.execute(httpPost);
-          if (response.getStatusLine().getStatusCode() != 200) {
+          if (response.getCode() != 200) {
             LOG.error(
-              "Failed to successfully send message to Slack: {}",
-              response.getStatusLine()
+              "Failed to successfully send message to Slack: {} {}",
+              response.getCode(),
+              response.getReasonPhrase()
             );
             return false;
           }

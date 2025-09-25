@@ -16,12 +16,20 @@ mockAdmin: ${MOCKADMIN:-OFF}
 mockUser: ${MOCKUSER:-NONE}
 
 # Slack channels
-slackNotify: ${SLACK:-REDACTED/REDACTED}     # Targets #notification
-slackContact: ${SLACK:-REDACTED/REDACTED}    # Targets #contact
+slackNotify: ${SLACK_TOKEN_NOTIFICATIONS:-none}     # Targets #notification
+slackContact: ${SLACK_TOKEN_GROUNDSCHOOL:-none}    # Targets #contact
+
+# Slack OAuth configuration (for authentication)
+slackClientId: ${SLACK_CLIENT_ID:-none}
+slackClientSecret: ${SLACK_CLIENT_SECRET:-none}
 
 # Gmail API configuration
 # Note: gmailServiceAccountKey is read directly from GMAIL_SERVICE_ACCOUNT_KEY environment variable
 gmailImpersonateUser: ${GMAIL_IMPERSONATE_USER:-no-reply@wingsofcarolina.org}
+
+# API base URLs (configurable for integration testing with WireMock)
+gmailApiBaseUrl: ${GMAIL_API_BASE_URL:-https://www.googleapis.com}
+slackApiBaseUrl: ${SLACK_API_BASE_URL:-https://hooks.slack.com}
 
 # Configure ports used by DropWizard
 server:

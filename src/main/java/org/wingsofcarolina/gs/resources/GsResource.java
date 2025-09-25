@@ -85,9 +85,6 @@ public class GsResource {
   private static String versionOverride = null;
   private DateTimeFormatter dateFormatGmt;
 
-  // Slack credentials
-  private static final String CLIENT_ID = "REDACTED";
-  private static final String CLIENT_SECRET = "REDACTED";
   private SlackAuthService slackAuth;
 
   private AuthUtils authUtils;
@@ -121,8 +118,21 @@ public class GsResource {
     // Get the startup date/time format in GMT
     dateFormatGmt = DateTimeFormatter.ofPattern("yyyy/MM/dd - HH:mm:ss z");
 
-    // Create Slack authentication API service object
-    slackAuth = new SlackAuthService(CLIENT_ID, CLIENT_SECRET);
+    // Create Slack authentication API service object (only if credentials are configured)
+    if (
+      config.getSlackClientId() != null &&
+      !config.getSlackClientId().equals("none") &&
+      config.getSlackClientSecret() != null &&
+      !config.getSlackClientSecret().equals("none")
+    ) {
+      slackAuth =
+        new SlackAuthService(config.getSlackClientId(), config.getSlackClientSecret());
+    } else {
+      LOG.warn(
+        "Slack OAuth credentials not configured - Slack authentication will be disabled"
+      );
+      slackAuth = null;
+    }
   }
 
   @GET
@@ -401,6 +411,15 @@ public class GsResource {
     String redirect = "/";
 
     LOG.info("Code : {}", code);
+
+    // Check if Slack OAuth is configured
+    if (slackAuth == null) {
+      LOG.warn("Slack OAuth not configured - authentication disabled");
+      return Response
+        .status(Response.Status.SERVICE_UNAVAILABLE)
+        .entity("Slack authentication is not configured")
+        .build();
+    }
 
     Map<String, Object> details = slackAuth.authenticate(code);
     Map<String, Object> user_details = (Map<String, Object>) details.get("authed_user");
