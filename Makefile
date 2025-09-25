@@ -27,6 +27,19 @@ docker/.build: $(APP_JAR)
 .PHONY: build
 build: docker/.build
 
+.PHONY: check-version-not-dirty
+check-version-not-dirty:
+	@if [[ "$(CONTAINER_TAG)" == *"dirty"* ]]; then echo Refusing to build/push dirty version; git status; exit 1; fi
+
+.PHONY: push
+push: check-version-not-dirty docker/.build
+	@echo Pushing $(CONTAINER_TAG)...
+	@$(CONTAINER_CMD) push $(CONTAINER_TAG)
+
+.PHONY: deploy
+deploy: check-version-not-dirty push
+	@gcloud run deploy $(APP_NAME) --image $(CONTAINER_TAG) --region $(GOOGLE_CLOUD_REGION)
+
 .PHONY: format
 format: client/node_modules
 	@echo Formatting pom.xml files...
