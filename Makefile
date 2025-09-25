@@ -3,7 +3,7 @@ APP_VERSION := $(shell mvn help:evaluate -Dexpression=project.version -q -Dforce
 APP_JAR := target/$(APP_NAME)-$(APP_VERSION).jar
 JAVA_FILES := $(shell find src/main/java/org/wingsofcarolina -name '*.java')
 GOOGLE_CLOUD_REGION := us-central1
-CONTAINER_TAG := $(GOOGLE_CLOUD_REGION).pkg.dev/wcfc-apps/wcfc-apps/$(APP_NAME):$(APP_VERSION)
+CONTAINER_TAG := $(GOOGLE_CLOUD_REGION)-docker.pkg.dev/wcfc-apps/wcfc-apps/$(APP_NAME):$(APP_VERSION)
 
 ifneq ($(shell which podman),)
 	CONTAINER_CMD := podman
