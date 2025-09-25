@@ -39,5 +39,5 @@ fi
 if [ "$1" == "/bin/bash" ]; then
   exec /bin/sh
 else
-  exec java --add-opens java.base/java.lang=ALL-UNNAMED ${DEBUG_ARGS} -jar groundschool.jar server configuration.yml
+  exec java --add-opens java.base/java.lang=ALL-UNNAMED ${DEBUG_ARGS} -jar wcfc-groundschool.jar server configuration.yml
 fi
