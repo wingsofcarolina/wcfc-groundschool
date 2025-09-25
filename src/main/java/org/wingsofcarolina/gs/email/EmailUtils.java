@@ -1,27 +1,21 @@
 package org.wingsofcarolina.gs.email;
 
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
-import com.amazonaws.services.simpleemail.model.Body;
-import com.amazonaws.services.simpleemail.model.Content;
-import com.amazonaws.services.simpleemail.model.Destination;
-import com.amazonaws.services.simpleemail.model.Message;
-import com.amazonaws.services.simpleemail.model.SendEmailRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
 import java.util.List;
+import javax.mail.MessagingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wingsofcarolina.gs.GsConfiguration;
 import org.wingsofcarolina.gs.domain.VerificationCode;
 
 public class EmailUtils {
 
-  // This address must be verified with Amazon SES.
+  // This address must be configured in Gmail API settings
   static final String FROM = "webmaster@wingsofcarolina.org";
 
   // This is the server to which we need to direct the verification
@@ -35,6 +29,7 @@ public class EmailUtils {
   static final String SUBJECT_CONTACT = "WCFC Ground School Contact Request";
 
   private ObjectMapper mapper;
+  private static GmailService gmailService;
 
   // The HTML body for the email.
   static final String HTMLBODY =
@@ -74,10 +69,35 @@ public class EmailUtils {
   public static void initialize(String gs_root, String server) {
     EmailUtils.gs_root = gs_root;
     EmailUtils.SERVER = server;
+
+    // Initialize Gmail service
+    try {
+      GsConfiguration config = GsConfiguration.instance();
+      String serviceAccountKey = System.getenv("GMAIL_SERVICE_ACCOUNT_KEY");
+      String impersonateUser = config.getGmailImpersonateUser();
+
+      if (
+        serviceAccountKey != null &&
+        !serviceAccountKey.trim().isEmpty() &&
+        impersonateUser != null &&
+        !impersonateUser.trim().isEmpty()
+      ) {
+        gmailService = new GmailService(serviceAccountKey, impersonateUser);
+        LOG.info("Gmail service initialized successfully");
+      } else {
+        LOG.warn(
+          "Gmail service not initialized - missing configuration. " +
+          "Set GMAIL_SERVICE_ACCOUNT_KEY and GMAIL_IMPERSONATE_USER environment variables."
+        );
+      }
+    } catch (IOException | GeneralSecurityException e) {
+      LOG.error("Failed to initialize Gmail service: {}", e.getMessage(), e);
+      gmailService = null;
+    }
   }
 
   public void emailTo(String email, String uuid) {
-    if (SERVER != null) {
+    if (SERVER != null && gmailService != null) {
       Integer code = VerificationCode.makeEntry(uuid).getCode();
 
       String htmlBody = HTMLBODY
@@ -92,28 +112,22 @@ public class EmailUtils {
         .replace("CODE", code.toString());
 
       try {
-        AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder
-          .standard()
-          // Replace US_WEST_2 with the AWS Region you're using for
-          // Amazon SES.
-          .withRegion(Regions.US_EAST_1)
-          .build();
-        SendEmailRequest request = new SendEmailRequest()
-          .withDestination(new Destination().withToAddresses(email))
-          .withMessage(
-            new Message()
-              .withBody(
-                new Body()
-                  .withHtml(new Content().withCharset("UTF-8").withData(htmlBody))
-                  .withText(new Content().withCharset("UTF-8").withData(textBody))
-              )
-              .withSubject(new Content().withCharset("UTF-8").withData(SUBJECT))
-          )
-          .withSource(FROM);
-        client.sendEmail(request);
+        gmailService.sendEmail(email, SUBJECT, textBody, htmlBody);
         LOG.info("Email sent to {} with id {} and code {}", email, uuid, code);
-      } catch (Exception ex) {
-        LOG.info("The email was not sent. Error message: {}", ex.getMessage());
+      } catch (MessagingException | IOException ex) {
+        LOG.error(
+          "The email was not sent to {}. Error message: {}",
+          email,
+          ex.getMessage(),
+          ex
+        );
+      }
+    } else {
+      if (SERVER == null) {
+        LOG.warn("Email not sent - SERVER not configured");
+      }
+      if (gmailService == null) {
+        LOG.warn("Email not sent - Gmail service not initialized");
       }
     }
   }
@@ -174,7 +188,7 @@ public class EmailUtils {
     "-- WCFC Groundschool Server Administration\n";
 
   public void emailInstructors(String name, String phone, String email, String message) {
-    if (SERVER != null) {
+    if (SERVER != null && gmailService != null) {
       List<String> instructors = null;
 
       mapper = new ObjectMapper();
@@ -186,8 +200,8 @@ public class EmailUtils {
 
         instructors = mapper.readValue(json, new TypeReference<List<String>>() {});
       } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        LOG.error("Failed to read instructors.json", e);
+        return;
       }
 
       String htmlBody = HTMLBODY_CONTACT
@@ -205,34 +219,28 @@ public class EmailUtils {
 
       for (String instructor : instructors) {
         try {
-          AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder
-            .standard()
-            // Replace US_WEST_2 with the AWS Region you're using for
-            // Amazon SES.
-            .withRegion(Regions.US_EAST_1)
-            .build();
-          SendEmailRequest request = new SendEmailRequest()
-            .withDestination(new Destination().withToAddresses(instructor))
-            .withMessage(
-              new Message()
-                .withBody(
-                  new Body()
-                    .withHtml(new Content().withCharset("UTF-8").withData(htmlBody))
-                    .withText(new Content().withCharset("UTF-8").withData(textBody))
-                )
-                .withSubject(new Content().withCharset("UTF-8").withData(SUBJECT_CONTACT))
-            )
-            .withSource(FROM);
-          client.sendEmail(request);
+          gmailService.sendEmail(instructor, SUBJECT_CONTACT, textBody, htmlBody);
           LOG.info(
             "Email sent to {} for student {} at address {}",
             instructor,
             name,
             email
           );
-        } catch (Exception ex) {
-          LOG.info("The email was not sent. Error message: {}", ex.getMessage());
+        } catch (MessagingException | IOException ex) {
+          LOG.error(
+            "The email was not sent to {}. Error message: {}",
+            instructor,
+            ex.getMessage(),
+            ex
+          );
         }
+      }
+    } else {
+      if (SERVER == null) {
+        LOG.warn("Email not sent - SERVER not configured");
+      }
+      if (gmailService == null) {
+        LOG.warn("Email not sent - Gmail service not initialized");
       }
     }
   }

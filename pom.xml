@@ -138,19 +138,42 @@
       <version>3.2.3</version>
     </dependency>
     <!--
-		     Amazon AWS support libraries included below, mostly for SES access
-		     https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-core
+		     Gmail API support libraries for email sending
 		-->
+    <!-- Gmail API -->
     <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk-core</artifactId>
-      <version>1.12.791</version>
+      <groupId>com.google.apis</groupId>
+      <artifactId>google-api-services-gmail</artifactId>
+      <version>v1-rev20240520-2.0.0</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-ses -->
+    <!-- Google Auth Library -->
     <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk-ses</artifactId>
-      <version>1.12.791</version>
+      <groupId>com.google.auth</groupId>
+      <artifactId>google-auth-library-oauth2-http</artifactId>
+      <version>1.29.0</version>
+    </dependency>
+    <!-- Google HTTP Client -->
+    <dependency>
+      <groupId>com.google.http-client</groupId>
+      <artifactId>google-http-client-gson</artifactId>
+      <version>1.45.1</version>
+    </dependency>
+    <!-- JavaMail API for email creation -->
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>javax.mail-api</artifactId>
+      <version>1.6.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.mail</groupId>
+      <artifactId>javax.mail</artifactId>
+      <version>1.6.2</version>
+    </dependency>
+    <!-- Apache Commons Codec for Base64 encoding -->
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.17.1</version>
     </dependency>
   </dependencies>
   <build>

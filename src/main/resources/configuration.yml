@@ -22,6 +22,10 @@ mockUser: ${MOCKUSER:-NONE}
 slackNotify: ${SLACK:-REDACTED/REDACTED}     # Targets #notification
 slackContact: ${SLACK:-REDACTED/REDACTED}    # Targets #contact
 
+# Gmail API configuration
+# Note: gmailServiceAccountKey is read directly from GMAIL_SERVICE_ACCOUNT_KEY environment variable
+gmailImpersonateUser: ${GMAIL_IMPERSONATE_USER:-no-reply@wingsofcarolina.org}
+
 # Sundial job management system has been replaced with opportunistic maintenance
   
 # Configure ports used by DropWizard

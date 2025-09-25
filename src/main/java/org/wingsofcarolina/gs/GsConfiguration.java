@@ -34,6 +34,9 @@ public class GsConfiguration extends Configuration {
   @JsonProperty
   String slackContact;
 
+  @JsonProperty
+  String gmailImpersonateUser;
+
   public GsConfiguration() {
     GsConfiguration.instance = this;
   }
@@ -80,6 +83,10 @@ public class GsConfiguration extends Configuration {
 
   public String getMode() {
     return mode;
+  }
+
+  public String getGmailImpersonateUser() {
+    return gmailImpersonateUser;
   }
 
   public String getGs() {
