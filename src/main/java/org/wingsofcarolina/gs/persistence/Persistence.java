@@ -27,7 +27,8 @@ public class Persistence {
   public Persistence initialize(String mongodb) {
     if (instance == null) {
       LOG.info("Connecting to MongoDB with '{}'", mongodb);
-      datastore = Morphia.createDatastore(MongoClients.create(mongodb), "groundschool");
+      datastore =
+        Morphia.createDatastore(MongoClients.create(mongodb), "wcfc-groundschool");
 
       // Map individual entity classes instead of using deprecated mapPackage
       // The map() method is deprecated, but entity mapping is now handled automatically
