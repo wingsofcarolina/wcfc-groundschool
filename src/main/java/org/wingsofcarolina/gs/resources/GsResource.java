@@ -853,23 +853,6 @@ public class GsResource {
     }
   }
 
-  //	@GET
-  //	@Path("mock")
-  //	@Produces(MediaType.APPLICATION_JSON)
-  //	@Consumes(MediaType.APPLICATION_JSON)
-  //	public Response mock() throws URISyntaxException {
-  //
-  //		User user = mockUser();
-  //
-  //		// User authenticated and identified. Save the info.
-  //		NewCookie cookie = authUtils.generateCookie(user);
-  //        return Response.seeOther(new URI("/")).header("Set-Cookie", AuthUtils.sameSite(cookie)).build();
-  //	}
-
-  //	private User mockUser() {
-  //		return new User("Dwight Frye", "dfrye@planez.co", "REDACTED", "REDACTED", "REDACTED");
-  //	}
-
   private static URL url(String url) {
     try {
       return new URL(url);
