@@ -7,8 +7,5 @@ ENV TZ=America/New_York
 COPY . /opt/app/
 RUN chmod +x /opt/app/entrypoint.sh
 
-RUN mkdir /root/.aws
-COPY ./credentials-wcfc /root/.aws/credentials
-
 WORKDIR /opt/app
 ENTRYPOINT ["/opt/app/entrypoint.sh"]
