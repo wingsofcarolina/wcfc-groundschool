@@ -108,9 +108,6 @@ public class GsService extends Application<GsConfiguration> {
     // Set up Slack communications
     new Slack(config);
 
-    // Let those who care know we started
-    Slack.instance().sendString(Slack.Channel.NOTIFY, "Groundschool server started.");
-
     // Get the startup date/time in GMT
     SimpleDateFormat dateFormatGmt = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
     dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT"));
