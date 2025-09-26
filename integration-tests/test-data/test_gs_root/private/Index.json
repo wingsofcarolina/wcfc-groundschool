@@ -1,0 +1,30 @@
+{
+  "path": "private",
+  "label": "Private Pilot",
+  "lesson": 0,
+  "required": true,
+  "directory": true,
+  "children": [
+    {
+      "path": "private/lesson1.pdf",
+      "label": "Lesson 1: Introduction to Flight",
+      "lesson": 1,
+      "required": true,
+      "directory": false
+    },
+    {
+      "path": "private/lesson2.pdf", 
+      "label": "Lesson 2: Aircraft Systems",
+      "lesson": 2,
+      "required": true,
+      "directory": false
+    },
+    {
+      "path": "private/lesson3.pdf",
+      "label": "Lesson 3: Weather Fundamentals", 
+      "lesson": 3,
+      "required": true,
+      "directory": false
+    }
+  ]
+}
