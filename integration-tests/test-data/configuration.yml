@@ -1,0 +1,69 @@
+######
+
+gsroot: /app/gs_root
+
+# Location of the MongoDB server
+# If on a Docker network, just give the name of the MongoDB
+# container. Otherwise give the IP:PORT for the MongoDB process.
+mongodb: mongodb://localhost:27017
+
+# Operational mode, DEV or PROD
+mode: ${MODE:-PROD}
+
+# Authentication, ON or OFF
+auth: ${AUTH:-ON}
+mockAdmin: ${MOCKADMIN:-OFF}
+mockUser: ${MOCKUSER:-NONE}
+
+# Slack channels
+slackNotify: ${SLACK_TOKEN_NOTIFICATIONS:-T/B/slackapi}
+
+# Gmail API configuration
+# Note: gmailServiceAccountKey is read directly from GMAIL_SERVICE_ACCOUNT_KEY environment variable
+gmailImpersonateUser: ${GMAIL_IMPERSONATE_USER:-no-reply@wingsofcarolina.org}
+
+# API base URLs (configurable for integration testing with WireMock)
+gmailApiBaseUrl: http://localhost:8080
+slackApiBaseUrl: http://localhost:8080
+
+# Configure ports used by DropWizard
+server:
+    type: simple
+    connector:
+        type: http
+        port: ${SERVER_PORT:-9305}
+    applicationContextPath: /
+    adminContextPath: /admin
+    requestLog:
+        appenders:
+          - type: file
+            currentLogFilename: ${LOG_DIR:-/log}/groundschool-http.log
+            threshold: ALL
+            archive: true
+            archivedLogFilenamePattern: ${LOG_DIR:-/log}/groundschool-%i-%d-http.log
+            maxFileSize: 500MB
+            archivedFileCount: 5
+            timeZone: UTC
+
+# SLF4j Logging settings.
+logging:
+  # The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
+  level: ${DEFAULT_LOGLEVEL:-INFO}
+
+  # Logger-specific levels.
+  loggers:
+    "org.wingsofcarolina.gs": ${LOGLEVEL:-INFO}
+    
+  appenders:
+      - type: console
+        threshold: ALL
+        timeZone: UTC
+        target: stdout
+      - type: file
+        currentLogFilename: ${LOG_DIR:-/log}/groundschool.log
+        threshold: ALL
+        archive: true
+        archivedLogFilenamePattern: ${LOG_DIR:-/log}/groundschool-%i-%d.log
+        maxFileSize: 500MB
+        archivedFileCount: 5
+        timeZone: UTC

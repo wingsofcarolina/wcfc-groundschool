@@ -41,6 +41,10 @@ push: check-version-not-dirty docker/.build
 deploy: check-version-not-dirty push
 	@gcloud run deploy $(APP_NAME) --image $(CONTAINER_TAG) --region $(GOOGLE_CLOUD_REGION)
 
+.PHONY: integration-tests
+integration-tests: $(APP_JAR)
+	@integration-tests/run-integration-tests.sh
+
 .PHONY: format
 format: client/node_modules
 	@echo Formatting pom.xml files...
@@ -55,6 +59,14 @@ check-format: client/node_modules
 	@find . -name pom.xml -print0 | xargs -0 -I{} bash -c 'xmllint --format {} | diff -q - {} > /dev/null' || (echo Problem in XML formatting; exit 1)
 	@mvn prettier:check -q || (echo Problem in Java formatting; exit 1)
 	@cd client && npx prettier --check . --log-level silent || (echo Problem in UI formatting; exit 1)
+
+.PHONY: version
+version:
+	@echo $(APP_VERSION)
+
+.PHONY: app-jar
+app-jar:
+	@echo $(APP_JAR)
 
 .PHONY: clean
 clean:
