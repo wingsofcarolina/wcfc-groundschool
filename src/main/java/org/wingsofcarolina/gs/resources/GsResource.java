@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -873,25 +874,30 @@ public class GsResource {
       version.put("build", "DEV");
       return version;
     } else {
-      Enumeration<URL> resEnum;
       try {
-        resEnum = GsResource.class.getClassLoader().getResources(JarFile.MANIFEST_NAME);
-        while (resEnum.hasMoreElements()) {
-          URL url = resEnum.nextElement();
-          InputStream is = url.openStream();
-          if (is != null) {
-            Manifest manifest = new Manifest(is);
-            Attributes mainAttribs = manifest.getMainAttributes();
-            version.put("version", mainAttribs.getValue("Git-Build-Version"));
-            version.put("build", mainAttribs.getValue("Git-Commit-Id"));
-            if (version != null) {
-              return version;
-            }
-          }
+        InputStream gitPropsStream =
+          GsResource.class.getClassLoader().getResourceAsStream("git.properties");
+        if (gitPropsStream != null) {
+          Properties gitProps = new Properties();
+          gitProps.load(gitPropsStream);
+
+          version.put("git.build.version", gitProps.getProperty("git.build.version"));
+          version.put("git.commit.id", gitProps.getProperty("git.commit.id"));
+          version.put("git.branch", gitProps.getProperty("git.branch"));
+          version.put("git.build.time", gitProps.getProperty("git.build.time"));
+          version.put(
+            "git.commit.user.name",
+            gitProps.getProperty("git.commit.user.name")
+          );
+          version.put(
+            "git.commit.id.describe",
+            gitProps.getProperty("git.commit.id.describe")
+          );
+
+          return version;
         }
       } catch (IOException e1) {
-        // Silently ignore wrong manifests on classpath?
-        LOG.info("IOException during manifest retrieval : {}", e1);
+        LOG.info("IOException during git.properties retrieval : {}", e1);
       }
       return null;
     }
