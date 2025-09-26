@@ -23,36 +23,50 @@ def setup_mongodb_data():
     db = client['wcfc-groundschool']
     
     # Clear existing data
-    db.Members.drop()
+    db.Students.drop()
+    db.Admins.drop()
     db.VerificationCode.drop()
+    db.counters.drop()
     
-    # Create test member data
-    test_members = [
+    # Create test student data (for the private section)
+    test_students = [
         {
-            "id": 1001,
-            "memberId": 1001,
+            "studentId": 1001,
             "name": "Test User",
             "email": "test@example.com",
-            "level": 3,
-            "admin": False,
+            "section": "private",
             "uuid": str(uuid.uuid4())
         },
         {
-            "id": 1002,
-            "memberId": 1002,
+            "studentId": 1002,
             "name": "John Pilot",
             "email": "john.pilot@example.com",
-            "level": 2,
-            "admin": False,
+            "section": "commercial",
             "uuid": str(uuid.uuid4())
         }
     ]
     
-    db.Members.insert_many(test_members)
-    print(f"Inserted {len(test_members)} test member records")
+    db.Students.insert_many(test_students)
+    print(f"Inserted {len(test_students)} test student records")
+    
+    # Create test admin data
+    test_admins = [
+        {
+            "adminId": 2001,
+            "name": "Admin User",
+            "email": "admin@example.com",
+            "uuid": str(uuid.uuid4())
+        }
+    ]
+    
+    db.Admins.insert_many(test_admins)
+    print(f"Inserted {len(test_admins)} test admin records")
     
     # Create sequence counters
-    db.counters.insert_one({"_id": "members", "seq": 1002})
+    db.counters.insert_many([
+        {"_id": "students", "seq": 1002},
+        {"_id": "admins", "seq": 2001}
+    ])
     
     print("MongoDB test data setup completed successfully!")
     

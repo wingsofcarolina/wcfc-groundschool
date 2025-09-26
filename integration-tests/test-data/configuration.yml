@@ -1,6 +1,6 @@
 ######
 
-gsroot: /app/gs_root
+gsroot: /app/test-data/gs_root
 
 # Location of the MongoDB server
 # If on a Docker network, just give the name of the MongoDB

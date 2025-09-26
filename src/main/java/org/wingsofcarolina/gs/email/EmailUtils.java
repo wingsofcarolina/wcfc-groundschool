@@ -104,7 +104,9 @@ public class EmailUtils {
         impersonateUser != null &&
         !impersonateUser.trim().isEmpty()
       ) {
-        gmailService = new GmailService(serviceAccountKey, impersonateUser);
+        String gmailApiBaseUrl = config.getGmailApiBaseUrl();
+        gmailService =
+          new GmailService(serviceAccountKey, impersonateUser, gmailApiBaseUrl);
         LOG.info("Gmail service initialized successfully");
       } else {
         LOG.warn(

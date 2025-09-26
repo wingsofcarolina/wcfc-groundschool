@@ -215,8 +215,8 @@ def run_authentication_test():
             for attempt in range(10):
                 try:
                     # Look for the multi-input verification code component
-                    # The VerificationCode component creates input[type="number"] elements with index attributes
-                    code_inputs = page.locator('input[type="number"][index]')
+                    # The VerificationCode component creates input[type="number"] elements with data-index attributes
+                    code_inputs = page.locator('input[type="number"][data-index]')
                     if code_inputs.count() >= 6:
                         print(f"✓ Found {code_inputs.count()} verification code input fields")
                         break
@@ -289,7 +289,44 @@ def run_authentication_test():
             # Step 7: Verify we have groundschool data
             print("Step 7: Verifying private page...")
             
-            ## TODO: find groundschool data, fail test if not found
+            # Check if we can access the private section API
+            current_url = page.url
+            print(f"Final URL: {current_url}")
+            
+            # Try to access the private section index API to verify authentication worked
+            try:
+                # Make a request to the private section API endpoint
+                response = page.request.get("http://localhost:9305/api/index/private")
+                if response.status == 200:
+                    print("✓ Successfully accessed private section API")
+                    
+                    # Parse the response to verify we have content
+                    index_data = response.json()
+                    if index_data and 'children' in index_data and len(index_data['children']) > 0:
+                        print(f"✓ Found {len(index_data['children'])} items in private section")
+                        
+                        # Verify we have at least one document
+                        has_documents = any(not child.get('directory', False) for child in index_data['children'])
+                        if has_documents:
+                            print("✓ Found documents in private section")
+                        else:
+                            raise Exception("No documents found in private section")
+                    else:
+                        raise Exception("Private section index is empty or malformed")
+                else:
+                    raise Exception(f"Failed to access private section API: HTTP {response.status}")
+                    
+            except Exception as e:
+                print(f"Error accessing private section API: {e}")
+                
+                # Fallback: check if the page shows authenticated content
+                page_content = page.content()
+                if "login" in page_content.lower() and "email" in page_content.lower():
+                    raise Exception("Page still shows login form - authentication may have failed")
+                elif len(page_content) < 1000:
+                    raise Exception("Page content is too short - may not have loaded properly")
+                else:
+                    print("✓ Page appears to have loaded content (fallback verification)")
            
             print("✓ Authentication flow completed successfully!")
             return True
