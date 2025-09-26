@@ -19,10 +19,12 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -96,6 +98,37 @@ public class GsResource {
   private static String gs_root;
 
   private ObjectMapper mapper;
+
+  @Context
+  private UriInfo uriInfo;
+
+  /**
+   * Extracts the base URL from the current request context
+   */
+  private String getBaseUrl() {
+    if (uriInfo != null) {
+      URI baseUri = uriInfo.getBaseUri();
+      String scheme = baseUri.getScheme();
+      String host = baseUri.getHost();
+      int port = baseUri.getPort();
+
+      StringBuilder baseUrl = new StringBuilder();
+      baseUrl.append(scheme).append("://").append(host);
+
+      // Only include port if it's not the default port for the scheme
+      if (
+        (port != -1) &&
+        !(
+          (scheme.equals("http") && port == 80) || (scheme.equals("https") && port == 443)
+        )
+      ) {
+        baseUrl.append(":").append(port);
+      }
+
+      return baseUrl.toString();
+    }
+    return null;
+  }
 
   @SuppressWarnings("static-access")
   public GsResource(GsConfiguration config)
@@ -383,7 +416,8 @@ public class GsResource {
     ZonedDateTime now = LocalDateTime.now().atZone(zoneId);
 
     // Send email to instructors
-    new EmailUtils().emailInstructors(name, phone, email, message);
+    String baseUrl = getBaseUrl();
+    new EmailUtils().emailInstructors(name, phone, email, message, baseUrl);
 
     // Create a simple text message for Slack
     StringBuilder slackMessage = new StringBuilder();
@@ -475,14 +509,15 @@ public class GsResource {
   @Path("email/{email}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response email(@PathParam("email") String email) {
+    String baseUrl = getBaseUrl();
     Admin admin = Admin.getByEmail(email.toLowerCase());
     if (admin != null) {
-      new EmailUtils().emailTo(email, admin.getUUID());
+      new EmailUtils().emailTo(email, admin.getUUID(), baseUrl);
       return Response.ok().build();
     } else {
       Student student = Student.getByEmail(email.toLowerCase());
       if (student != null) {
-        new EmailUtils().emailTo(email, student.getUUID());
+        new EmailUtils().emailTo(email, student.getUUID(), baseUrl);
         return Response.ok().build();
       }
     }

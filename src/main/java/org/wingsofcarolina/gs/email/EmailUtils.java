@@ -66,6 +66,28 @@ public class EmailUtils {
 
   private static final Logger LOG = LoggerFactory.getLogger(EmailUtils.class);
 
+  /**
+   * Determines the server URL to use for email links.
+   * Priority: 1) provided baseUrl, 2) configured SERVER, 3) fallback based on mode
+   */
+  private String determineServerUrl(String baseUrl) {
+    if (baseUrl != null && !baseUrl.trim().isEmpty()) {
+      return baseUrl.trim();
+    }
+
+    if (SERVER != null && !SERVER.trim().isEmpty()) {
+      return SERVER.trim();
+    }
+
+    // Fallback to configuration-based URL determination
+    GsConfiguration config = GsConfiguration.instance();
+    if (config != null) {
+      return config.getGs();
+    }
+
+    return null;
+  }
+
   public static void initialize(String gs_root, String server) {
     EmailUtils.gs_root = gs_root;
     EmailUtils.SERVER = server;
@@ -97,16 +119,22 @@ public class EmailUtils {
   }
 
   public void emailTo(String email, String uuid) {
-    if (SERVER != null && gmailService != null) {
+    emailTo(email, uuid, null);
+  }
+
+  public void emailTo(String email, String uuid, String baseUrl) {
+    String serverUrl = determineServerUrl(baseUrl);
+
+    if (serverUrl != null && gmailService != null) {
       Integer code = VerificationCode.makeEntry(uuid).getCode();
 
       String htmlBody = HTMLBODY
-        .replace("SERVER", SERVER)
+        .replace("SERVER", serverUrl)
         .replace("UUID", uuid)
         .replace("EMAIL", email)
         .replace("CODE", code.toString());
       String textBody = TEXTBODY
-        .replace("SERVER", SERVER)
+        .replace("SERVER", serverUrl)
         .replace("UUID", uuid)
         .replace("EMAIL", email)
         .replace("CODE", code.toString());
@@ -123,8 +151,8 @@ public class EmailUtils {
         );
       }
     } else {
-      if (SERVER == null) {
-        LOG.warn("Email not sent - SERVER not configured");
+      if (serverUrl == null) {
+        LOG.warn("Email not sent - SERVER not configured and no base URL provided");
       }
       if (gmailService == null) {
         LOG.warn("Email not sent - Gmail service not initialized");
@@ -188,7 +216,19 @@ public class EmailUtils {
     "-- WCFC Groundschool Server Administration\n";
 
   public void emailInstructors(String name, String phone, String email, String message) {
-    if (SERVER != null && gmailService != null) {
+    emailInstructors(name, phone, email, message, null);
+  }
+
+  public void emailInstructors(
+    String name,
+    String phone,
+    String email,
+    String message,
+    String baseUrl
+  ) {
+    String serverUrl = determineServerUrl(baseUrl);
+
+    if (serverUrl != null && gmailService != null) {
       List<String> instructors = null;
 
       mapper = new ObjectMapper();
@@ -205,13 +245,13 @@ public class EmailUtils {
       }
 
       String htmlBody = HTMLBODY_CONTACT
-        .replace("SERVER", SERVER)
+        .replace("SERVER", serverUrl)
         .replace("NAME", name)
         .replace("EMAIL", email)
         .replace("PHONE", phone)
         .replace("MSG", message);
       String textBody = TEXTBODY_CONTACT
-        .replace("SERVER", SERVER)
+        .replace("SERVER", serverUrl)
         .replace("NAME", name)
         .replace("EMAIL", email)
         .replace("PHONE", phone)
@@ -236,8 +276,8 @@ public class EmailUtils {
         }
       }
     } else {
-      if (SERVER == null) {
-        LOG.warn("Email not sent - SERVER not configured");
+      if (serverUrl == null) {
+        LOG.warn("Email not sent - SERVER not configured and no base URL provided");
       }
       if (gmailService == null) {
         LOG.warn("Email not sent - Gmail service not initialized");

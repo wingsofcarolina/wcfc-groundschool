@@ -2,6 +2,9 @@
 
 gsroot: ${GSROOT:-/gs_root}
 
+# Server URL for email links (optional - will be auto-detected from request if not provided)
+gsServer: ${GS_SERVER:-}
+
 # Location of the MongoDB server
 # If on a Docker network, just give the name of the MongoDB
 # container. Otherwise give the IP:PORT for the MongoDB process.
