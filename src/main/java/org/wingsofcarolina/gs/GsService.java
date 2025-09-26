@@ -48,7 +48,51 @@ public class GsService extends Application<GsConfiguration> {
     );
 
     // bootstrap.addBundle(new AssetsBundle("/doc", "/doc", "index.html","html"));
-    bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
+
+    // Main assets bundle for root and static files
+    bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html", "assets"));
+
+    // SPA fallback routes - each with unique servlet name
+    bootstrap.addBundle(new AssetsBundle("/assets/", "/about", "index.html", "about"));
+    bootstrap.addBundle(new AssetsBundle("/assets/", "/login", "index.html", "login"));
+    bootstrap.addBundle(
+      new AssetsBundle("/assets/", "/contact", "index.html", "contact")
+    );
+    bootstrap.addBundle(
+      new AssetsBundle("/assets/", "/failure", "index.html", "failure")
+    );
+    bootstrap.addBundle(
+      new AssetsBundle("/assets/", "/private", "index.html", "private")
+    );
+    bootstrap.addBundle(
+      new AssetsBundle("/assets/", "/students", "index.html", "students")
+    );
+    bootstrap.addBundle(
+      new AssetsBundle("/assets/", "/commercial", "index.html", "commercial")
+    );
+    bootstrap.addBundle(
+      new AssetsBundle("/assets/", "/instrument", "index.html", "instrument")
+    );
+    bootstrap.addBundle(
+      new AssetsBundle("/assets/", "/private_reading", "index.html", "private_reading")
+    );
+    bootstrap.addBundle(
+      new AssetsBundle(
+        "/assets/",
+        "/commercial_reading",
+        "index.html",
+        "commercial_reading"
+      )
+    );
+    bootstrap.addBundle(
+      new AssetsBundle(
+        "/assets/",
+        "/instrument_reading",
+        "index.html",
+        "instrument_reading"
+      )
+    );
+
     bootstrap.addBundle(new MultiPartBundle());
   }
 
