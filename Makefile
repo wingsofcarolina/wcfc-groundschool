@@ -4,6 +4,7 @@ APP_NAME := wcfc-groundschool
 APP_VERSION := $(shell mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 APP_JAR := target/$(APP_NAME)-$(APP_VERSION).jar
 JAVA_FILES := $(shell find src/main/java/org/wingsofcarolina -name '*.java')
+CLIENT_FILES := $(shell find client/src -type f)
 GOOGLE_CLOUD_REGION := us-central1
 CONTAINER_TAG := $(GOOGLE_CLOUD_REGION)-docker.pkg.dev/wcfc-apps/wcfc-apps/$(APP_NAME):$(APP_VERSION)
 
@@ -17,7 +18,7 @@ else
 endif
 endif
 
-$(APP_JAR): pom.xml client/node_modules $(JAVA_FILES) $(shell find src/main/resources -type f)
+$(APP_JAR): pom.xml client/node_modules $(JAVA_FILES) $(CLIENT_FILES) $(shell find src/main/resources -type f)
 	@mvn --batch-mode
 
 client/node_modules: client/package.json client/package-lock.json
@@ -42,6 +43,18 @@ push: check-version-not-dirty docker/.build
 .PHONY: deploy
 deploy: check-version-not-dirty push
 	@gcloud run deploy $(APP_NAME) --image $(CONTAINER_TAG) --region $(GOOGLE_CLOUD_REGION)
+
+.PHONY: launch
+launch: docker/.build
+	@echo Launching app...
+	@./scripts/launch $(CONTAINER_TAG)
+	@echo App should be running at http://localhost:9305
+
+.PHONY: shutdown
+shutdown:
+	@echo Shutting down app...
+	@$(CONTAINER_CMD) rm -f $(APP_NAME)
+
 
 .PHONY: integration-tests
 integration-tests: $(APP_JAR)
