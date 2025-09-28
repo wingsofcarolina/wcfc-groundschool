@@ -397,44 +397,6 @@ public class GsResource {
     return Response.ok().build();
   }
 
-  @POST
-  @Path("contact")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response contact(Map<String, String> request) {
-    Slack.instance().sendMessage(Slack.Channel.CONTACT, contactMessage(request));
-    return Response.ok().build();
-  }
-
-  private String contactMessage(Map<String, String> request) {
-    String name = request.getOrDefault("name", "NONE");
-    String phone = request.getOrDefault("phone", "NONE");
-    String email = request.getOrDefault("email", "NONE");
-    String message = request.getOrDefault("message", "NONE");
-
-    ZoneId zoneId = ZoneId.of("US/Eastern");
-    LOG.info("Zone : {}", zoneId);
-    ZonedDateTime now = LocalDateTime.now().atZone(zoneId);
-
-    // Send email to instructors
-    String baseUrl = getBaseUrl();
-    new EmailUtils().emailInstructors(name, phone, email, message, baseUrl);
-
-    // Create a simple text message for Slack
-    StringBuilder slackMessage = new StringBuilder();
-    slackMessage
-      .append("*Groundschool contact sent at : ")
-      .append(dateFormatGmt.format(now))
-      .append("*\n");
-    slackMessage.append("**Name:** ").append(name).append("\n");
-    slackMessage.append("**Email:** ").append(email).append("\n");
-    if (!phone.equals("NONE")) {
-      slackMessage.append("**Phone:** ").append(phone).append("\n");
-    }
-    slackMessage.append("**Message:** ").append(message);
-
-    return slackMessage.toString();
-  }
-
   @GET
   @Path("auth")
   @Produces(MediaType.TEXT_HTML)
