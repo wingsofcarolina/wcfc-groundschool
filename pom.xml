@@ -62,7 +62,7 @@
     <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongodb-driver-sync</artifactId>
-      <version>5.6.1</version>
+      <version>5.6.2</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api -->
     <!-- https://github.com/jwtk/jjwt -->
@@ -172,7 +172,7 @@
     <dependency>
       <groupId>org.eclipse.jetty.ee10</groupId>
       <artifactId>jetty-ee10-servlets</artifactId>
-      <version>12.1.4</version>
+      <version>12.1.5</version>
     </dependency>
   </dependencies>
   <build>
