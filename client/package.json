@@ -16,7 +16,7 @@
   "dependencies": {
     "compression": "^1.7.4",
     "cookie": "^1.0.2",
-    "js-cookie": "^3.0.7",
+    "js-cookie": "^3.0.8",
     "js-cookies": "^1.0.4",
     "jsuites": "^6.3.4",
     "pagedown": "^1.1.0",
