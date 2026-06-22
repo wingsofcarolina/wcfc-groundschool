@@ -18,7 +18,7 @@
     "cookie": "^1.0.2",
     "js-cookie": "^3.0.8",
     "js-cookies": "^1.0.4",
-    "jsuites": "^6.4.1",
+    "jsuites": "^6.4.2",
     "pagedown": "^1.1.0",
     "polka": "^1.0.0-next.25",
     "query-string": "^9.4.0",
