@@ -606,9 +606,14 @@ public class GsResource {
     }
   }
 
-  @POST
-  @Path("addAdmin")
-  @Produces(MediaType.APPLICATION_JSON)
+  /*
+   * Intentionally not exposed as a JAX-RS endpoint. Administrator accounts are
+   * provisioned offline; exposing this method without an authorization check
+   * would allow anyone with API access to grant administrator privileges.
+   *
+   * The implementation is retained to document how administrator records are
+   * constructed if an authenticated management workflow is added in the future.
+   */
   public Response addAdmin(Map<String, String> request) {
     String name = request.get("name");
     String email = request.get("email");
